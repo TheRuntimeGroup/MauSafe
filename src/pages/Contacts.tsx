@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { Heart, Plus, Trash2, Users } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { addContact, deleteContact, listContacts, type TrustedContact } from "@/lib/contacts";
-import { AppButton } from "@/components/ui/app-button";
-import { appButtonVariants } from "@/components/ui/app-button";
+import { AppButton, appButtonVariants } from "@/components/ui/app-button";
 
 const Contacts = () => {
   const { t } = useI18n();

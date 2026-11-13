@@ -93,7 +93,7 @@ const SafetyAlarm = () => {
   }
 
   function quickExit() {
-    window.location.replace("https://www.google.com/search?q=Mauritius+weather");
+    window.location.replace("https://metservice.intnet.mu/");
   }
 
   return (

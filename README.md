@@ -73,7 +73,7 @@ src/
 - **Device-bound owner identity.** The client generates a high-entropy secret on first use (`localStorage` key `anou.ownerSecret`), sends it as `Authorization: Bearer`, and the server stores only its SHA-256 hash. Journeys are listed and fetched by secret hash.
 - **Guest links.** High-entropy `base64url` tokens, 48-hour TTL, revocable. The guest endpoint returns only agreed fields and is rate-limited in memory.
 - **Server-clock status.** `arrived_at` / `cancelled_at` are stored, and *overdue* is computed server-side (`now > expected_arrival_at`). The client never sends absolute arrival times — only a duration in minutes.
-- **Location stays off** in this release (disabled toggle with an explanatory note).
+- **Voluntary location sharing.** A check-in can optionally share live location; the owner must enable it and grant browser permission first, and can stop sharing at any time.
 - **Scam check runs on-device.** Pasted content is never sent or stored; suspicious links are rendered as plain text and are never clickable.
 
 ## Help directory data
