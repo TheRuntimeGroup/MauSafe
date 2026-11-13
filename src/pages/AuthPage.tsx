@@ -107,11 +107,12 @@ const AuthPage = () => {
       </div>
 
       <header className="relative z-10 flex items-center justify-between gap-3 px-5 pt-[max(1rem,env(safe-area-inset-top))] sm:px-8">
-        <Link to="/" className="flex items-center gap-2.5" aria-label={t("app.name")}>
-          <Logo className="h-9 w-9" />
-          <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
-            {t("app.name")}
-          </span>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 rounded-xl text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t("auth.back")}
         </Link>
         <LanguageSwitcher compact />
       </header>
@@ -314,14 +315,6 @@ const AuthPage = () => {
             <ShieldCheck className="h-4 w-4 shrink-0 text-success" aria-hidden="true" />
             {t("auth.privacyNote")}
           </p>
-
-          <Link
-            to="/"
-            className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            {t("auth.back")}
-          </Link>
         </div>
       </main>
     </div>
