@@ -12,7 +12,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MauSafe <no-reply@anousecuremoris.site>";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RESEND_COOLDOWN_SECONDS = 60;
+const RESEND_COOLDOWN_SECONDS = 30;
 const MAX_EMAIL_CODES_PER_HOUR = 5;
 const MAX_NETWORK_CODES_PER_HOUR = 10;
 

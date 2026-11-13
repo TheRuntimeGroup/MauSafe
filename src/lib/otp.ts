@@ -29,6 +29,10 @@ export function sendOtp(email: string) {
   return invoke<{ ok: true; expiresAt: string }>("send-otp", { email });
 }
 
-export function verifySignup(input: { email: string; code: string; password: string }) {
+export function verifyEmailCode(input: { email: string; code: string }) {
+  return invoke<{ ok: true }>("verify-signup", input);
+}
+
+export function createVerifiedAccount(input: { email: string; password: string }) {
   return invoke<{ ok: true; userId: string | null }>("verify-signup", input);
 }

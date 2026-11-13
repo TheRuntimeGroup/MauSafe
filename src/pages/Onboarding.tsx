@@ -17,7 +17,6 @@ import {
   LogIn,
   Mail,
   PartyPopper,
-  Phone,
   ShieldCheck,
   Sparkles,
   User,
@@ -28,7 +27,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { saveOnboardingProfile, type AccessibilityNeed } from "@/lib/profile";
-import { sendOtp, verifySignup } from "@/lib/otp";
+import { createVerifiedAccount, sendOtp, verifyEmailCode } from "@/lib/otp";
+import { checkPersonName } from "@/lib/nameValidation";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { AccessibilityQuickSettings } from "@/components/AccessibilityQuickSettings";
@@ -36,7 +36,7 @@ import { OtpVerificationPanel } from "@/components/OtpVerificationPanel";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
 
-const RESEND_SECONDS = 60;
+const RESEND_SECONDS = 30;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DRAFT_KEY = "mausafe.onboarding.draft";
@@ -45,7 +45,7 @@ type StepId =
   | "welcome"
   | "name"
   | "email"
-  | "phone"
+  | "verifyEmail"
   | "accessibility"
   | "voice"
   | "password"
@@ -54,7 +54,6 @@ type StepId =
 interface Draft {
   name: string;
   email: string;
-  phone: string;
   needs: AccessibilityNeed[];
   voiceGuide: boolean;
 }
@@ -68,7 +67,6 @@ function loadDraft(): Draft | null {
     return {
       name: typeof parsed.name === "string" ? parsed.name : "",
       email: typeof parsed.email === "string" ? parsed.email : "",
-      phone: typeof parsed.phone === "string" ? parsed.phone : "",
       needs: Array.isArray(parsed.needs) ? parsed.needs : [],
       voiceGuide: Boolean(parsed.voiceGuide),
     };
@@ -104,7 +102,6 @@ const Onboarding = () => {
   const [stepIndex, setStepIndex] = useState(0);
   const [name, setName] = useState(() => draft?.name ?? profile?.full_name ?? "");
   const [email, setEmail] = useState(() => draft?.email ?? user?.email ?? "");
-  const [phone, setPhone] = useState(() => draft?.phone ?? profile?.phone ?? "");
   const [needs, setNeeds] = useState<AccessibilityNeed[]>(
     () => draft?.needs ?? profile?.accessibility_needs ?? [],
   );
@@ -118,9 +115,11 @@ const Onboarding = () => {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [otpExpiresAt, setOtpExpiresAt] = useState<string | null>(null);
+  const [otpSecondsLeft, setOtpSecondsLeft] = useState(0);
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [finish, setFinish] = useState<"none" | "verifyOtp" | "done">("none");
+  const [finish, setFinish] = useState<"none" | "done">("none");
 
   const redirectedRef = useRef(false);
 
@@ -128,8 +127,7 @@ const Onboarding = () => {
     const list: StepId[] = [];
     if (!user) list.push("welcome");
     list.push("name");
-    if (!user) list.push("email");
-    list.push("phone");
+    if (!user) list.push("email", "verifyEmail");
     list.push("accessibility");
     if (needs.includes("visual")) list.push("voice");
     if (!user) list.push("password");
@@ -169,8 +167,23 @@ const Onboarding = () => {
     return () => clearTimeout(id);
   }, [cooldown]);
 
+  useEffect(() => {
+    if (!otpExpiresAt) {
+      setOtpSecondsLeft(0);
+      return;
+    }
+
+    const updateExpiry = () => {
+      setOtpSecondsLeft(Math.max(0, Math.ceil((new Date(otpExpiresAt).getTime() - Date.now()) / 1000)));
+    };
+    updateExpiry();
+    const id = window.setInterval(updateExpiry, 1000);
+    return () => window.clearInterval(id);
+  }, [otpExpiresAt]);
+
   const currentStep: StepId = steps[stepIndex] ?? steps[steps.length - 1];
   const isProfileMode = Boolean(user);
+  const otpTimeRemaining = `${Math.floor(otpSecondsLeft / 60)}:${String(otpSecondsLeft % 60).padStart(2, "0")}`;
 
   function toOtpError(code: string): string {
     switch (code) {
@@ -202,25 +215,47 @@ const Onboarding = () => {
     });
   }
 
-  function phoneDigits(): string {
-    return phone.replace(/\D/g, "");
-  }
-
   function validateStep(step: StepId): string | null {
     if (step === "name" && !name.trim()) return t("onboarding.nameRequired");
     if (step === "email" && !EMAIL_PATTERN.test(email.trim())) return t("auth.emailInvalid");
-    if (step === "phone" && phoneDigits().length < 7) return t("onboarding.phone.invalid");
     if (step === "accessibility" && needs.length === 0) return t("onboarding.accessibilityRequired");
     return null;
   }
 
-  function goNext() {
+  async function goNext() {
     const stepError = validateStep(currentStep);
     if (stepError) {
       setError(stepError);
       return;
     }
     setError(null);
+
+    if (currentStep === "name") {
+      setSubmitting(true);
+      const result = await checkPersonName(name);
+      setSubmitting(false);
+      if (!result.allowed) {
+        setError(t(result.reason === "invalid" ? "onboarding.name.invalid" : "onboarding.name.inappropriate"));
+        return;
+      }
+      setName(result.name);
+    }
+
+    if (currentStep === "email") {
+      setSubmitting(true);
+      try {
+        const result = await sendOtp(email.trim());
+        setOtpExpiresAt(result.expiresAt);
+        setOtpCode("");
+        setCooldown(RESEND_SECONDS);
+      } catch (error) {
+        setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+        setSubmitting(false);
+        return;
+      }
+      setSubmitting(false);
+    }
+
     if (stepIndex < steps.length - 1) setStepIndex((index) => index + 1);
   }
 
@@ -243,7 +278,7 @@ const Onboarding = () => {
 
     const input = {
       fullName: name.trim(),
-      phone: phone.trim(),
+      phone: profile?.phone?.trim() ?? "",
       accessibilityNeeds: needs,
       voiceGuide,
     };
@@ -271,11 +306,23 @@ const Onboarding = () => {
         return;
       }
 
-      saveDraft({ name: name.trim(), email: email.trim(), phone: phone.trim(), needs, voiceGuide });
-      await sendOtp(email.trim());
-      setOtpCode("");
-      setCooldown(RESEND_SECONDS);
-      setFinish("verifyOtp");
+      saveDraft({ name: name.trim(), email: email.trim(), needs, voiceGuide });
+      await createVerifiedAccount({ email: email.trim(), password });
+
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (signInError || !signInData.user) {
+        setError(t("auth.genericError"));
+        return;
+      }
+
+      await saveOnboardingProfile(signInData.user.id, input);
+      clearDraft();
+      await refreshProfile();
+      setFinish("done");
     } catch (error) {
       setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
     } finally {
@@ -284,10 +331,12 @@ const Onboarding = () => {
   }
 
   async function handleResendOtp() {
+    if (cooldown > 0 || sendingOtp) return;
     setError(null);
     setSendingOtp(true);
     try {
-      await sendOtp(email.trim());
+      const result = await sendOtp(email.trim());
+      setOtpExpiresAt(result.expiresAt);
       setOtpCode("");
       setCooldown(RESEND_SECONDS);
     } catch (error) {
@@ -302,32 +351,19 @@ const Onboarding = () => {
       setError(t("otp.wrong"));
       return;
     }
+    if (otpExpiresAt && new Date(otpExpiresAt).getTime() <= Date.now()) {
+      setError(t("otp.expired"));
+      return;
+    }
 
     setError(null);
     setVerifying(true);
 
     try {
-      await verifySignup({ email: email.trim(), code: otpCode, password });
-
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-
-      if (signInError || !signInData.user) {
-        setError(t("auth.genericError"));
-        return;
-      }
-
-      await saveOnboardingProfile(signInData.user.id, {
-        fullName: name.trim(),
-        phone: phone.trim(),
-        accessibilityNeeds: needs,
-        voiceGuide,
-      });
-      clearDraft();
-      await refreshProfile();
-      setFinish("done");
+      await verifyEmailCode({ email: email.trim(), code: otpCode });
+      setOtpExpiresAt(null);
+      setOtpCode("");
+      if (stepIndex < steps.length - 1) setStepIndex((index) => index + 1);
     } catch (error) {
       setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
     } finally {
@@ -461,7 +497,7 @@ const Onboarding = () => {
                         <button
                           type="button"
                           onClick={goBack}
-                          disabled={stepIndex === 0}
+                          disabled={stepIndex === 0 || submitting || sendingOtp || verifying}
                           className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/[0.08] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
                           aria-label={t("onboarding.back")}
                         >
@@ -486,7 +522,7 @@ const Onboarding = () => {
                   )}
 
                   <div key={`${currentStep}-${finish}`} className="motion-safe:animate-fade-in-up">
-                    {finish === "verifyOtp" && (
+                    {finish === "none" && currentStep === "verifyEmail" && (
                       <OtpVerificationPanel
                         eyebrow={t("otp.eyebrow")}
                         title={t("otp.title")}
@@ -499,24 +535,22 @@ const Onboarding = () => {
                         onSubmit={handleVerifyOtp}
                         submitting={verifying}
                         error={error}
+                        expiresLabel={otpSecondsLeft === 0 ? t("otp.expired") : t("otp.expiresIn", { time: otpTimeRemaining })}
+                        expired={otpSecondsLeft === 0}
                         verifyLabel={t("otp.verify")}
                         resendLabel={cooldown > 0 ? t("otp.resendIn", { seconds: cooldown }) : t("otp.resend")}
                         resendDisabled={cooldown > 0 || sendingOtp}
                         onResend={handleResendOtp}
                         changeEmailLabel={t("otp.changeEmail")}
                         onChangeEmail={() => {
-                          setFinish("none");
                           setError(null);
                           setOtpCode("");
+                          setOtpExpiresAt(null);
                           const emailIndex = steps.indexOf("email");
                           if (emailIndex >= 0) setStepIndex(emailIndex);
                         }}
                         backLabel={t("onboarding.back")}
-                        onBack={() => {
-                          setFinish("none");
-                          setError(null);
-                          setOtpCode("");
-                        }}
+                        onBack={goBack}
                       />
                     )}
 
@@ -556,6 +590,10 @@ const Onboarding = () => {
                         icon={<User className="h-5 w-5" aria-hidden="true" />}
                         onContinue={goNext}
                         continueLabel={t("onboarding.continue")}
+                        pending={submitting}
+                        pendingLabel={t("onboarding.name.checking")}
+                        autoComplete="name"
+                        maxLength={60}
                         autoFocus
                       />
                     )}
@@ -577,27 +615,8 @@ const Onboarding = () => {
                         autoComplete="email"
                         onContinue={goNext}
                         continueLabel={t("onboarding.continue")}
-                        autoFocus
-                      />
-                    )}
-
-                    {finish === "none" && currentStep === "phone" && (
-                      <TextStep
-                        eyebrow={t("onboarding.phone.eyebrow")}
-                        title={t("onboarding.phone.title")}
-                        subtitle={t("onboarding.phone.subtitle")}
-                        value={phone}
-                        onChange={(value) => {
-                          setPhone(value);
-                          setError(null);
-                        }}
-                        placeholder={t("onboarding.phone.placeholder")}
-                        icon={<Phone className="h-5 w-5" aria-hidden="true" />}
-                        type="tel"
-                        inputMode="tel"
-                        autoComplete="tel"
-                        onContinue={goNext}
-                        continueLabel={t("onboarding.continue")}
+                        pending={submitting}
+                        pendingLabel={t("onboarding.email.sending")}
                         autoFocus
                       />
                     )}
@@ -629,6 +648,8 @@ const Onboarding = () => {
                         noTitle={t("onboarding.voice.no.title")}
                         noBody={t("onboarding.voice.no.body")}
                         comingSoon={t("onboarding.voice.coming")}
+                        onContinue={goNext}
+                        continueLabel={t("onboarding.continue")}
                       />
                     )}
 
@@ -659,13 +680,11 @@ const Onboarding = () => {
                         subtitle={isProfileMode ? t("onboarding.signInToContinue") : t("onboarding.review.subtitle")}
                         name={name}
                         email={email}
-                        phone={phone}
                         needs={needs}
                         voiceGuide={voiceGuide}
                         labels={{
                           name: t("onboarding.review.name"),
                           email: t("onboarding.review.email"),
-                          phone: t("onboarding.review.phone"),
                           needs: t("onboarding.review.needs"),
                           voice: t("onboarding.review.voice"),
                           voiceOn: t("onboarding.review.voiceOn"),
@@ -682,7 +701,7 @@ const Onboarding = () => {
                     )}
                   </div>
 
-                  {finish === "none" && error && (
+                  {finish === "none" && currentStep !== "verifyEmail" && error && (
                     <div
                       role="alert"
                       className="mt-5 flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger/[0.06] px-4 py-3 text-sm font-medium text-danger"
@@ -758,6 +777,9 @@ function TextStep({
   inputMode,
   autoComplete,
   autoFocus,
+  pending = false,
+  pendingLabel,
+  maxLength,
 }: {
   eyebrow: string;
   title: string;
@@ -772,6 +794,9 @@ function TextStep({
   inputMode?: "text" | "email" | "tel" | "numeric";
   autoComplete?: string;
   autoFocus?: boolean;
+  pending?: boolean;
+  pendingLabel?: string;
+  maxLength?: number;
 }) {
   return (
     <form
@@ -797,14 +822,25 @@ function TextStep({
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
+            disabled={pending}
+            maxLength={maxLength}
             className="h-14 min-w-0 flex-1 bg-transparent text-base font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground/70"
           />
         </div>
       </div>
 
-      <AppButton type="submit" size="xl" className="mt-6">
-        {continueLabel}
-        <ArrowRight className="h-5 w-5" aria-hidden="true" />
+      <AppButton type="submit" size="xl" disabled={pending} className="mt-6">
+        {pending ? (
+          <>
+            <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
+            {pendingLabel ?? continueLabel}
+          </>
+        ) : (
+          <>
+            {continueLabel}
+            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          </>
+        )}
       </AppButton>
     </form>
   );
@@ -923,6 +959,8 @@ function VoiceStep({
   noTitle,
   noBody,
   comingSoon,
+  onContinue,
+  continueLabel,
 }: {
   eyebrow: string;
   title: string;
@@ -934,6 +972,8 @@ function VoiceStep({
   noTitle: string;
   noBody: string;
   comingSoon: string;
+  onContinue: () => void;
+  continueLabel: string;
 }) {
   const choices: { value: boolean; icon: LucideIcon; title: string; body: string }[] = [
     { value: true, icon: Volume2, title: yesTitle, body: yesBody },
@@ -996,6 +1036,11 @@ function VoiceStep({
         <Sparkles className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
         <span>{comingSoon}</span>
       </div>
+
+      <AppButton size="xl" onClick={onContinue} className="mt-6">
+        {continueLabel}
+        <ArrowRight className="h-5 w-5" aria-hidden="true" />
+      </AppButton>
     </div>
   );
 }
@@ -1094,7 +1139,6 @@ function ReviewStep({
   subtitle,
   name,
   email,
-  phone,
   needs,
   voiceGuide,
   labels,
@@ -1110,13 +1154,11 @@ function ReviewStep({
   subtitle: string;
   name: string;
   email: string;
-  phone: string;
   needs: AccessibilityNeed[];
   voiceGuide: boolean;
   labels: {
     name: string;
     email: string;
-    phone: string;
     needs: string;
     voice: string;
     voiceOn: string;
@@ -1146,7 +1188,6 @@ function ReviewStep({
       <dl className="mt-6 divide-y divide-foreground/[0.07] overflow-hidden rounded-2xl border border-input bg-white">
         <ReviewRow label={labels.name} value={name} onEdit={onEdit} editLabel={labels.edit} />
         {email && <ReviewRow label={labels.email} value={email} />}
-        <ReviewRow label={labels.phone} value={phone} />
         <div className="flex items-start justify-between gap-4 px-4 py-3.5">
           <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{labels.needs}</dt>
           <dd className="flex flex-wrap justify-end gap-1.5">

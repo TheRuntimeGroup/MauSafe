@@ -8,7 +8,6 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function json(body: Record<string, unknown>, status = 200) {
@@ -36,25 +35,25 @@ serve(async (req) => {
     const email = String(body?.email ?? "").trim().toLowerCase();
     const code = String(body?.code ?? "").replace(/\D/g, "");
     const password = String(body?.password ?? "");
+    const creatingAccount = password.length > 0;
 
     if (!EMAIL_PATTERN.test(email)) {
       return json({ error: "INVALID_EMAIL" });
     }
-    if (code.length !== 6) {
-      return json({ error: "INVALID_CODE" });
-    }
-    if (password.length < 8) {
+    if (creatingAccount && password.length < 8) {
       return json({ error: "PASSWORD_TOO_SHORT" });
+    }
+    if (!creatingAccount && code.length !== 6) {
+      return json({ error: "INVALID_CODE" });
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const codeHash = await sha256Hex(code);
     const { data: codes, error: lookupError } = await supabase
       .from("verification_codes")
-      .select("id, code_hash, expires_at, consumed_at")
+      .select("id, code_hash, expires_at, verified_at")
       .eq("email", email)
       .eq("purpose", "signup")
       .is("consumed_at", null)
@@ -67,17 +66,47 @@ serve(async (req) => {
     }
 
     const record = codes?.[0];
-    if (!record || record.code_hash !== codeHash) {
+    if (!record) {
       return json({ error: "INVALID_CODE" });
     }
-    if (new Date(record.expires_at).getTime() < Date.now()) {
-      return json({ error: "EXPIRED_CODE" });
+
+    if (!record.verified_at) {
+      const codeHash = await sha256Hex(code);
+      if (code.length !== 6 || record.code_hash !== codeHash) {
+        return json({ error: "INVALID_CODE" });
+      }
+      if (new Date(record.expires_at).getTime() < Date.now()) {
+        return json({ error: "EXPIRED_CODE" });
+      }
+
+      const { error: verifyError } = await supabase
+        .from("verification_codes")
+        .update({ verified_at: new Date().toISOString() })
+        .eq("id", record.id)
+        .is("verified_at", null);
+
+      if (verifyError) {
+        console.error("[verify-signup] failed to record email verification", verifyError);
+        return json({ error: "UNKNOWN" });
+      }
+
+      if (!creatingAccount) {
+        return json({ ok: true });
+      }
+    } else if (!creatingAccount) {
+      return json({ ok: true });
     }
 
-    await supabase
+    const { error: consumeError } = await supabase
       .from("verification_codes")
       .update({ consumed_at: new Date().toISOString() })
-      .eq("id", record.id);
+      .eq("id", record.id)
+      .is("consumed_at", null);
+
+    if (consumeError) {
+      console.error("[verify-signup] failed to consume verification code", consumeError);
+      return json({ error: "UNKNOWN" });
+    }
 
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
       email,

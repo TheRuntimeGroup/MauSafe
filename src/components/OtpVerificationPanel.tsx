@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowLeft, LoaderCircle, Mail, RefreshCw } from "lucide-react";
+import { AlertCircle, ArrowLeft, Clock3, LoaderCircle, Mail, RefreshCw } from "lucide-react";
 import { EmailOtpInput } from "@/components/EmailOtpInput";
 import { AppButton } from "@/components/ui/app-button";
 
@@ -11,6 +11,8 @@ interface OtpVerificationPanelProps {
   onSubmit: () => void;
   submitting: boolean;
   error: string | null;
+  expiresLabel: string;
+  expired: boolean;
   verifyLabel: string;
   resendLabel: string;
   resendDisabled: boolean;
@@ -30,6 +32,8 @@ export function OtpVerificationPanel({
   onSubmit,
   submitting,
   error,
+  expiresLabel,
+  expired,
   verifyLabel,
   resendLabel,
   resendDisabled,
@@ -59,6 +63,15 @@ export function OtpVerificationPanel({
         {title}
       </h1>
       <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
+      <p
+        role="timer"
+        className={`mx-auto mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-extrabold ${
+          expired ? "bg-danger/[0.08] text-danger" : "bg-secondary text-primary"
+        }`}
+      >
+        <Clock3 className="h-4 w-4" aria-hidden="true" />
+        {expiresLabel}
+      </p>
 
       <div className="mt-7">
         <EmailOtpInput
