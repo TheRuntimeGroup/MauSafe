@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Accessibility, Check, Ear, Eye, Hand, Volume2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
-import { synthesizeSpeech } from "@/lib/speech";
+import { getSpeechAudio, preloadSpeech } from "@/lib/speech";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 
@@ -60,6 +60,7 @@ export function AccessibilityQuickSettings() {
   }, [readAloud]);
 
   const releaseAudio = useCallback(() => {
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -81,6 +82,42 @@ export function AccessibilityQuickSettings() {
     return () => stopSpeaking();
   }, [stopSpeaking]);
 
+  const speakWithDeviceVoice = useCallback(
+    (text: string, requestId: number): boolean => {
+      if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+        return false;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      const language = lang === "fr" ? "fr" : "en";
+      const voices = window.speechSynthesis.getVoices();
+      const matchingVoices = voices.filter((voice) => voice.lang.toLowerCase().startsWith(language));
+      const voice = matchingVoices.find((item) => /natural|enhanced|premium|siri|google/i.test(item.name))
+        ?? matchingVoices[0];
+      if (voice) utterance.voice = voice;
+      utterance.lang = voice?.lang ?? (lang === "fr" ? "fr-FR" : "en-GB");
+      utterance.rate = 0.9;
+      utterance.onend = () => {
+        if (requestId === speechRequestRef.current) setSpeaking(false);
+      };
+      utterance.onerror = () => {
+        if (requestId !== speechRequestRef.current) return;
+        setSpeaking(false);
+        setSpeechError(true);
+      };
+
+      try {
+        setLoadingSpeech(false);
+        setSpeaking(true);
+        window.speechSynthesis.speak(utterance);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [lang],
+  );
+
   const speakSection = useCallback(
     async (text: string) => {
       stopSpeaking();
@@ -89,7 +126,7 @@ export function AccessibilityQuickSettings() {
       setLoadingSpeech(true);
 
       try {
-        const audioBlob = await synthesizeSpeech(text.slice(0, 800), lang);
+        const audioBlob = await getSpeechAudio(text, lang);
         if (requestId !== speechRequestRef.current) return;
 
         const audioUrl = URL.createObjectURL(audioBlob);
@@ -114,13 +151,45 @@ export function AccessibilityQuickSettings() {
       } catch {
         if (requestId !== speechRequestRef.current) return;
         releaseAudio();
+        if (speakWithDeviceVoice(text, requestId)) return;
         setLoadingSpeech(false);
         setSpeaking(false);
         setSpeechError(true);
       }
     },
-    [lang, releaseAudio, stopSpeaking],
+    [lang, releaseAudio, speakWithDeviceVoice, stopSpeaking],
   );
+
+  useEffect(() => {
+    if (!readAloud) return;
+    const root = document.querySelector("main");
+    if (!root) return;
+
+    let preloadTimer: number | undefined;
+    const collectSections = () => {
+      const texts = Array.from(root.querySelectorAll<HTMLElement>(SPEAKABLE_SECTIONS))
+        .filter((element) => {
+          const visible = element.offsetWidth > 0 || element.offsetHeight > 0;
+          return visible && !element.closest("[aria-hidden='true'], [role='timer'], [role='alert']");
+        })
+        .map((element) => element.textContent?.replace(/\s+/g, " ").trim() ?? "")
+        .filter(Boolean);
+      void preloadSpeech(texts, lang);
+    };
+    const schedulePreload = () => {
+      if (preloadTimer !== undefined) window.clearTimeout(preloadTimer);
+      preloadTimer = window.setTimeout(collectSections, 400);
+    };
+
+    schedulePreload();
+    const observer = new MutationObserver(schedulePreload);
+    observer.observe(root, { childList: true, subtree: true });
+
+    return () => {
+      if (preloadTimer !== undefined) window.clearTimeout(preloadTimer);
+      observer.disconnect();
+    };
+  }, [lang, readAloud]);
 
   useEffect(() => {
     if (!readAloud) return;
