@@ -21,6 +21,7 @@ import StartCheckIn from "./pages/StartCheckIn";
 import JourneyDetail from "./pages/JourneyDetail";
 import GuestView from "./pages/GuestView";
 import Emergency from "./pages/Emergency";
+import SosMap from "./pages/SosMap";
 import Contacts from "./pages/Contacts";
 import SafetyTips from "./pages/SafetyTips";
 import ChildSafety from "./pages/ChildSafety";
@@ -87,6 +88,7 @@ const App = () => {
                       <Route path="/start" element={<StartCheckIn />} />
                       <Route path="/journey/:id" element={<JourneyDetail />} />
                       <Route path="/emergency" element={<Emergency />} />
+                      <Route path="/sos-map" element={<SosMap />} />
                       <Route path="/contacts" element={<Contacts />} />
                       <Route path="/safety-tips" element={<SafetyTips />} />
                       <Route path="/child-safety" element={<ChildSafety />} />

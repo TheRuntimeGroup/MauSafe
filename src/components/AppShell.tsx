@@ -1,14 +1,15 @@
 import { NavLink, Outlet } from "react-router-dom";
 import {
+  Baby,
+  Footprints,
   HeartHandshake,
   Home,
-  LayoutGrid,
   LifeBuoy,
   ListChecks,
+  MapPinned,
   Megaphone,
   Phone,
   ShieldAlert,
-  Siren,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -24,10 +25,11 @@ const NAV_ITEMS = [
 ];
 
 const MOBILE_ITEMS = [
-  { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
-  { to: "/check-ins", labelKey: "nav.checkins", shortLabelKey: "nav.journeysShort", icon: ListChecks, end: false },
-  { to: "/scam-check", labelKey: "nav.scam", shortLabelKey: "nav.scamShort", icon: ShieldAlert, end: false },
-  { to: "/more", labelKey: "nav.more", shortLabelKey: "nav.moreShort", icon: LayoutGrid, end: false },
+  { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true, urgent: false },
+  { to: "/sos-map", labelKey: "nav.sosMap", shortLabelKey: "nav.sosMap", icon: MapPinned, end: false, urgent: true },
+  { to: "/check-ins", labelKey: "nav.safeWalk", shortLabelKey: "nav.safeWalk", icon: Footprints, end: false, urgent: false },
+  { to: "/contacts", labelKey: "nav.community", shortLabelKey: "nav.community", icon: HeartHandshake, end: false, urgent: false },
+  { to: "/child-safety", labelKey: "nav.kidZone", shortLabelKey: "nav.kidZone", icon: Baby, end: false, urgent: false },
 ];
 
 export function AppShell() {
@@ -41,16 +43,20 @@ export function AppShell() {
       end={item.end}
       className={({ isActive }) =>
         cn(
-          "relative flex min-h-[4.25rem] flex-col items-center justify-center gap-1.5 px-1 text-[10px] font-semibold transition-colors",
-          isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+          "relative flex min-h-[4.5rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
+          isActive
+            ? item.urgent ? "text-danger" : "text-primary"
+            : item.urgent ? "text-danger" : "text-muted-foreground hover:text-foreground",
         )
       }
     >
       {({ isActive }) => (
         <>
-          {isActive && <span className="absolute top-2 h-1 w-1 rounded-full bg-primary" aria-hidden="true" />}
-          <item.icon className="h-[21px] w-[21px]" strokeWidth={isActive ? 2.35 : 1.8} aria-hidden="true" />
-          <span className="max-w-full truncate leading-tight">{t(item.shortLabelKey)}</span>
+          {isActive && <span className={cn("absolute top-2 h-1 w-1 rounded-full", item.urgent ? "bg-danger" : "bg-primary")} aria-hidden="true" />}
+          <span className={cn("flex h-8 w-8 items-center justify-center rounded-xl", item.urgent && "bg-danger text-white shadow-sm")}>
+            <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.35 : 1.8} aria-hidden="true" />
+          </span>
+          <span className="max-w-full text-center leading-tight">{t(item.shortLabelKey)}</span>
         </>
       )}
     </NavLink>
@@ -172,19 +178,8 @@ export function AppShell() {
         style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         aria-label={t("nav.menu")}
       >
-        <div className="grid grid-cols-[1fr_1fr_4.5rem_1fr_1fr] items-stretch">
-          {MOBILE_ITEMS.slice(0, 2).map(mobileTab)}
-          <NavLink
-            to="/emergency"
-            className="group relative flex min-h-[4.25rem] -translate-y-3 flex-col items-center justify-start gap-1.5"
-            aria-label={t("nav.emergency")}
-          >
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-danger text-white shadow-[0_10px_25px_-8px_rgba(220,38,38,0.65)] ring-4 ring-background transition-transform group-active:scale-95">
-              <Siren className="h-6 w-6" strokeWidth={2.2} aria-hidden="true" />
-            </span>
-            <span className="text-[9px] font-extrabold tracking-[0.12em] text-danger">SOS</span>
-          </NavLink>
-          {MOBILE_ITEMS.slice(2).map(mobileTab)}
+        <div className="grid grid-cols-5 items-stretch">
+          {MOBILE_ITEMS.map(mobileTab)}
         </div>
       </nav>
     </div>
