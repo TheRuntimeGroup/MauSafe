@@ -302,10 +302,12 @@ const AuthPage = () => {
             </div>
           </div>
 
-          <p className="mt-5 flex items-center justify-center gap-2 text-center text-xs leading-relaxed text-muted-foreground">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-success" aria-hidden="true" />
-            {t("auth.privacyNote")}
-          </p>
+          <div className="mx-auto mt-5 flex max-w-md items-start gap-3 rounded-2xl border border-[#DDE6ED] bg-white/70 px-4 py-3">
+            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#E9F6EF] text-[#0E7A4D]">
+              <ShieldCheck className="h-4 w-4" strokeWidth={1.9} aria-hidden="true" />
+            </span>
+            <p className="flex-1 text-left text-xs leading-relaxed text-muted-foreground">{t("auth.privacyNote")}</p>
+          </div>
         </div>
       </main>
     </div>
