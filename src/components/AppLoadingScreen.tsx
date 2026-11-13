@@ -13,14 +13,14 @@ export function AppLoadingScreen({ onComplete }: { onComplete: () => void }) {
     let displayTimer = 0;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const minimumDisplay = new Promise<void>((resolve) => {
-      displayTimer = window.setTimeout(resolve, reducedMotion ? 700 : 2400);
+      displayTimer = window.setTimeout(resolve, reducedMotion ? 700 : 2500);
     });
     const fontsReady = document.fonts?.ready ?? Promise.resolve();
 
     Promise.all([minimumDisplay, fontsReady]).then(() => {
       if (!active) return;
       setLeaving(true);
-      exitTimer = window.setTimeout(onComplete, reducedMotion ? 120 : 560);
+      exitTimer = window.setTimeout(onComplete, reducedMotion ? 120 : 620);
     });
 
     return () => {
@@ -32,62 +32,70 @@ export function AppLoadingScreen({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div
-      className="launch-screen fixed inset-0 z-[100] isolate flex min-h-screen flex-col overflow-hidden bg-[#F7F5EF] px-6 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-[max(1.75rem,env(safe-area-inset-top))] text-[#0D2B45]"
+      className="launch-screen fixed inset-0 z-[100] isolate flex min-h-screen flex-col overflow-hidden bg-[#071A2E] px-6 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-[max(1.75rem,env(safe-area-inset-top))] text-white"
       data-leaving={leaving}
       role="status"
       aria-live="polite"
       aria-label={t("app.loading")}
       aria-busy="true"
     >
-      <div className="launch-ambient launch-ambient-one" aria-hidden="true" />
-      <div className="launch-ambient launch-ambient-two" aria-hidden="true" />
+      <div className="launch-aurora launch-aurora-one" aria-hidden="true" />
+      <div className="launch-aurora launch-aurora-two" aria-hidden="true" />
+      <div className="launch-architecture" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
 
-      <header className="launch-chrome relative z-10 flex items-center justify-center gap-2.5 text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#0D2B45]/65">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#0E7A4D]" aria-hidden="true" />
+      <header className="launch-chrome relative z-10 mx-auto flex w-full max-w-5xl items-center justify-center gap-2.5 text-center text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/65">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_16px_rgba(110,231,183,0.65)]" aria-hidden="true" />
         <span>{t("app.badge")}</span>
       </header>
 
-      <main className="launch-scene relative z-10 flex flex-1 flex-col items-center justify-center py-10 text-center">
-        <div className="relative flex h-72 w-72 items-center justify-center sm:h-80 sm:w-80">
-          <div className="launch-ring-reveal absolute inset-0" aria-hidden="true">
-            <svg className="launch-orbit-svg h-full w-full" viewBox="0 0 320 320" fill="none">
-              <circle cx="160" cy="160" r="140" stroke="#0D2B45" strokeOpacity="0.07" />
-              <circle
-                cx="160"
-                cy="160"
-                r="112"
-                stroke="#0D2B45"
-                strokeOpacity="0.08"
-                strokeDasharray="2 9"
-                strokeLinecap="round"
-              />
-              <path
-                d="M160 20A140 140 0 0 1 298 145"
-                stroke="#0D2B45"
-                strokeOpacity="0.28"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <circle cx="160" cy="20" r="4" fill="#0E7A4D" stroke="#F7F5EF" strokeWidth="3" />
-            </svg>
-          </div>
+      <main className="launch-scene relative z-10 flex flex-1 flex-col items-center justify-center py-8 text-center">
+        <div className="launch-stage relative flex w-[min(24rem,calc(100vw-2rem))] items-center justify-center px-7 py-14">
+          <svg className="launch-frame absolute inset-0 h-full w-full" viewBox="0 0 400 260" fill="none" aria-hidden="true">
+            <path
+              pathLength="1"
+              className="launch-frame-line"
+              d="M18 66V30C18 23.373 23.373 18 30 18H66M334 18H370C376.627 18 382 23.373 382 30V66M382 194V230C382 236.627 376.627 242 370 242H334M66 242H30C23.373 242 18 236.627 18 230V194"
+              stroke="#A7D8F5"
+              strokeOpacity="0.48"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+            />
+            <path
+              pathLength="1"
+              className="launch-frame-line launch-frame-line-delayed"
+              d="M196 18H204M196 242H204"
+              stroke="#A7F3D0"
+              strokeOpacity="0.8"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <circle className="launch-frame-spark" cx="382" cy="75" r="3" fill="#A7F3D0" />
+          </svg>
 
-          <div className="launch-emblem relative rounded-[1.75rem] border border-[#0D2B45]/[0.07] bg-white px-6 py-7 shadow-[0_28px_80px_-38px_rgba(13,43,69,0.38)] sm:px-8 sm:py-8">
-            <Logo variant="full" className="h-14 w-44 sm:h-16 sm:w-52" />
+          <div className="launch-emblem relative">
+            <div className="launch-logo-surface relative overflow-hidden rounded-[1.5rem] border border-white/90 bg-white px-7 py-7 shadow-[0_30px_90px_-30px_rgba(0,0,0,0.55)] sm:px-9">
+              <Logo variant="full" className="h-14 w-44 sm:h-16 sm:w-52" />
+              <span className="launch-shine" aria-hidden="true" />
+            </div>
           </div>
         </div>
 
-        <div className="mt-5 overflow-hidden px-4">
-          <p className="launch-copy max-w-sm text-sm font-medium leading-relaxed text-[#0D2B45]/65 sm:text-[15px]">
+        <div className="relative overflow-hidden px-5 pb-2">
+          <p className="launch-copy max-w-sm text-sm font-medium leading-relaxed text-slate-300 sm:text-[15px]">
             {t("app.tagline")}
           </p>
         </div>
+        <span className="launch-copy-rule mt-4 block h-px w-9 bg-emerald-300/70" aria-hidden="true" />
       </main>
 
-      <footer className="launch-chrome relative z-10 mx-auto flex w-full max-w-60 flex-col items-center">
-        <p className="text-xs font-semibold text-[#0D2B45]/65">{t("app.loading")}</p>
-        <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-[#0D2B45]/[0.08]" aria-hidden="true">
-          <span className="launch-progress-fill block h-full w-[42%] rounded-full bg-[#0D2B45]" />
+      <footer className="launch-chrome relative z-10 mx-auto flex w-full max-w-64 flex-col items-center">
+        <p className="text-xs font-semibold text-white/65">{t("app.loading")}</p>
+        <div className="launch-progress mt-4 h-px w-full overflow-visible bg-white/10" aria-hidden="true">
+          <span className="launch-progress-fill relative block h-full w-1/3 bg-sky-300 shadow-[0_0_12px_rgba(125,211,252,0.55)]" />
         </div>
       </footer>
     </div>
