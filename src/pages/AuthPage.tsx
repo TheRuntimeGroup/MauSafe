@@ -5,6 +5,7 @@ import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
+  BookOpen,
   Check,
   Eye,
   EyeOff,
@@ -12,6 +13,7 @@ import {
   Lock,
   LogIn,
   Mail,
+  MapPin,
   ShieldCheck,
   UserPlus,
 } from "lucide-react";
@@ -29,6 +31,16 @@ type Mode = "sign_in" | "sign_up";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_SECONDS = 30;
+
+function getPasswordStrength(value: string): number {
+  if (!value) return 0;
+  let score = 0;
+  if (value.length >= 8) score += 1;
+  if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score += 1;
+  if (/\d/.test(value)) score += 1;
+  if (/[^A-Za-z0-9]/.test(value)) score += 1;
+  return score;
+}
 
 const AuthPage = () => {
   const { t } = useI18n();
@@ -49,6 +61,17 @@ const AuthPage = () => {
   const [cooldown, setCooldown] = useState(0);
 
   const resetUrl = new URL("/reset-password", window.location.origin).href;
+  const strength = getPasswordStrength(password);
+  const strengthLabel =
+    strength <= 1 ? t("auth.passwordStrength.weak") :
+    strength === 2 ? t("auth.passwordStrength.fair") :
+    strength === 3 ? t("auth.passwordStrength.good") :
+    t("auth.passwordStrength.strong");
+  const strengthColor =
+    strength <= 1 ? "bg-danger" :
+    strength === 2 ? "bg-amber-500" :
+    strength === 3 ? "bg-emerald-500" :
+    "bg-success";
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -350,12 +373,49 @@ const AuthPage = () => {
                       )}
                     </span>
                     <h1 className="mt-5 font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-[1.7rem]">
-                      {mode === "sign_in" ? t("auth.title") : t("auth.signUp")}
+                      {mode === "sign_in" ? t("auth.title") : t("auth.signUpTitle")}
                     </h1>
                     <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-muted-foreground">
                       {mode === "sign_in" ? t("auth.subtitle") : t("auth.signUpSubtitle")}
                     </p>
                   </div>
+
+                  {mode === "sign_up" && (
+                    <div className="mb-7 -mt-2 rounded-2xl border border-[#E8E4DA] bg-muted/60 p-4 sm:p-5">
+                      <p className="text-xs font-extrabold uppercase tracking-wide text-primary">
+                        {t("home.featureTitle")}
+                      </p>
+                      <ul className="mt-3 space-y-3">
+                        <li className="flex items-start gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0D2B45] text-white">
+                            <MapPin className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-foreground">{t("home.feature1Title")}</p>
+                            <p className="text-xs leading-relaxed text-muted-foreground">{t("home.feature1Body")}</p>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0D2B45] text-white">
+                            <BookOpen className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-foreground">{t("home.feature2Title")}</p>
+                            <p className="text-xs leading-relaxed text-muted-foreground">{t("home.feature2Body")}</p>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0D2B45] text-white">
+                            <ShieldCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-foreground">{t("home.feature3Title")}</p>
+                            <p className="text-xs leading-relaxed text-muted-foreground">{t("home.feature3Body")}</p>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
 
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="space-y-2">
@@ -426,6 +486,24 @@ const AuthPage = () => {
                           )}
                         </button>
                       </div>
+                      {mode === "sign_up" && password.length > 0 && (
+                        <div className="pt-1.5">
+                          <div className="flex items-center gap-2" aria-hidden="true">
+                            {[1, 2, 3, 4].map((level) => (
+                              <span
+                                key={level}
+                                className={cn(
+                                  "h-1.5 flex-1 rounded-full transition-colors",
+                                  strength >= level ? strengthColor : "bg-muted",
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <p className="mt-1.5 text-xs font-semibold text-muted-foreground">
+                            {strengthLabel}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {mode === "sign_up" && (
