@@ -15,6 +15,7 @@ import GuestView from "./pages/GuestView";
 import Emergency from "./pages/Emergency";
 import Contacts from "./pages/Contacts";
 import SafetyTips from "./pages/SafetyTips";
+import CallChecker from "./pages/CallChecker";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/emergency" element={<Emergency />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/safety-tips" element={<SafetyTips />} />
+              <Route path="/call-checker" element={<CallChecker />} />
             </Route>
             <Route path="/j/:token" element={<GuestView />} />
             <Route path="*" element={<NotFound />} />

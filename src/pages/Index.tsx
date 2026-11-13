@@ -9,6 +9,7 @@ import {
   ListChecks,
   LockKeyhole,
   Phone,
+  PhoneCall,
   Plus,
   ShieldAlert,
   ShieldCheck,
@@ -62,6 +63,7 @@ const Index = () => {
   const quickActions = [
     { icon: Siren, label: t("nav.emergency"), to: "/emergency", tone: "danger" as const },
     { icon: ListChecks, label: t("nav.checkins"), to: "/check-ins", tone: "outline" as const },
+    { icon: PhoneCall, label: t("nav.callcheck"), to: "/call-checker", tone: "outline" as const },
     { icon: ShieldAlert, label: t("nav.scam"), to: "/scam-check", tone: "outline" as const },
     { icon: LifeBuoy, label: t("nav.gethelp"), to: "/get-help", tone: "outline" as const },
     { icon: Heart, label: t("nav.contacts"), to: "/contacts", tone: "outline" as const },

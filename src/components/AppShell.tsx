@@ -1,15 +1,16 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Home, LifeBuoy, ListChecks, Phone, ShieldAlert } from "lucide-react";
+import { Home, LifeBuoy, ListChecks, Phone, PhoneCall, ShieldAlert } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { to: "/", labelKey: "nav.home", icon: Home, end: true },
-  { to: "/check-ins", labelKey: "nav.checkins", icon: ListChecks, end: false },
-  { to: "/scam-check", labelKey: "nav.scam", icon: ShieldAlert, end: false },
-  { to: "/get-help", labelKey: "nav.gethelp", icon: LifeBuoy, end: false },
+  { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
+  { to: "/check-ins", labelKey: "nav.checkins", shortLabelKey: "nav.checkinsShort", icon: ListChecks, end: false },
+  { to: "/call-checker", labelKey: "nav.callcheck", shortLabelKey: "nav.callcheckShort", icon: PhoneCall, end: false },
+  { to: "/scam-check", labelKey: "nav.scam", shortLabelKey: "nav.scamShort", icon: ShieldAlert, end: false },
+  { to: "/get-help", labelKey: "nav.gethelp", shortLabelKey: "nav.gethelpShort", icon: LifeBuoy, end: false },
 ];
 
 export function AppShell() {
@@ -108,7 +109,7 @@ export function AppShell() {
         className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
         aria-label="Primary"
       >
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -131,7 +132,9 @@ export function AppShell() {
                   >
                     <item.icon className="h-5 w-5" aria-hidden="true" />
                   </span>
-                  {t(item.labelKey)}
+                  <span className="max-w-full truncate px-0.5 text-center leading-tight">
+                    {t(item.shortLabelKey)}
+                  </span>
                 </>
               )}
             </NavLink>
