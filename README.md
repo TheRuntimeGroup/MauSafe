@@ -9,4 +9,4 @@ THE PROJECT IS MADE ALIVE WITH OUR TEAM MEMBER WHICH ARE
 GROUP NAME - DEAD SIGNAL 
 
 
-Our aim is to change the way
+Our aim is to change the way people stay safe in their daily lives—empowering individuals at risk with rapid emergency alerts, trusted-contact safety tools, and proactive fraud and crime prevention.
