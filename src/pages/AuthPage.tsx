@@ -15,6 +15,7 @@ import {
   Mail,
   MapPin,
   ShieldCheck,
+  Sparkles,
   UserPlus,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
@@ -61,6 +62,7 @@ const AuthPage = () => {
   const [cooldown, setCooldown] = useState(0);
 
   const resetUrl = new URL("/reset-password", window.location.origin).href;
+  const emailValid = EMAIL_PATTERN.test(email.trim());
   const strength = getPasswordStrength(password);
   const strengthLabel =
     strength <= 1 ? t("auth.passwordStrength.weak") :
@@ -72,6 +74,17 @@ const AuthPage = () => {
     strength === 2 ? "bg-amber-500" :
     strength === 3 ? "bg-emerald-500" :
     "bg-success";
+  const passwordChecks = [
+    { id: "length", ok: password.length >= 8, label: t("auth.passwordCheck.length") },
+    { id: "case", ok: /[a-z]/.test(password) && /[A-Z]/.test(password), label: t("auth.passwordCheck.case") },
+    { id: "number", ok: /\d/.test(password), label: t("auth.passwordCheck.number") },
+    { id: "symbol", ok: /[^A-Za-z0-9]/.test(password), label: t("auth.passwordCheck.symbol") },
+  ];
+  const benefits = [
+    { icon: MapPin, title: t("home.feature1Title"), body: t("home.feature1Body") },
+    { icon: BookOpen, title: t("home.feature2Title"), body: t("home.feature2Body") },
+    { icon: ShieldCheck, title: t("home.feature3Title"), body: t("home.feature3Body") },
+  ];
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -372,6 +385,12 @@ const AuthPage = () => {
                         <UserPlus className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
                       )}
                     </span>
+                    {mode === "sign_up" && (
+                      <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-200/70">
+                        <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+                        {t("auth.signUpEyebrow")}
+                      </p>
+                    )}
                     <h1 className="mt-5 font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-[1.7rem]">
                       {mode === "sign_in" ? t("auth.title") : t("auth.signUpTitle")}
                     </h1>
@@ -381,38 +400,48 @@ const AuthPage = () => {
                   </div>
 
                   {mode === "sign_up" && (
-                    <div className="mb-7 -mt-2 rounded-2xl border border-[#E8E4DA] bg-muted/60 p-4 sm:p-5">
-                      <p className="text-xs font-extrabold uppercase tracking-wide text-primary">
-                        {t("home.featureTitle")}
-                      </p>
+                    <div className="mb-5 -mt-1 flex items-center gap-2.5 text-xs font-bold">
+                      <span className="flex items-center gap-1.5 text-primary">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
+                          1
+                        </span>
+                        {t("auth.stepDetails")}
+                      </span>
+                      <span className="h-px flex-1 bg-[#E8E4DA]" aria-hidden="true" />
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[11px] font-extrabold">
+                          2
+                        </span>
+                        {t("auth.stepVerify")}
+                      </span>
+                    </div>
+                  )}
+
+                  {mode === "sign_up" && (
+                    <div className="mb-7 overflow-hidden rounded-2xl bg-[#0D2B45] p-4 text-white shadow-premium sm:p-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs font-extrabold uppercase tracking-wider text-sky-200">
+                          {t("auth.unlockTitle")}
+                        </p>
+                        <span className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-bold text-emerald-300">
+                          {t("auth.freeBadge")}
+                        </span>
+                      </div>
                       <ul className="mt-3 space-y-3">
-                        <li className="flex items-start gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0D2B45] text-white">
-                            <MapPin className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
-                          </span>
-                          <div className="min-w-0">
-                            <p className="text-sm font-bold text-foreground">{t("home.feature1Title")}</p>
-                            <p className="text-xs leading-relaxed text-muted-foreground">{t("home.feature1Body")}</p>
-                          </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0D2B45] text-white">
-                            <BookOpen className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
-                          </span>
-                          <div className="min-w-0">
-                            <p className="text-sm font-bold text-foreground">{t("home.feature2Title")}</p>
-                            <p className="text-xs leading-relaxed text-muted-foreground">{t("home.feature2Body")}</p>
-                          </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0D2B45] text-white">
-                            <ShieldCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
-                          </span>
-                          <div className="min-w-0">
-                            <p className="text-sm font-bold text-foreground">{t("home.feature3Title")}</p>
-                            <p className="text-xs leading-relaxed text-muted-foreground">{t("home.feature3Body")}</p>
-                          </div>
-                        </li>
+                        {benefits.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <li key={item.title} className="flex items-start gap-3">
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-emerald-300">
+                                <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                              </span>
+                              <div className="min-w-0">
+                                <p className="text-sm font-bold">{item.title}</p>
+                                <p className="text-xs leading-relaxed text-sky-200/90">{item.body}</p>
+                              </div>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}
@@ -436,10 +465,21 @@ const AuthPage = () => {
                           value={email}
                           onChange={(event) => setEmail(event.target.value)}
                           placeholder="you@example.com"
-                          className="h-12 rounded-[14px] border-[#DDE6ED] bg-white pl-11 text-foreground focus-visible:border-primary"
+                          className={cn(
+                            "h-12 rounded-[14px] border-[#DDE6ED] bg-white pl-11 text-foreground focus-visible:border-primary",
+                            mode === "sign_up" && emailValid && "border-emerald-500 pr-12",
+                          )}
                           required
                         />
+                        {mode === "sign_up" && emailValid && (
+                          <span className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-emerald-50 text-success">
+                            <Check className="h-[18px] w-[18px]" strokeWidth={2.5} aria-hidden="true" />
+                          </span>
+                        )}
                       </div>
+                      {mode === "sign_up" && emailValid && (
+                        <p className="text-xs font-semibold text-success">{t("auth.emailValid")}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -493,15 +533,42 @@ const AuthPage = () => {
                               <span
                                 key={level}
                                 className={cn(
-                                  "h-1.5 flex-1 rounded-full transition-colors",
+                                  "h-1.5 flex-1 rounded-full transition-all duration-300",
                                   strength >= level ? strengthColor : "bg-muted",
                                 )}
                               />
                             ))}
                           </div>
-                          <p className="mt-1.5 text-xs font-semibold text-muted-foreground">
-                            {strengthLabel}
-                          </p>
+                          <div className="mt-2 flex items-center justify-between gap-2">
+                            <p className="text-xs font-bold text-foreground">{strengthLabel}</p>
+                            <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">
+                              {strength}/4
+                            </span>
+                          </div>
+                          <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5">
+                            {passwordChecks.map((check) => (
+                              <li key={check.id} className="flex items-center gap-1.5">
+                                <span
+                                  className={cn(
+                                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors",
+                                    check.ok
+                                      ? "border-success bg-success text-success-foreground"
+                                      : "border-muted-foreground/30 text-transparent",
+                                  )}
+                                >
+                                  <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
+                                </span>
+                                <span
+                                  className={cn(
+                                    "text-xs font-medium",
+                                    check.ok ? "text-foreground" : "text-muted-foreground",
+                                  )}
+                                >
+                                  {check.label}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       )}
                     </div>
@@ -568,11 +635,18 @@ const AuthPage = () => {
                         </>
                       ) : (
                         <>
-                          {mode === "sign_in" ? t("auth.signIn") : t("auth.signUp")}
+                          {mode === "sign_in" ? t("auth.signIn") : t("auth.signUpCta")}
                           <ArrowRight className="h-5 w-5" aria-hidden="true" />
                         </>
                       )}
                     </AppButton>
+
+                    {mode === "sign_up" && (
+                      <p className="flex items-center justify-center gap-1.5 text-center text-xs font-semibold text-muted-foreground">
+                        <Sparkles className="h-3.5 w-3.5 text-primary" strokeWidth={2.2} aria-hidden="true" />
+                        {t("auth.signUpCtaNote")}
+                      </p>
+                    )}
                   </form>
 
                   <p className="mt-6 text-center text-sm font-medium text-muted-foreground">
