@@ -58,6 +58,16 @@
     font-feature-settings: "cv11", "ss01";
   }
 
+  html.accessibility-monochrome {
+    --muted-foreground: 217 20% 30%;
+    --border: 220 15% 70%;
+    --input: 220 15% 65%;
+  }
+
+  html.accessibility-monochrome body {
+    filter: grayscale(1) contrast(1.08);
+  }
+
   h1,
   h2,
   h3,

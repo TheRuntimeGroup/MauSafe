@@ -19,6 +19,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { AccessibilityQuickSettings } from "@/components/AccessibilityQuickSettings";
 import { AppButton } from "@/components/ui/app-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -114,7 +115,10 @@ const AuthPage = () => {
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           {t("auth.back")}
         </Link>
-        <LanguageSwitcher compact />
+        <div className="flex items-center gap-2">
+          <AccessibilityQuickSettings />
+          <LanguageSwitcher compact />
+        </div>
       </header>
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 sm:px-6">

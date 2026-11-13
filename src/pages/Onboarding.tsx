@@ -31,6 +31,7 @@ import { saveOnboardingProfile, type AccessibilityNeed } from "@/lib/profile";
 import { sendOtp, verifySignup } from "@/lib/otp";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { AccessibilityQuickSettings } from "@/components/AccessibilityQuickSettings";
 import { OtpVerificationPanel } from "@/components/OtpVerificationPanel";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
@@ -398,7 +399,10 @@ const Onboarding = () => {
         ) : (
           <span aria-hidden="true" />
         )}
-        <LanguageSwitcher compact />
+        <div className="flex items-center gap-2">
+          <AccessibilityQuickSettings />
+          <LanguageSwitcher compact />
+        </div>
       </header>
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
