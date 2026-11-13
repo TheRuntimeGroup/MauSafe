@@ -68,6 +68,13 @@
     filter: grayscale(1) contrast(1.08);
   }
 
+  .accessibility-speaking-section {
+    border-radius: 0.5rem;
+    outline: 3px solid #f7c600 !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 2px #0d2b45;
+  }
+
   h1,
   h2,
   h3,
