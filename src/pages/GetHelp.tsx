@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ExternalLink, MapPin, Phone, PhoneOff, Search, ShieldAlert, WifiOff } from "lucide-react";
+import { ExternalLink, Mail, MapPin, Navigation, Phone, PhoneOff, Search, ShieldAlert, WifiOff } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import {
   HELP_CATEGORIES,
@@ -109,44 +109,78 @@ const GetHelp = () => {
       {results.length > 0 ? (
         <ul className="space-y-3">
           {results.map((entry) => (
-            <li key={entry.id} className="rounded-2xl border border-border bg-card p-4">
+            <li key={entry.id} className="glass-card rounded-2xl p-4">
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <h2 className="font-display text-base font-bold text-foreground">
                     {entry.serviceName}
                   </h2>
                   <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                    <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     {entry.locality}
-                    {entry.division && (
-                      <span className="text-muted-foreground/80">· {entry.division}</span>
-                    )}
+                    {entry.division && <span className="text-muted-foreground/80">· {entry.division}</span>}
                   </p>
                 </div>
-                {entry.action === "url" && entry.url ? (
-                  <a
-                    href={entry.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border px-3 text-sm font-semibold text-primary hover:bg-muted"
-                  >
-                    {t("action.open")}
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                  {entry.action === "url" && entry.url ? (
+                    <a
+                      href={entry.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-white/70 px-3 text-sm font-semibold text-primary hover:bg-white"
+                    >
+                      {t("action.open")}
+                      <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                    </a>
+                  ) : entry.phoneVerified && entry.phone ? (
+                    <a
+                      href={`tel:${entry.phone}`}
+                      className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground"
+                    >
+                      <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                      {entry.phone}
+                    </a>
+                  ) : (
+                    <span className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-muted px-3 text-sm font-semibold text-muted-foreground">
+                      <PhoneOff className="h-3.5 w-3.5" aria-hidden="true" />
+                      {t("help.phoneUnverified")}
+                    </span>
+                  )}
+                  {entry.directionsQuery && (
+                    <a
+                      href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(entry.directionsQuery)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${t("help.directions")} — ${entry.serviceName}`}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white/70 text-primary hover:bg-white"
+                    >
+                      <Navigation className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {entry.address && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{entry.address}</p>}
+              {entry.alternatePhone && (
+                <p className="mt-2 text-xs font-semibold text-foreground">
+                  {t("help.alternatePhone")}: {entry.alternatePhone}
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
+                {entry.email && (
+                  <a href={`mailto:${entry.email}`} className="inline-flex items-center gap-1.5 break-all font-semibold text-primary">
+                    <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    {entry.email}
                   </a>
-                ) : entry.phoneVerified && entry.phone ? (
-                  <a
-                    href={`tel:${entry.phone}`}
-                    className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground"
-                  >
-                    <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-                    {entry.phone}
-                  </a>
-                ) : (
-                  <span className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-muted px-3 text-sm font-semibold text-muted-foreground">
-                    <PhoneOff className="h-3.5 w-3.5" aria-hidden="true" />
-                    {t("help.phoneUnverified")}
-                  </span>
                 )}
+                {(entry.sourceLabel || entry.sourceUrl) &&
+                  (entry.sourceUrl ? (
+                    <a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                      {t("help.source")}: {entry.sourceLabel ?? entry.sourceUrl}
+                    </a>
+                  ) : (
+                    <span>{t("help.source")}: {entry.sourceLabel}</span>
+                  ))}
               </div>
             </li>
           ))}

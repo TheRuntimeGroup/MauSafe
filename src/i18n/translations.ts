@@ -293,6 +293,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "help.category.police": "Police station",
     "help.category.family": "Family safety",
     "help.category.fraud": "Online fraud",
+    "help.category.hospital": "Hospitals",
+    "help.category.utility": "Utilities",
+    "help.directions": "Directions",
+    "help.alternatePhone": "Alternative line",
     "help.division": "Division",
     "help.call999": "Call police · 999",
     "help.reportFraud": "Report online fraud → MAUCORS+",
@@ -305,7 +309,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "help.noResultsHint": "Try a nearby town or a different category. For immediate danger, call 999.",
     "help.coverageTitle": "Honest coverage",
     "help.coverageBody":
-      "This directory is a cleaned, versioned dataset of public records. Phone numbers are only callable after verification. Always confirm against official sources.",
+      "Includes the project-owner supplied directory: 20 national services, 20 hospitals and 72 police stations. Sources are shown on each record. Always confirm critical numbers against current official sources.",
     "help.offline": "Saved entries work offline.",
 
     "common.loading": "Loading…",
@@ -736,6 +740,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "help.category.police": "Poste de police",
     "help.category.family": "Sécurité familiale",
     "help.category.fraud": "Fraude en ligne",
+    "help.category.hospital": "Hôpitaux",
+    "help.category.utility": "Services publics",
+    "help.directions": "Itinéraire",
+    "help.alternatePhone": "Ligne alternative",
     "help.division": "Division",
     "help.call999": "Appeler la police · 999",
     "help.reportFraud": "Signaler une fraude → MAUCORS+",
@@ -748,7 +756,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "help.noResultsHint": "Essayez une ville proche ou une autre catégorie. En cas de danger immédiat, appelez le 999.",
     "help.coverageTitle": "Couverture honnête",
     "help.coverageBody":
-      "Cet annuaire est un jeu de données public nettoyé et versionné. Les numéros ne sont appelables qu'après vérification. Confirmez toujours auprès des sources officielles.",
+      "Comprend l'annuaire fourni par le propriétaire du projet : 20 services nationaux, 20 hôpitaux et 72 postes de police. Les sources figurent sur chaque fiche. Confirmez toujours les numéros importants auprès des sources officielles actuelles.",
     "help.offline": "Les entrées enregistrées fonctionnent hors ligne.",
 
     "common.loading": "Chargement…",
@@ -1178,6 +1186,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "help.category.police": "Post polis",
     "help.category.family": "Sekirite fami",
     "help.category.fraud": "Frod online",
+    "help.category.hospital": "Lopital",
+    "help.category.utility": "Servis piblik",
+    "help.directions": "Direksion",
+    "help.alternatePhone": "Lot liy",
     "help.division": "Division",
     "help.call999": "Apel polis · 999",
     "help.reportFraud": "Signal frod → MAUCORS+",
@@ -1190,7 +1202,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "help.noResultsHint": "Esey enn lavil pros ouswa enn lot kategori. Pou danze imedyat, apel 999.",
     "help.coverageTitle": "Kouverture onet",
     "help.coverageBody":
-      "Sa annuaire la se enn dataset piblik netwaye ek versionne. Bann nimero kapav apelé zis apre verifikasion. Touzour konfirm ek bann sours ofisiel.",
+      "Enkli lannuaire fourni par proprieter projet : 20 servis nasyonal, 20 lopital ek 72 post lapolis. Sours lor sak fiche. Touzour konfirm nimero inportan avek sours ofisiel aktiel.",
     "help.offline": "Bann antré anrejistre fonksionne offline.",
 
     "common.loading": "Pe charge…",
