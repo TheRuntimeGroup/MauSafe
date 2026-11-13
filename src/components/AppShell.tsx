@@ -49,7 +49,13 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-background lg:flex">
-      <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-foreground/[0.07] bg-white lg:flex">
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -left-28 top-20 h-80 w-80 rounded-full bg-violet-300/25 blur-[100px]" />
+        <div className="absolute -right-24 top-1/3 h-96 w-96 rounded-full bg-cyan-200/30 blur-[110px]" />
+        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-amber-100/45 blur-[90px]" />
+      </div>
+
+      <aside className="sticky top-0 z-10 hidden h-screen w-72 shrink-0 flex-col border-r border-white/70 bg-white/75 backdrop-blur-2xl lg:flex">
         <NavLink to="/" className="flex items-center gap-3 border-b border-foreground/[0.07] px-6 py-6">
           <Logo className="h-10 w-10 shrink-0" />
           <div className="min-w-0">
@@ -112,7 +118,7 @@ export function AppShell() {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-40 border-b border-foreground/[0.06] bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
+      <header className="glass-panel sticky top-0 z-40 border-x-0 border-t-0 pt-[env(safe-area-inset-top)] lg:hidden">
         <div className="mx-auto flex h-[4.5rem] max-w-3xl items-center justify-between gap-3 px-5">
           <NavLink to="/" className="flex min-w-0 items-center gap-2.5" aria-label={t("nav.home")}>
             <Logo className="h-9 w-9 shrink-0" />
@@ -133,7 +139,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="relative z-10 flex-1">
         <div className="mx-auto w-full max-w-3xl px-5 pb-40 pt-6 sm:px-6 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
           <Outlet />
           <footer className="mt-14 border-t border-foreground/[0.07] pt-6 text-center">
@@ -146,7 +152,7 @@ export function AppShell() {
       </main>
 
       <nav
-        className="fixed inset-x-3 z-50 rounded-[1.5rem] border border-foreground/[0.08] bg-white/95 px-2 shadow-[0_18px_50px_-12px_rgba(21,19,33,0.3)] backdrop-blur-xl lg:hidden"
+        className="glass-panel fixed inset-x-3 z-50 rounded-[1.5rem] px-2 shadow-[0_18px_50px_-12px_rgba(21,19,33,0.3)] lg:hidden"
         style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         aria-label={t("nav.menu")}
       >

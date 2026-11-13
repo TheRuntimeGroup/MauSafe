@@ -8,11 +8,13 @@ import {
   CloudSun,
   FileWarning,
   Heart,
+  IdCard,
   LifeBuoy,
   ListChecks,
   LockKeyhole,
   Navigation,
   ShieldAlert,
+  Siren,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listJourneys } from "@/lib/api";
@@ -55,6 +57,8 @@ const Index = () => {
   const moreTools = [
     { icon: ListChecks, label: t("nav.checkins"), body: t("home.feature1Body"), to: "/check-ins" },
     { icon: FileWarning, label: t("incident.title"), body: t("incident.subtitle"), to: "/incident-report" },
+    { icon: Siren, label: t("alarm.title"), body: t("alarm.subtitle"), to: "/safety-alarm" },
+    { icon: IdCard, label: t("profile.title"), body: t("profile.subtitle"), to: "/emergency-id" },
     { icon: Heart, label: t("nav.contacts"), body: t("contacts.subtitle"), to: "/contacts" },
     { icon: BookOpen, label: t("nav.tips"), body: t("tips.subtitle"), to: "/safety-tips" },
   ];
@@ -135,7 +139,7 @@ const Index = () => {
             <Link
               key={tool.to}
               to={tool.to}
-              className="group flex min-h-36 flex-col justify-between rounded-2xl border border-foreground/[0.07] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-premium"
+              className="glass-card group flex min-h-36 flex-col justify-between rounded-2xl p-5 transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-premium"
             >
               <div className="flex items-start justify-between">
                 <tool.icon className="h-6 w-6 text-primary" strokeWidth={1.8} aria-hidden="true" />
@@ -156,7 +160,7 @@ const Index = () => {
         <h2 className="px-1 font-display text-lg font-extrabold tracking-tight text-foreground">
           {t("home.moreTools")}
         </h2>
-        <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-white px-5">
+        <div className="glass-panel overflow-hidden rounded-2xl px-5">
           {moreTools.map((tool) => (
             <Link
               key={tool.to}

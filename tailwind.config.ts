@@ -95,6 +95,10 @@ export default {
           from: { transform: "translateX(-110%)" },
           to: { transform: "translateX(310%)" },
         },
+        "alarm-flash": {
+          "0%, 49%": { backgroundColor: "#DC2626" },
+          "50%, 100%": { backgroundColor: "#7F1D1D" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -102,6 +106,7 @@ export default {
         "fade-in": "fade-in 0.4s ease-out both",
         "fade-in-up": "fade-in-up 0.5s ease-out both",
         "app-loading": "app-loading 1s ease-in-out infinite",
+        "alarm-flash": "alarm-flash 1s step-end infinite",
       },
     },
   },
