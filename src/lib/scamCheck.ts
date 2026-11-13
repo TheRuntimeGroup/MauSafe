@@ -1,4 +1,12 @@
-export type ScamRuleId = "urgency" | "otp" | "payment" | "link";
+export type ScamRuleId =
+  | "urgency"
+  | "otp"
+  | "payment"
+  | "link"
+  | "phishing"
+  | "impersonation"
+  | "investment"
+  | "download";
 
 export interface ScamFinding {
   ruleId: ScamRuleId;
@@ -56,6 +64,38 @@ const RULES: { id: ScamRuleId; patterns: RegExp[] }[] = [
       /\bklik( la)?\b/gi,
     ],
   },
+  {
+    id: "phishing",
+    patterns: [
+      /\b(dear (customer|user|client|member)|verify (your )?(identity|account)|your account (has been|is)|unusual (activity|sign[- ]?in)|confirm (your )?details|update (your )?information|account (is )?on hold|suspended account|security (check|alert) required)\b/gi,
+      /\b(cher client|ch[èe]re? client|v[ée]rifiez (votre )?(identit[ée]|compte)|votre compte (a [ée]t[ée]|est)|activit[ée] (inhabituelle|suspecte)|confirmez (vos )?donn[ée]es|mettez [àa] jour (vos )?informations|compte suspendu)\b/gi,
+      /\b(cher kliyan|verifie (ou )?(identite|kont)|ou kont finn|aktivite sisp[èe]k|konfirm (ou )?detay|met a zour ou informasion|kont suspan)\b/gi,
+    ],
+  },
+  {
+    id: "impersonation",
+    patterns: [
+      /\b(police|government|ministry|revenue authority|MRA|central bank|bank of mauritius|customs|post office|immigration|military|judiciary|official (notice|letter)|tax (refund|office|department))\b/gi,
+      /\b(police|gouvernement|minist[èe]re|autorit[ée] fiscale|MRA|banque centrale|banque de maurice|douane|poste|immigration|militaire|avis officiel|remboursement d'imp[ôo]t)\b/gi,
+      /\b(lapolis|gouvernman|minister|MRA|labank|douane|lapos|imigrasion|larm|avis ofisiel)\b/gi,
+    ],
+  },
+  {
+    id: "investment",
+    patterns: [
+      /\b(bitcoin|crypto(currency)?|investment|invest|forex|trading|guaranteed (returns|profit)|double your money|earn (money|cash) (fast|online)|passive income|financial freedom|get rich)\b/gi,
+      /\b(bitcoin|crypto(monnaie)?|investissement|investir|forex|trading|rendements garantis|doublez votre argent|gagner de l'argent|revenu passif|libert[ée] financi[èe]re)\b/gi,
+      /\b(bitcoin|crypto|lenvestisman|investi|forex|trading|profit garanti|doub ou larzan|gagn larzan|revenu pasif)\b/gi,
+    ],
+  },
+  {
+    id: "download",
+    patterns: [
+      /\b(install (this |the )?app|download (the |this )?(app|file|attachment|apk)|open (the )?attachment|enable unknown sources|scan this qr|apk file|click to install)\b/gi,
+      /\b(installez (cette |l')?app|t[ée]l[ée]chargez (l'|cette )?(app|fichier|pi[èe]ce jointe|apk)|ouvrez la pi[èe]ce jointe|activez les sources inconnues|scannez ce qr|fichier apk)\b/gi,
+      /\b(instal (sa )?app|telecharg (sa )?(app|fichie|apk)|ouver pi[èe]s zwenn|aktiv sours inkoni|scan sa qr|fichie apk)\b/gi,
+    ],
+  },
 ];
 
 function cleanUrl(url: string): string {
@@ -90,7 +130,16 @@ export function analyzeScam(text: string): ScamResult {
     }
   }
 
-  const weights: Record<ScamRuleId, number> = { urgency: 18, otp: 35, payment: 25, link: 12 };
+  const weights: Record<ScamRuleId, number> = {
+    urgency: 18,
+    otp: 32,
+    payment: 22,
+    link: 12,
+    phishing: 24,
+    impersonation: 20,
+    investment: 18,
+    download: 16,
+  };
   const baseScore = findings.reduce((total, finding) => total + weights[finding.ruleId], 0);
   SUSPICIOUS_URL_RE.lastIndex = 0;
   const suspiciousBonus = SUSPICIOUS_URL_RE.test(text) ? 20 : 0;
