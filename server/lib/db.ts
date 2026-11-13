@@ -1,0 +1,61 @@
+import Database from "better-sqlite3";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+
+export interface JourneyRow {
+  id: string;
+  owner_secret_hash: string;
+  owner_name: string;
+  preset: string;
+  label: string;
+  expected_arrival_at: number;
+  created_at: number;
+  updated_at: number;
+  arrived_at: number | null;
+  cancelled_at: number | null;
+  last_status_at: number;
+  extended_count: number;
+  is_demo: number;
+  guest_token: string;
+  guest_expires_at: number;
+  guest_revoked_at: number | null;
+  contact_info: string;
+}
+
+let db: Database.Database | null = null;
+
+export function getDb(): Database.Database {
+  if (db) return db;
+
+  const dataDir = join(process.cwd(), ".data");
+  mkdirSync(dataDir, { recursive: true });
+
+  db = new Database(join(dataDir, "anou.db"));
+  db.pragma("journal_mode = WAL");
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS journeys (
+      id TEXT PRIMARY KEY,
+      owner_secret_hash TEXT NOT NULL,
+      owner_name TEXT NOT NULL DEFAULT '',
+      preset TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      expected_arrival_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      arrived_at INTEGER,
+      cancelled_at INTEGER,
+      last_status_at INTEGER NOT NULL,
+      extended_count INTEGER NOT NULL DEFAULT 0,
+      is_demo INTEGER NOT NULL DEFAULT 0,
+      guest_token TEXT NOT NULL UNIQUE,
+      guest_expires_at INTEGER NOT NULL,
+      guest_revoked_at INTEGER,
+      contact_info TEXT NOT NULL DEFAULT ''
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_journeys_owner ON journeys (owner_secret_hash);
+    CREATE INDEX IF NOT EXISTS idx_journeys_guest ON journeys (guest_token);
+  `);
+
+  return db;
+}
