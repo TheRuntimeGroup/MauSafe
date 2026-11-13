@@ -1,13 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import {
-  ChevronRight,
-  Home,
-  LifeBuoy,
-  ListChecks,
-  Phone,
-  PhoneCall,
-  ShieldAlert,
-} from "lucide-react";
+import { Home, LifeBuoy, ListChecks, Phone, PhoneCall, ShieldAlert } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -26,28 +18,20 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-background lg:flex">
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-border bg-card lg:flex">
-        <div className="flex items-center gap-3 px-5 pb-5 pt-6">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/15">
-            <Logo className="h-7 w-7" />
-          </div>
+      <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-border bg-white lg:flex">
+        <NavLink to="/" className="flex items-center gap-3 border-b border-border px-6 py-6">
+          <Logo className="h-9 w-9 shrink-0" />
           <div className="min-w-0">
-            <p className="truncate font-display text-lg font-extrabold leading-tight text-foreground">
+            <p className="font-display text-xl font-extrabold leading-tight tracking-tight text-foreground">
               {t("app.name")}
             </p>
-            <p className="truncate text-[11px] font-medium text-muted-foreground">
+            <p className="mt-0.5 truncate text-[11px] font-medium text-muted-foreground">
               {t("app.tagline")}
             </p>
           </div>
-        </div>
+        </NavLink>
 
-        <div className="mx-5 mb-5 flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-3 py-2">
-          <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
-          <span className="truncate text-xs font-semibold text-primary">{t("app.badge")}</span>
-        </div>
-
-        <p className="px-6 pb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="px-6 pb-2 pt-7 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
           {t("nav.menu")}
         </p>
 
@@ -59,45 +43,30 @@ export function AppShell() {
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  "group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all",
+                  "flex items-center gap-3 rounded-xl border border-transparent px-4 py-3 text-sm font-semibold transition-colors",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                    ? "border-primary/10 bg-secondary text-primary"
                     : "text-foreground hover:bg-muted",
                 )
               }
             >
-              {({ isActive }) => (
-                <>
-                  <span
-                    className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors",
-                      isActive ? "bg-white/20" : "bg-muted group-hover:bg-background",
-                    )}
-                  >
-                    <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />
-                  </span>
-                  {t(item.labelKey)}
-                  {isActive && (
-                    <ChevronRight className="ml-auto h-4 w-4 opacity-80" aria-hidden="true" />
-                  )}
-                </>
-              )}
+              <item.icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+              {t(item.labelKey)}
             </NavLink>
           ))}
         </nav>
 
-        <div className="space-y-3 border-t border-border p-4">
+        <div className="space-y-4 border-t border-border p-5">
           <a
             href="tel:999"
-            className="group flex items-center gap-3 rounded-2xl bg-danger p-3.5 text-white transition-transform hover:scale-[1.01]"
+            className="group flex items-center gap-3 rounded-xl border border-danger/20 bg-danger/5 p-4 text-danger transition-colors hover:bg-danger hover:text-white"
           >
-            <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
-              <Phone className="h-5 w-5" aria-hidden="true" />
-              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-white ring-2 ring-danger" />
-            </span>
+            <Phone className="h-5 w-5 shrink-0" aria-hidden="true" />
             <span className="min-w-0 text-left">
-              <span className="block text-sm font-bold leading-tight">{t("help.call999")}</span>
-              <span className="block text-[11px] text-white/75">{t("home.quickHelp")}</span>
+              <span className="block text-sm font-extrabold leading-tight">{t("help.call999")}</span>
+              <span className="mt-1 block text-[11px] leading-relaxed text-muted-foreground group-hover:text-white/75">
+                {t("home.quickHelp")}
+              </span>
             </span>
           </a>
           <div className="flex justify-center">
@@ -109,15 +78,12 @@ export function AppShell() {
         </div>
       </aside>
 
-      {/* Mobile header */}
-      <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md lg:hidden">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-md lg:hidden">
         <div className="flex items-center justify-between gap-2 px-4 py-3">
           <NavLink to="/" className="flex min-w-0 items-center gap-2.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/15">
-              <Logo className="h-6 w-6" />
-            </span>
+            <Logo className="h-8 w-8 shrink-0" />
             <span className="min-w-0">
-              <span className="block truncate font-display text-base font-extrabold leading-none text-foreground">
+              <span className="block truncate font-display text-lg font-extrabold leading-none tracking-tight text-foreground">
                 {t("app.name")}
               </span>
               <span className="mt-1 block truncate text-[10px] font-medium text-muted-foreground">
@@ -128,7 +94,7 @@ export function AppShell() {
           <div className="flex shrink-0 items-center gap-2">
             <a
               href="tel:999"
-              className="flex h-10 items-center gap-1.5 rounded-xl bg-danger px-3 text-sm font-bold text-white shadow-sm"
+              className="flex h-10 items-center gap-1.5 rounded-xl bg-danger px-3 text-sm font-bold text-white"
               aria-label={t("help.call999")}
             >
               <Phone className="h-4 w-4" aria-hidden="true" />
@@ -139,12 +105,10 @@ export function AppShell() {
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="relative flex-1">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-dots opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
-        <div className="relative mx-auto w-full max-w-3xl px-4 pb-28 pt-5 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
+      <main className="flex-1">
+        <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-5 sm:px-6 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
           <Outlet />
-          <footer className="mt-12 border-t border-border pt-6 text-center">
+          <footer className="mt-14 border-t border-border pt-6 text-center">
             <p className="text-xs text-muted-foreground">{t("footer.tagline")}</p>
             <p className="mx-auto mt-1 max-w-md text-[11px] leading-relaxed text-muted-foreground/80">
               {t("footer.dataNote")}
@@ -153,9 +117,8 @@ export function AppShell() {
         </div>
       </main>
 
-      {/* Mobile bottom navigation */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
         aria-label="Primary"
       >
         <div className="grid grid-cols-5">
@@ -166,22 +129,16 @@ export function AppShell() {
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors",
+                  "relative flex flex-col items-center gap-1 px-1 pb-2.5 pt-3 text-[11px] font-semibold transition-colors",
                   isActive ? "text-primary" : "text-muted-foreground",
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  <span
-                    className={cn(
-                      "flex h-8 w-14 items-center justify-center rounded-full transition-colors",
-                      isActive && "bg-primary/10",
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span className="max-w-full truncate px-0.5 text-center leading-tight">
+                  {isActive && <span className="absolute top-0 h-0.5 w-8 bg-primary" aria-hidden="true" />}
+                  <item.icon className="h-5 w-5" aria-hidden="true" />
+                  <span className="max-w-full truncate text-center leading-tight">
                     {t(item.shortLabelKey)}
                   </span>
                 </>

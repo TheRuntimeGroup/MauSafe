@@ -8,7 +8,7 @@ export const LANGUAGES: { code: Lang; label: string; native: string }[] = [
 
 export const translations: Record<Lang, Record<string, string>> = {
   en: {
-    "app.name": "Anou Secure Moris",
+    "app.name": "MauSafe",
     "app.tagline": "A calm safety companion for Mauritius",
     "app.badge": "Powered to Protect · Mauritius",
     "app.heroTitle": "Get home safe, together",
@@ -317,7 +317,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   },
 
   fr: {
-    "app.name": "Anou Secure Moris",
+    "app.name": "MauSafe",
     "app.tagline": "Un compagnon de sécurité apaisant pour Maurice",
     "app.badge": "Powered to Protect · Maurice",
     "app.heroTitle": "Rentrez en sécurité, ensemble",
@@ -626,7 +626,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   },
 
   km: {
-    "app.name": "Anou Secure Moris",
+    "app.name": "MauSafe",
     "app.tagline": "Enn konpagnon sekirite kalm pou Moris",
     "app.badge": "Powered to Protect · Moris",
     "app.heroTitle": "Ariv lakaz an sekirite, ansam",

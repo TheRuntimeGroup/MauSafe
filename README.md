@@ -1,4 +1,4 @@
-# Anou Secure Moris
+# MauSafe
 
 A mobile-first safety companion for the **Powered to Protect** challenge in Mauritius. It brings together three calm, privacy-first tools:
 
@@ -62,7 +62,7 @@ server/
 
 src/
   pages/         Index, CheckIns, StartCheckIn, JourneyDetail, GuestView, Emergency, Contacts, SafetyTips, ScamCheck, GetHelp, NotFound
-  components/    AppShell, JourneyStatusCard, SharePanel, StatusPill, Logo, LanguageSwitcher, HeroIllustration
+  components/    AppShell, JourneyStatusCard, SharePanel, StatusPill, Logo, LanguageSwitcher
   lib/           api client, scam rules engine, storage, formatting, types
   i18n/          EN / FR / KM dictionaries + provider
   data/          bundled help-directory.json + search helpers
