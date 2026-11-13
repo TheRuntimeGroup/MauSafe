@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
-import { ChevronDown, LoaderCircle, LogIn, LogOut } from "lucide-react";
+import { ChevronDown, LoaderCircle, LogIn, LogOut, Megaphone } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ type AccountMenuProps = {
 export function AccountMenu({ variant = "sidebar" }: AccountMenuProps) {
   const { t } = useI18n();
   const { user, loading, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
 
   if (loading) {
     return (
@@ -94,6 +96,14 @@ export function AccountMenu({ variant = "sidebar" }: AccountMenuProps) {
           <p className="mt-0.5 text-xs font-medium text-muted-foreground">{t("auth.account")}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {isAdmin && (
+          <DropdownMenuItem asChild className="gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-foreground focus:bg-muted">
+            <NavLink to="/admin/announcements">
+              <Megaphone className="h-4 w-4" aria-hidden="true" />
+              {t("nav.admin")}
+            </NavLink>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           onSelect={(event) => {
             event.preventDefault();

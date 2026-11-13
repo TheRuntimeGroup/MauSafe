@@ -9,6 +9,7 @@ import { useNow } from "@/hooks/useNow";
 import { JourneyStatusCard } from "@/components/JourneyStatusCard";
 import { HomeQuickAccess } from "@/components/HomeQuickAccess";
 import { HomeTrustedContacts } from "@/components/HomeTrustedContacts";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { cn } from "@/lib/utils";
 import type { OwnerJourney } from "@/lib/types";
 
@@ -85,6 +86,8 @@ const Index = () => {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
+      <AnnouncementBanner />
+
       <header className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0D2B45] px-6 py-7 text-white shadow-[0_24px_60px_-30px_rgba(13,43,69,0.7)] motion-safe:animate-fade-in-up sm:px-8 sm:py-8">
         <svg
           className="pointer-events-none absolute -right-8 -top-12 h-56 w-56 text-sky-300/10"

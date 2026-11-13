@@ -27,6 +27,7 @@ import IncidentReports from "./pages/IncidentReports";
 import SafetyAlarm from "./pages/SafetyAlarm";
 import EmergencyId from "./pages/EmergencyId";
 import SafePlaces from "./pages/SafePlaces";
+import AdminAnnouncements from "./pages/AdminAnnouncements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => {
                     <Route path="/safety-alarm" element={<SafetyAlarm />} />
                     <Route path="/emergency-id" element={<EmergencyId />} />
                     <Route path="/safe-places" element={<SafePlaces />} />
+                    <Route path="/admin/announcements" element={<AdminAnnouncements />} />
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/reset-password" element={<ResetPassword />} />

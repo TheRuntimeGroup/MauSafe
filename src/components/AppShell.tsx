@@ -4,11 +4,13 @@ import {
   Home,
   LifeBuoy,
   ListChecks,
+  Megaphone,
   Phone,
   ShieldAlert,
   Siren,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { AccountMenu } from "@/components/AccountMenu";
@@ -25,6 +27,7 @@ const MOBILE_ITEMS = NAV_ITEMS;
 
 export function AppShell() {
   const { t } = useI18n();
+  const { isAdmin } = useIsAdmin();
 
   const mobileTab = (item: (typeof MOBILE_ITEMS)[number]) => (
     <NavLink
@@ -110,6 +113,15 @@ export function AppShell() {
             <Heart className="h-4 w-4" aria-hidden="true" />
             {t("nav.contacts")}
           </NavLink>
+          {isAdmin && (
+            <NavLink
+              to="/admin/announcements"
+              className="flex items-center gap-2.5 px-1 text-xs font-semibold text-muted-foreground transition-colors hover:text-primary"
+            >
+              <Megaphone className="h-4 w-4" aria-hidden="true" />
+              {t("nav.admin")}
+            </NavLink>
+          )}
           <AccountMenu variant="sidebar" />
           <div className="flex justify-center">
             <LanguageSwitcher />
