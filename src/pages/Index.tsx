@@ -1,176 +1,78 @@
-import { Link } from "react-router-dom";
-import {
-  Ambulance,
-  ArrowRight,
-  FileWarning,
-  Flame,
-  Footprints,
-  HeartHandshake,
-  MapPin,
-  PhoneCall,
-  Radar,
-  ShieldAlert,
-  ShieldCheck,
-  Siren,
-} from "lucide-react";
+import { ArrowDown, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { cn } from "@/lib/utils";
-
-const features = [
-  {
-    to: "/scam-check",
-    icon: ShieldCheck,
-    title: "Scam Check",
-    description: "Check suspicious messages and links with explainable warning signals.",
-    accent: "bg-[#E4F0E9] text-[#0D5C56]",
-  },
-  {
-    to: "/sos",
-    icon: Siren,
-    title: "SOS Emergency",
-    description: "One tap to the right emergency number for police, ambulance and fire.",
-    accent: "bg-[#FBE4DE] text-[#A33D30]",
-  },
-  {
-    to: "/nearby-help",
-    icon: MapPin,
-    title: "Nearby Help",
-    description: "Find hospitals, police, fire stations and cyclone shelters near you.",
-    accent: "bg-[#E7EEF8] text-[#2563EB]",
-  },
-  {
-    to: "/safe-haven",
-    icon: HeartHandshake,
-    title: "Safe Haven",
-    description: "A map of places that display a Safe Haven sticker for people in need.",
-    accent: "bg-[#F4ECD9] text-[#9A6815]",
-  },
-  {
-    to: "/walk-mate",
-    icon: Footprints,
-    title: "Walk Mate",
-    description: "Share your live location with a trusted contact until you arrive safely.",
-    accent: "bg-[#E3F0EC] text-[#176B62]",
-  },
-  {
-    to: "/scam-watch",
-    icon: Radar,
-    title: "Scam Watch",
-    description: "See community-reported scams and add your own so others stay aware.",
-    accent: "bg-[#EEE7F6] text-[#6D28D9]",
-  },
-  {
-    to: "/report",
-    icon: FileWarning,
-    title: "Anonymous Report",
-    description: "Report an issue anonymously and track it with a private code.",
-    accent: "bg-[#E9EDEA] text-[#42524B]",
-  },
-];
-
-const emergencyButtons = [
-  { label: "Police", number: "999 / 112", tel: "tel:999", icon: ShieldAlert, tone: "bg-[#0D5C56] text-white" },
-  { label: "Ambulance", number: "114", tel: "tel:114", icon: Ambulance, tone: "bg-[#A33D30] text-white" },
-  { label: "Fire", number: "115", tel: "tel:115", icon: Flame, tone: "bg-[#D97706] text-white" },
-];
+import { InfoSections } from "@/components/scam/InfoSections";
+import { ScamChecker } from "@/components/scam/ScamChecker";
 
 const Index = () => {
   return (
-    <div>
-      <section className="border-b border-[#DDE5DC]">
-        <div className="mx-auto grid max-w-[1180px] items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
+    <div className="min-h-screen bg-[#F5F7F2] text-[#17332F]">
+      <header className="border-b border-[#DDE5DC] bg-[#F5F7F2]/95">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-5 px-4 py-4 sm:px-6 lg:px-8">
+          <a href="#top" className="flex items-center gap-3 rounded-xl" aria-label="AnouSecure Moris home">
+            <Logo className="h-10 w-10 sm:h-11 sm:w-11" />
+            <span>
+              <span className="block font-display text-[17px] font-extrabold leading-none tracking-[-0.04em] text-[#17332F]">AnouSecure</span>
+              <span className="mt-1 block font-mono text-[9px] font-bold uppercase tracking-[0.27em] text-[#527269]">Moris</span>
+            </span>
+          </a>
+          <nav className="hidden items-center gap-7 md:flex" aria-label="Main navigation">
+            <a href="#checker" className="rounded-md text-sm font-bold text-[#0D5C56] hover:underline">Scam check</a>
+            <a href="#how-it-works" className="rounded-md text-sm font-semibold text-[#5B6D67] transition hover:text-[#0D5C56]">How it works</a>
+            <a href="#after-click" className="rounded-md text-sm font-semibold text-[#5B6D67] transition hover:text-[#0D5C56]">After a click</a>
+          </nav>
+          <div className="flex items-center gap-2 rounded-full border border-[#D5E0D6] bg-white px-3 py-2 text-xs font-bold text-[#315E54] sm:px-4">
+            <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="hidden sm:inline">Privacy-first</span>
+            <span className="sm:hidden">Private</span>
+          </div>
+        </div>
+      </header>
+
+      <main id="top">
+        <section className="mx-auto grid max-w-[1180px] items-center gap-10 px-4 pb-12 pt-12 sm:px-6 sm:pb-16 sm:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-20 lg:pt-20">
           <div className="animate-fade-in-up">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#CADBCB] bg-[#EAF2E8] px-3.5 py-2 text-xs font-extrabold text-[#315E54]">
-              <Logo className="h-4 w-4" />
-              Built for Mauritius · Privacy-first
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+              Built for Mauritius · Useful anywhere
             </div>
-            <h1 className="mt-6 max-w-xl font-display text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.05em] text-[#17332F] sm:text-5xl lg:text-[3.6rem]">
-              Stay safer, <span className="font-serif font-medium italic tracking-[-0.035em] text-[#0D5C56]">together.</span>
+            <h1 className="mt-6 max-w-xl font-display text-[2.75rem] font-extrabold leading-[1.02] tracking-[-0.055em] text-[#17332F] sm:text-6xl lg:text-[4.25rem]">
+              A second opinion <span className="font-serif font-medium italic tracking-[-0.035em] text-[#0D5C56]">before you click.</span>
             </h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-[#5B6D67] sm:text-lg sm:leading-8">
-              Check scams, reach the right help fast, find safe places, and let trusted people know you arrived safely.
+            <p className="mt-6 max-w-lg text-base leading-7 text-[#5B6D67] sm:text-lg sm:leading-8">
+              Paste a suspicious message or link. We’ll highlight the red flags, inspect the destination and show the evidence in plain language.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/scam-check"
-                className="group inline-flex min-h-[52px] items-center gap-3 rounded-2xl bg-[#0D5C56] px-6 font-display text-sm font-extrabold text-white shadow-[0_12px_24px_-14px_rgba(13,92,86,0.9)] transition hover:bg-[#084B46]"
-              >
-                Check something now
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-              </Link>
-              <Link
-                to="/sos"
-                className="inline-flex min-h-[52px] items-center gap-3 rounded-2xl border border-[#E0B9B0] bg-[#FFF0ED] px-6 font-display text-sm font-extrabold text-[#A33D30] transition hover:bg-[#FBE4DE]"
-              >
-                <Siren className="h-4 w-4" aria-hidden="true" />
-                Emergency help
-              </Link>
+            <a href="#checker" className="group mt-8 inline-flex min-h-[52px] items-center gap-3 rounded-2xl bg-[#0D5C56] px-6 font-display text-sm font-extrabold text-white shadow-[0_12px_24px_-14px_rgba(13,92,86,0.9)] transition hover:bg-[#084B46]">
+              Check something now
+              <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" aria-hidden="true" />
+            </a>
+            <p className="mt-4 text-xs font-semibold text-[#71827A]">No sign-up. No scare tactics. Just evidence.</p>
+          </div>
+          <div className="relative mx-auto w-full max-w-[520px] animate-fade-in-up lg:mx-0">
+            <img
+              src="/scam-check-illustration.svg"
+              alt="A security shield inspecting a suspicious message and link"
+              className="h-auto w-full rounded-[2.25rem]"
+              width="520"
+              height="340"
+            />
+            <div className="absolute -bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded-2xl border border-[#D5E0D6] bg-white px-4 py-3 shadow-[0_18px_35px_-25px_rgba(23,51,47,0.65)] sm:left-8 sm:right-8 sm:px-5">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#315E54]"><span className="h-2 w-2 rounded-full bg-[#4C8A62]" aria-hidden="true" /> Message signals</div>
+              <div className="h-4 w-px bg-[#DCE4DD]" aria-hidden="true" />
+              <div className="flex items-center gap-2 text-xs font-bold text-[#315E54]"><span className="h-2 w-2 rounded-full bg-[#4C8A62]" aria-hidden="true" /> Live link checks</div>
             </div>
           </div>
+        </section>
 
-          <div className="rounded-[2rem] border border-[#D6E0D7] bg-white p-5 shadow-[0_28px_70px_-42px_rgba(23,51,47,0.45)] sm:p-6">
-            <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.16em] text-[#71827A]">
-              <PhoneCall className="h-4 w-4" aria-hidden="true" />
-              In an emergency
-            </div>
-            <p className="mt-2 text-sm leading-6 text-[#5B6D67]">
-              Tap to open your phone dialer. This app does not call emergency services for you.
-            </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {emergencyButtons.map((button) => (
-                <a
-                  key={button.label}
-                  href={button.tel}
-                  className={cn(
-                    "flex min-h-28 flex-col items-center justify-center gap-2 rounded-2xl p-4 text-center transition active:scale-[0.98]",
-                    button.tone,
-                  )}
-                >
-                  <button.icon className="h-7 w-7" strokeWidth={1.8} aria-hidden="true" />
-                  <span className="font-display text-base font-extrabold">{button.label}</span>
-                  <span className="font-mono text-xs font-bold opacity-90">{button.number}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1180px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8" aria-labelledby="features-title">
-        <div className="max-w-2xl">
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#0D5C56]">Seven tools, one app</p>
-          <h2 id="features-title" className="mt-3 font-display text-3xl font-bold tracking-[-0.04em] text-[#17332F] sm:text-4xl">
-            What do you need right now?
-          </h2>
+        <div className="mx-auto max-w-[920px] px-4 sm:px-6 lg:px-8">
+          <ScamChecker />
         </div>
 
-        <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, index) => (
-            <Link
-              key={feature.to}
-              to={feature.to}
-              className={cn(
-                "group flex min-h-[220px] flex-col justify-between rounded-[1.75rem] border border-[#DCE4DD] bg-white p-6 shadow-[0_12px_35px_-28px_rgba(23,51,47,0.5)] transition hover:-translate-y-0.5 hover:border-[#BFD0C4]",
-                index === 0 && "sm:col-span-2 lg:col-span-1",
-              )}
-            >
-              <div>
-                <span className={cn("flex h-12 w-12 items-center justify-center rounded-2xl", feature.accent)}>
-                  <feature.icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
-                </span>
-                <h3 className="mt-5 font-display text-xl font-bold tracking-tight text-[#17332F]">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#5B6D67]">{feature.description}</p>
-              </div>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-[#0D5C56]">
-                Open
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-              </span>
-            </Link>
-          ))}
+        <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
+          <InfoSections />
         </div>
-      </section>
+      </main>
 
-      <section className="border-t border-[#DDE5DC] bg-[#EDF2EB]">
+      <footer className="border-t border-[#DDE5DC] bg-[#EDF2EB]">
         <div className="mx-auto flex max-w-[1180px] flex-col gap-5 px-4 py-8 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div className="flex items-center gap-3">
             <Logo className="h-9 w-9" />
@@ -180,10 +82,10 @@ const Index = () => {
             </div>
           </div>
           <p className="max-w-lg text-xs leading-5 text-[#687A72] md:text-right">
-            Tools support your judgement; they do not replace official verification or emergency services. Location is only used with your consent.
+            Automated checks support your judgement; they do not replace official verification or guarantee that a sender, business or website is genuine.
           </p>
         </div>
-      </section>
+      </footer>
     </div>
   );
 };
