@@ -9,7 +9,7 @@ export function Logo({
 }) {
   return (
     <svg
-      viewBox={variant === "full" ? "110 190 1245 390" : "105 185 450 420"}
+      viewBox={variant === "full" ? "100 125 1265 455" : "100 125 440 455"}
       xmlns="http://www.w3.org/2000/svg"
       className={cn("h-8 w-8", className)}
       role="img"
