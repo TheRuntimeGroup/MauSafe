@@ -162,15 +162,15 @@ const DisasterSafety = () => {
                   {t("weather.feels", { value: Math.round(current.apparent_temperature) })}
                 </p>
               </div>
-              <WeatherIcon code={current.weather_code} className="h-14 w-14 text-violet-300" />
+              <WeatherIcon code={current.weather_code} className="h-14 w-14 text-sky-300" />
             </div>
             <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/10 pt-5 text-sm">
               <p className="flex items-center gap-2 text-white/75">
-                <Wind className="h-4 w-4 text-violet-300" aria-hidden="true" />
+                <Wind className="h-4 w-4 text-sky-300" aria-hidden="true" />
                 {Math.round(current.wind_speed_10m)} km/h
               </p>
               <p className="flex items-center gap-2 text-white/75">
-                <Droplets className="h-4 w-4 text-violet-300" aria-hidden="true" />
+                <Droplets className="h-4 w-4 text-sky-300" aria-hidden="true" />
                 {current.relative_humidity_2m}% {t("weather.humidity")}
               </p>
             </div>
