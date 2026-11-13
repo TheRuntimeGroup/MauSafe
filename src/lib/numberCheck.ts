@@ -1,5 +1,28 @@
 export type ReportTag = "scam" | "spam" | "harassment" | "other";
 export type NumberType = "mobile" | "landline" | "other";
+export type CarrierLineType =
+  | "mobile"
+  | "landline"
+  | "voip"
+  | "toll_free"
+  | "premium_rate"
+  | "special_services"
+  | "other";
+
+export interface LiveCarrierLookup {
+  carrier: string | null;
+  lineType: CarrierLineType | null;
+  location: string | null;
+  countryName: string | null;
+  internationalFormat: string | null;
+}
+
+export type RiskLevel = "low" | "medium" | "high";
+export interface RiskAssessment {
+  level: RiskLevel;
+  labelKey: string;
+  hintKey: string;
+}
 
 export interface NumberReport {
   id: string;
@@ -136,6 +159,50 @@ export function listReports(): NumberReport[] {
 
 export function findReport(normalized: string): NumberReport | null {
   return listReports().find((r) => r.number === normalized) ?? null;
+}
+
+export function assessScamRisk(
+  report: NumberReport | null,
+  lineType: CarrierLineType | null,
+): RiskAssessment {
+  if (report?.tags.some((tag) => tag === "scam" || tag === "harassment")) {
+    return {
+      level: "high",
+      labelKey: "callcheck.risk.high",
+      hintKey: "callcheck.risk.reportedHint",
+    };
+  }
+  if (report) {
+    return {
+      level: "medium",
+      labelKey: "callcheck.risk.medium",
+      hintKey: "callcheck.risk.reportedHint",
+    };
+  }
+  if (lineType === "voip" || lineType === "premium_rate") {
+    return {
+      level: "medium",
+      labelKey: "callcheck.risk.medium",
+      hintKey: "callcheck.risk.voipHint",
+    };
+  }
+  return {
+    level: "low",
+    labelKey: "callcheck.risk.low",
+    hintKey: "callcheck.risk.lowHint",
+  };
+}
+
+export function normalizeLineType(value: string | null | undefined): CarrierLineType | null {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase().replace(/[ -]/g, "_");
+  if (normalized === "mobile") return "mobile";
+  if (normalized === "landline" || normalized === "fixed_line") return "landline";
+  if (normalized === "voip") return "voip";
+  if (normalized === "toll_free") return "toll_free";
+  if (normalized === "premium_rate") return "premium_rate";
+  if (normalized === "special_services") return "special_services";
+  return "other";
 }
 
 export function reportNumber(input: {
