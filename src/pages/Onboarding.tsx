@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Accessibility,
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
+  Captions,
   Check,
   Ear,
   Eye,
@@ -19,6 +21,7 @@ import {
   Sparkles,
   User,
   Volume2,
+  type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
@@ -266,36 +269,36 @@ const Onboarding = () => {
 
   const accessOptions: {
     id: AccessibilityNeed;
-    icon: typeof Eye;
-    emoji: string;
+    icon: LucideIcon;
+    tone: string;
     title: string;
     body: string;
   }[] = [
     {
       id: "visual",
       icon: Eye,
-      emoji: "👁️",
+      tone: "bg-sky-100 text-sky-700",
       title: t("onboarding.accessibility.visual.title"),
       body: t("onboarding.accessibility.visual.body"),
     },
     {
       id: "hearing",
       icon: Ear,
-      emoji: "🦻",
+      tone: "bg-violet-100 text-violet-700",
       title: t("onboarding.accessibility.hearing.title"),
       body: t("onboarding.accessibility.hearing.body"),
     },
     {
       id: "motor",
       icon: Accessibility,
-      emoji: "♿",
+      tone: "bg-amber-100 text-amber-700",
       title: t("onboarding.accessibility.motor.title"),
       body: t("onboarding.accessibility.motor.body"),
     },
     {
       id: "none",
       icon: Sparkles,
-      emoji: "✨",
+      tone: "bg-emerald-100 text-emerald-700",
       title: t("onboarding.accessibility.none.title"),
       body: t("onboarding.accessibility.none.body"),
     },
@@ -303,8 +306,6 @@ const Onboarding = () => {
 
   const needsLabel = (id: AccessibilityNeed) =>
     accessOptions.find((option) => option.id === id)?.title ?? id;
-
-  const progress = finish === "none" ? ((stepIndex + 1) / steps.length) * 100 : 100;
 
   if (loading || profileLoading || !hydrated) {
     return (
@@ -316,10 +317,8 @@ const Onboarding = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-background">
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -left-28 top-20 h-80 w-80 rounded-full bg-sky-300/25 blur-[100px]" />
-        <div className="absolute -right-24 top-1/3 h-96 w-96 rounded-full bg-emerald-200/25 blur-[110px]" />
-        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-amber-100/45 blur-[90px]" />
+      <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+        <div className="absolute inset-0 bg-dots opacity-40" />
       </div>
 
       <header className="relative z-10 flex items-center justify-between gap-3 px-5 pt-[max(1rem,env(safe-area-inset-top))] sm:px-8">
@@ -332,218 +331,286 @@ const Onboarding = () => {
         <LanguageSwitcher compact />
       </header>
 
-      <main className="relative z-10 flex flex-1 items-center justify-center px-5 py-8 sm:px-8">
-        <div className="w-full max-w-xl">
-          <div className="overflow-hidden rounded-[2rem] border border-white bg-white/90 shadow-premium backdrop-blur-2xl motion-safe:animate-fade-in-up">
-            <div className="h-1.5 w-full bg-muted" aria-hidden="true">
-              <div
-                className="h-full rounded-r-full bg-primary transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            <div className="px-6 pb-8 pt-6 sm:px-10 sm:pb-10 sm:pt-8">
-              {finish === "none" && (
-                <div className="mb-6 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={goBack}
-                    disabled={stepIndex === 0}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
-                    aria-label={t("onboarding.back")}
-                  >
-                    <ArrowLeft className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                  <span className="text-xs font-bold text-muted-foreground">
-                    {stepIndex + 1} / {steps.length}
-                  </span>
-                </div>
-              )}
-
-              <div key={`${currentStep}-${finish}`} className="motion-safe:animate-fade-in-up">
-                {finish === "checkEmail" && (
-                  <FinishScreen
-                    icon={<Mail className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />}
-                    title={t("onboarding.checkEmail.title")}
-                    body={t("onboarding.checkEmail.body")}
-                    hint={t("onboarding.checkEmail.hint")}
-                    ctaLabel={t("onboarding.signIn")}
-                    ctaTo="/auth"
-                  />
-                )}
-
-                {finish === "done" && (
-                  <FinishScreen
-                    icon={<PartyPopper className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />}
-                    title={t("onboarding.success.title")}
-                    body={t("onboarding.success.body")}
-                    hint={t("onboarding.success.hint")}
-                    ctaLabel={t("onboarding.success.cta")}
-                    ctaTo="/"
-                  />
-                )}
-
-                {finish === "none" && currentStep === "welcome" && (
-                  <WelcomeStep
-                    onStart={goNext}
-                    startLabel={t("onboarding.welcome.start")}
-                    haveAccount={t("onboarding.haveAccount")}
-                    signInLabel={t("onboarding.signIn")}
-                    title={t("onboarding.welcome.title")}
-                    body={t("onboarding.welcome.body")}
-                    appName={t("app.name")}
-                  />
-                )}
-
-                {finish === "none" && currentStep === "name" && (
-                  <TextStep
-                    eyebrow={t("onboarding.name.eyebrow")}
-                    title={t("onboarding.name.title")}
-                    subtitle={t("onboarding.name.subtitle")}
-                    value={name}
-                    onChange={(value) => {
-                      setName(value);
-                      setError(null);
-                    }}
-                    placeholder={t("onboarding.name.placeholder")}
-                    icon={<User className="h-5 w-5" aria-hidden="true" />}
-                    onContinue={goNext}
-                    continueLabel={t("onboarding.continue")}
-                    autoFocus
-                  />
-                )}
-
-                {finish === "none" && currentStep === "email" && (
-                  <TextStep
-                    eyebrow={t("onboarding.email.eyebrow")}
-                    title={t("onboarding.email.title")}
-                    subtitle={t("onboarding.email.subtitle")}
-                    value={email}
-                    onChange={(value) => {
-                      setEmail(value);
-                      setError(null);
-                    }}
-                    placeholder={t("onboarding.email.placeholder")}
-                    icon={<Mail className="h-5 w-5" aria-hidden="true" />}
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    onContinue={goNext}
-                    continueLabel={t("onboarding.continue")}
-                    autoFocus
-                  />
-                )}
-
-                {finish === "none" && currentStep === "phone" && (
-                  <TextStep
-                    eyebrow={t("onboarding.phone.eyebrow")}
-                    title={t("onboarding.phone.title")}
-                    subtitle={t("onboarding.phone.subtitle")}
-                    value={phone}
-                    onChange={(value) => {
-                      setPhone(value);
-                      setError(null);
-                    }}
-                    placeholder={t("onboarding.phone.placeholder")}
-                    icon={<Phone className="h-5 w-5" aria-hidden="true" />}
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    onContinue={goNext}
-                    continueLabel={t("onboarding.continue")}
-                    autoFocus
-                  />
-                )}
-
-                {finish === "none" && currentStep === "accessibility" && (
-                  <AccessibilityStep
-                    eyebrow={t("onboarding.accessibility.eyebrow")}
-                    title={t("onboarding.accessibility.title")}
-                    subtitle={t("onboarding.accessibility.subtitle")}
-                    options={accessOptions}
-                    selected={needs}
-                    onToggle={toggleNeed}
-                    onContinue={goNext}
-                    continueLabel={t("onboarding.continue")}
-                    motorNote={t("onboarding.motor.help")}
-                    hearingNote={t("onboarding.hearing.help")}
-                  />
-                )}
-
-                {finish === "none" && currentStep === "voice" && (
-                  <VoiceStep
-                    eyebrow={t("onboarding.voice.eyebrow")}
-                    title={t("onboarding.voice.title")}
-                    subtitle={t("onboarding.voice.subtitle")}
-                    value={voiceGuide}
-                    onChange={(value) => setVoiceGuide(value)}
-                    yesTitle={t("onboarding.voice.yes.title")}
-                    yesBody={t("onboarding.voice.yes.body")}
-                    noTitle={t("onboarding.voice.no.title")}
-                    noBody={t("onboarding.voice.no.body")}
-                    comingSoon={t("onboarding.voice.coming")}
-                  />
-                )}
-
-                {finish === "none" && currentStep === "password" && (
-                  <PasswordStep
-                    eyebrow={t("onboarding.password.eyebrow")}
-                    title={t("onboarding.password.title")}
-                    subtitle={t("onboarding.password.subtitle")}
-                    password={password}
-                    setPassword={setPassword}
-                    confirmation={confirmation}
-                    setConfirmation={setConfirmation}
-                    showPassword={showPassword}
-                    setShowPassword={setShowPassword}
-                    onContinue={goNext}
-                    continueLabel={t("onboarding.continue")}
-                    placeholder={t("onboarding.password.placeholder")}
-                    confirmPlaceholder={t("onboarding.password.confirm")}
-                    showLabel={t("auth.showPassword")}
-                    hideLabel={t("auth.hidePassword")}
-                  />
-                )}
-
-                {finish === "none" && currentStep === "review" && (
-                  <ReviewStep
-                    eyebrow={t("onboarding.review.eyebrow")}
-                    title={t("onboarding.review.title")}
-                    subtitle={isProfileMode ? t("onboarding.signInToContinue") : t("onboarding.review.subtitle")}
-                    name={name}
-                    email={email}
-                    phone={phone}
-                    needs={needs}
-                    voiceGuide={voiceGuide}
-                    labels={{
-                      name: t("onboarding.review.name"),
-                      email: t("onboarding.review.email"),
-                      phone: t("onboarding.review.phone"),
-                      needs: t("onboarding.review.needs"),
-                      voice: t("onboarding.review.voice"),
-                      voiceOn: t("onboarding.review.voiceOn"),
-                      voiceOff: t("onboarding.review.voiceOff"),
-                      edit: t("onboarding.review.edit"),
-                    }}
-                    needsLabel={needsLabel}
-                    onSubmit={handleSubmit}
-                    submitting={submitting}
-                    submitLabel={isProfileMode ? t("onboarding.submit") : t("onboarding.submit")}
-                    loadingLabel={t("onboarding.creating")}
-                    onEdit={goBack}
-                  />
-                )}
-              </div>
-
-              {finish === "none" && error && (
-                <div
-                  role="alert"
-                  className="mt-5 flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger/[0.06] px-4 py-3 text-sm font-medium text-danger"
+      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
+        <div className="w-full max-w-5xl">
+          <div className="overflow-hidden rounded-[2rem] border border-[#E8E4DA] bg-card shadow-premium motion-safe:animate-fade-in-up">
+            <div className="grid lg:grid-cols-[0.92fr_1.08fr]">
+              <aside className="relative isolate hidden overflow-hidden bg-[#0D2B45] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+                <svg
+                  className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 text-sky-300/10"
+                  viewBox="0 0 220 220"
+                  fill="none"
+                  aria-hidden="true"
                 >
-                  <span className="mt-0.5 text-base leading-none">⚠️</span>
-                  <span>{error}</span>
+                  <circle cx="110" cy="110" r="82" stroke="currentColor" />
+                  <circle cx="110" cy="110" r="54" stroke="currentColor" />
+                  <path d="M16 150C60 130 76 76 126 86C168 94 178 48 222 42" stroke="currentColor" />
+                </svg>
+                <svg
+                  className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 text-emerald-300/[0.07]"
+                  viewBox="0 0 220 220"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle cx="110" cy="110" r="82" stroke="currentColor" />
+                  <circle cx="110" cy="110" r="54" stroke="currentColor" />
+                </svg>
+
+                <div className="relative flex items-center gap-3">
+                  <Logo className="h-11 w-11" />
+                  <div>
+                    <p className="font-display text-xl font-extrabold tracking-tight">{t("app.name")}</p>
+                    <p className="text-[11px] font-medium text-sky-200">{t("app.badge")}</p>
+                  </div>
                 </div>
-              )}
+
+                <div className="relative">
+                  <div className="mb-5 flex h-1 w-16 overflow-hidden rounded-full" aria-hidden="true">
+                    <span className="flex-1 bg-[#EA3B3B]" />
+                    <span className="flex-1 bg-[#1D3B8C]" />
+                    <span className="flex-1 bg-[#F7C600]" />
+                    <span className="flex-1 bg-[#0E7A4D]" />
+                  </div>
+                  <h2 className="max-w-sm font-display text-[2rem] font-extrabold leading-[1.12] tracking-[-0.04em]">
+                    {t("app.heroTitle")}
+                  </h2>
+                  <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">{t("app.heroSubtitle")}</p>
+                </div>
+
+                <div className="relative flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3.5 backdrop-blur-sm">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                    <ShieldCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                  </span>
+                  <p className="text-xs leading-relaxed text-slate-200">{t("home.trustBody")}</p>
+                </div>
+              </aside>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-3 bg-[#0D2B45] px-6 py-5 text-white lg:hidden">
+                  <Logo className="h-9 w-9" />
+                  <div>
+                    <p className="font-display text-lg font-extrabold tracking-tight">{t("app.name")}</p>
+                    <p className="text-[11px] font-medium text-sky-200">{t("app.tagline")}</p>
+                  </div>
+                </div>
+
+                <div className="px-6 py-7 sm:px-10 sm:py-9">
+                  {finish === "none" && (
+                    <div className="mb-7">
+                      <div className="flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={goBack}
+                          disabled={stepIndex === 0}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/[0.08] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                          aria-label={t("onboarding.back")}
+                        >
+                          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                        <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                          {stepIndex + 1} / {steps.length}
+                        </span>
+                      </div>
+                      <div className="mt-4 flex gap-1.5" aria-hidden="true">
+                        {steps.map((step, index) => (
+                          <span
+                            key={`${step}-${index}`}
+                            className={cn(
+                              "h-1.5 flex-1 rounded-full transition-colors duration-500",
+                              index <= stepIndex ? "bg-primary" : "bg-muted",
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div key={`${currentStep}-${finish}`} className="motion-safe:animate-fade-in-up">
+                    {finish === "checkEmail" && (
+                      <FinishScreen
+                        icon={<Mail className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />}
+                        title={t("onboarding.checkEmail.title")}
+                        body={t("onboarding.checkEmail.body")}
+                        hint={t("onboarding.checkEmail.hint")}
+                        ctaLabel={t("onboarding.signIn")}
+                        ctaTo="/auth"
+                      />
+                    )}
+
+                    {finish === "done" && (
+                      <FinishScreen
+                        icon={<PartyPopper className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />}
+                        title={t("onboarding.success.title")}
+                        body={t("onboarding.success.body")}
+                        hint={t("onboarding.success.hint")}
+                        ctaLabel={t("onboarding.success.cta")}
+                        ctaTo="/"
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "welcome" && (
+                      <WelcomeStep
+                        onStart={goNext}
+                        startLabel={t("onboarding.welcome.start")}
+                        haveAccount={t("onboarding.haveAccount")}
+                        signInLabel={t("onboarding.signIn")}
+                        title={t("onboarding.welcome.title")}
+                        body={t("onboarding.welcome.body")}
+                        appName={t("app.name")}
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "name" && (
+                      <TextStep
+                        eyebrow={t("onboarding.name.eyebrow")}
+                        title={t("onboarding.name.title")}
+                        subtitle={t("onboarding.name.subtitle")}
+                        value={name}
+                        onChange={(value) => {
+                          setName(value);
+                          setError(null);
+                        }}
+                        placeholder={t("onboarding.name.placeholder")}
+                        icon={<User className="h-5 w-5" aria-hidden="true" />}
+                        onContinue={goNext}
+                        continueLabel={t("onboarding.continue")}
+                        autoFocus
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "email" && (
+                      <TextStep
+                        eyebrow={t("onboarding.email.eyebrow")}
+                        title={t("onboarding.email.title")}
+                        subtitle={t("onboarding.email.subtitle")}
+                        value={email}
+                        onChange={(value) => {
+                          setEmail(value);
+                          setError(null);
+                        }}
+                        placeholder={t("onboarding.email.placeholder")}
+                        icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        onContinue={goNext}
+                        continueLabel={t("onboarding.continue")}
+                        autoFocus
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "phone" && (
+                      <TextStep
+                        eyebrow={t("onboarding.phone.eyebrow")}
+                        title={t("onboarding.phone.title")}
+                        subtitle={t("onboarding.phone.subtitle")}
+                        value={phone}
+                        onChange={(value) => {
+                          setPhone(value);
+                          setError(null);
+                        }}
+                        placeholder={t("onboarding.phone.placeholder")}
+                        icon={<Phone className="h-5 w-5" aria-hidden="true" />}
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        onContinue={goNext}
+                        continueLabel={t("onboarding.continue")}
+                        autoFocus
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "accessibility" && (
+                      <AccessibilityStep
+                        eyebrow={t("onboarding.accessibility.eyebrow")}
+                        title={t("onboarding.accessibility.title")}
+                        subtitle={t("onboarding.accessibility.subtitle")}
+                        options={accessOptions}
+                        selected={needs}
+                        onToggle={toggleNeed}
+                        onContinue={goNext}
+                        continueLabel={t("onboarding.continue")}
+                        motorNote={t("onboarding.motor.help")}
+                        hearingNote={t("onboarding.hearing.help")}
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "voice" && (
+                      <VoiceStep
+                        eyebrow={t("onboarding.voice.eyebrow")}
+                        title={t("onboarding.voice.title")}
+                        subtitle={t("onboarding.voice.subtitle")}
+                        value={voiceGuide}
+                        onChange={(value) => setVoiceGuide(value)}
+                        yesTitle={t("onboarding.voice.yes.title")}
+                        yesBody={t("onboarding.voice.yes.body")}
+                        noTitle={t("onboarding.voice.no.title")}
+                        noBody={t("onboarding.voice.no.body")}
+                        comingSoon={t("onboarding.voice.coming")}
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "password" && (
+                      <PasswordStep
+                        eyebrow={t("onboarding.password.eyebrow")}
+                        title={t("onboarding.password.title")}
+                        subtitle={t("onboarding.password.subtitle")}
+                        password={password}
+                        setPassword={setPassword}
+                        confirmation={confirmation}
+                        setConfirmation={setConfirmation}
+                        showPassword={showPassword}
+                        setShowPassword={setShowPassword}
+                        onContinue={goNext}
+                        continueLabel={t("onboarding.continue")}
+                        placeholder={t("onboarding.password.placeholder")}
+                        confirmPlaceholder={t("onboarding.password.confirm")}
+                        showLabel={t("auth.showPassword")}
+                        hideLabel={t("auth.hidePassword")}
+                      />
+                    )}
+
+                    {finish === "none" && currentStep === "review" && (
+                      <ReviewStep
+                        eyebrow={t("onboarding.review.eyebrow")}
+                        title={t("onboarding.review.title")}
+                        subtitle={isProfileMode ? t("onboarding.signInToContinue") : t("onboarding.review.subtitle")}
+                        name={name}
+                        email={email}
+                        phone={phone}
+                        needs={needs}
+                        voiceGuide={voiceGuide}
+                        labels={{
+                          name: t("onboarding.review.name"),
+                          email: t("onboarding.review.email"),
+                          phone: t("onboarding.review.phone"),
+                          needs: t("onboarding.review.needs"),
+                          voice: t("onboarding.review.voice"),
+                          voiceOn: t("onboarding.review.voiceOn"),
+                          voiceOff: t("onboarding.review.voiceOff"),
+                          edit: t("onboarding.review.edit"),
+                        }}
+                        needsLabel={needsLabel}
+                        onSubmit={handleSubmit}
+                        submitting={submitting}
+                        submitLabel={t("onboarding.submit")}
+                        loadingLabel={t("onboarding.creating")}
+                        onEdit={goBack}
+                      />
+                    )}
+                  </div>
+
+                  {finish === "none" && error && (
+                    <div
+                      role="alert"
+                      className="mt-5 flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger/[0.06] px-4 py-3 text-sm font-medium text-danger"
+                    >
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -575,21 +642,18 @@ function WelcomeStep({
   appName: string;
 }) {
   return (
-    <div className="text-center">
-      <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
-        <span className="absolute inset-0 animate-logo-halo rounded-[1.75rem] bg-sky-300/40" aria-hidden="true" />
-        <span className="relative flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-[#0D2B45] text-white shadow-premium">
-          <Sparkles className="h-7 w-7" strokeWidth={1.9} aria-hidden="true" />
-        </span>
-      </div>
+    <div>
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0D2B45] text-white shadow-premium">
+        <ShieldCheck className="h-7 w-7" strokeWidth={1.9} aria-hidden="true" />
+      </span>
       <p className="mt-6 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
         {`${appName} · ${new Date().getFullYear()}`}
       </p>
-      <h1 className="mt-3 font-display text-[2rem] font-extrabold leading-[1.1] tracking-[-0.04em] text-foreground sm:text-4xl">
+      <h1 className="mt-3 font-display text-[1.9rem] font-extrabold leading-[1.1] tracking-[-0.04em] text-foreground sm:text-[2.35rem]">
         {title}
       </h1>
-      <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <AppButton size="xl" onClick={onStart} className="mt-8 w-full sm:w-auto sm:px-10">
+      <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">{body}</p>
+      <AppButton size="xl" onClick={onStart} className="mt-8">
         {startLabel}
         <ArrowRight className="h-5 w-5" aria-hidden="true" />
       </AppButton>
@@ -624,7 +688,7 @@ function TextStep({
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   onContinue: () => void;
   continueLabel: string;
   type?: string;
@@ -646,7 +710,7 @@ function TextStep({
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
 
       <div className="mt-7">
-        <div className="flex items-center gap-3 rounded-2xl border border-input bg-white px-4 shadow-sm focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+        <div className="flex items-center gap-3 rounded-2xl border border-input bg-white px-4 shadow-sm transition-shadow focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
           <span className="shrink-0 text-muted-foreground">{icon}</span>
           <input
             autoFocus={autoFocus}
@@ -661,7 +725,7 @@ function TextStep({
         </div>
       </div>
 
-      <AppButton type="submit" size="xl" className="mt-6 w-full">
+      <AppButton type="submit" size="xl" className="mt-6">
         {continueLabel}
         <ArrowRight className="h-5 w-5" aria-hidden="true" />
       </AppButton>
@@ -686,8 +750,8 @@ function AccessibilityStep({
   subtitle: string;
   options: {
     id: AccessibilityNeed;
-    icon: typeof Eye;
-    emoji: string;
+    icon: LucideIcon;
+    tone: string;
     title: string;
     body: string;
   }[];
@@ -719,24 +783,21 @@ function AccessibilityStep({
               className={cn(
                 "flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all",
                 isSelected
-                  ? "border-primary bg-primary/[0.05] ring-2 ring-primary/15"
+                  ? "border-primary bg-primary/[0.04] ring-2 ring-primary/15"
                   : "border-input bg-white hover:border-primary/40 hover:bg-muted/50",
               )}
             >
               <span
                 className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl",
-                  isSelected ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground",
+                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors",
+                  isSelected ? "bg-primary text-primary-foreground" : option.tone,
                 )}
                 aria-hidden="true"
               >
-                {option.emoji}
+                <Icon className="h-5 w-5" strokeWidth={2} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                  <span className="text-sm font-extrabold text-foreground">{option.title}</span>
-                </span>
+                <span className="block text-sm font-extrabold text-foreground">{option.title}</span>
                 <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{option.body}</span>
               </span>
               <span
@@ -766,7 +827,7 @@ function AccessibilityStep({
         </div>
       )}
 
-      <AppButton size="xl" onClick={onContinue} disabled={selected.length === 0} className="mt-6 w-full">
+      <AppButton size="xl" onClick={onContinue} disabled={selected.length === 0} className="mt-6">
         {continueLabel}
         <ArrowRight className="h-5 w-5" aria-hidden="true" />
       </AppButton>
@@ -797,9 +858,9 @@ function VoiceStep({
   noBody: string;
   comingSoon: string;
 }) {
-  const choices = [
+  const choices: { value: boolean; icon: LucideIcon; title: string; body: string }[] = [
     { value: true, icon: Volume2, title: yesTitle, body: yesBody },
-    { value: false, icon: Eye, title: noTitle, body: noBody },
+    { value: false, icon: Captions, title: noTitle, body: noBody },
   ];
 
   return (
@@ -823,17 +884,18 @@ function VoiceStep({
               className={cn(
                 "flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all",
                 isSelected
-                  ? "border-primary bg-primary/[0.05] ring-2 ring-primary/15"
+                  ? "border-primary bg-primary/[0.04] ring-2 ring-primary/15"
                   : "border-input bg-white hover:border-primary/40 hover:bg-muted/50",
               )}
             >
               <span
                 className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
+                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors",
                   isSelected ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground",
                 )}
+                aria-hidden="true"
               >
-                <Icon className="h-5 w-5" aria-hidden="true" />
+                <Icon className="h-5 w-5" strokeWidth={2} />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-extrabold text-foreground">{choice.title}</span>
@@ -941,7 +1003,7 @@ function PasswordStep({
         />
       </div>
 
-      <AppButton type="submit" size="xl" className="mt-6 w-full">
+      <AppButton type="submit" size="xl" className="mt-6">
         {continueLabel}
         <ArrowRight className="h-5 w-5" aria-hidden="true" />
       </AppButton>
@@ -1033,7 +1095,7 @@ function ReviewStep({
         </div>
       </dl>
 
-      <AppButton type="submit" size="xl" disabled={submitting} className="mt-6 w-full">
+      <AppButton type="submit" size="xl" disabled={submitting} className="mt-6">
         {submitting ? (
           <>
             <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -1088,7 +1150,7 @@ function FinishScreen({
   ctaLabel,
   ctaTo,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   body: string;
   hint: string;
@@ -1106,7 +1168,7 @@ function FinishScreen({
       <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">{body}</p>
       <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-muted-foreground">{hint}</p>
       <Link to={ctaTo}>
-        <AppButton size="xl" className="mt-8 w-full">
+        <AppButton size="xl" className="mt-8">
           {ctaLabel}
           <ArrowRight className="h-5 w-5" aria-hidden="true" />
         </AppButton>
