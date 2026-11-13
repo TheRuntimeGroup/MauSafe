@@ -25,9 +25,7 @@ export function useIsAdmin(): { isAdmin: boolean; loading: boolean } {
       .then(({ data, error }) => {
         if (!active) return;
         setIsAdmin(!error && data?.role === "admin");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        setLoading(false);
       });
 
     return () => {
