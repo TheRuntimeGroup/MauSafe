@@ -97,6 +97,20 @@ serve(async (req) => {
       return json({ ok: true });
     }
 
+    const { data: created, error: createError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
+
+    if (createError || !created.user) {
+      if (createError && /already.*registered/i.test(createError.message)) {
+        return json({ error: "EMAIL_TAKEN" });
+      }
+      console.error("[verify-signup] createUser failed", createError);
+      return json({ error: "ACCOUNT_CREATE_FAILED" });
+    }
+
     const { error: consumeError } = await supabase
       .from("verification_codes")
       .update({ consumed_at: new Date().toISOString() })
@@ -104,25 +118,10 @@ serve(async (req) => {
       .is("consumed_at", null);
 
     if (consumeError) {
-      console.error("[verify-signup] failed to consume verification code", consumeError);
-      return json({ error: "UNKNOWN" });
+      console.error("[verify-signup] account created; failed to consume verification code", consumeError);
     }
 
-    const { data: created, error: createError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
-
-    if (createError) {
-      if (/already.*registered/i.test(createError.message)) {
-        return json({ error: "EMAIL_TAKEN" });
-      }
-      console.error("[verify-signup] createUser failed", createError);
-      return json({ error: "UNKNOWN" });
-    }
-
-    return json({ ok: true, userId: created.user?.id ?? null });
+    return json({ ok: true, userId: created.user.id });
   } catch (error) {
     console.error("[verify-signup] unexpected error", error);
     return json({ error: "UNKNOWN" });
