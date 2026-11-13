@@ -10,6 +10,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   en: {
     "app.name": "Anou Secure Moris",
     "app.tagline": "A calm safety companion for Mauritius",
+    "app.badge": "Powered to Protect · Mauritius",
     "app.heroTitle": "Get home safe, together",
     "app.heroSubtitle":
       "Share a check-in with someone you trust, find official help, and check suspicious messages — all in one place.",
@@ -17,6 +18,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "app.ctaHelp": "Get help now",
 
     "nav.home": "Home",
+    "nav.menu": "Menu",
     "nav.checkins": "Check-ins",
     "nav.scam": "Scam check",
     "nav.gethelp": "Get help",
@@ -297,6 +299,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   fr: {
     "app.name": "Anou Secure Moris",
     "app.tagline": "Un compagnon de sécurité apaisant pour Maurice",
+    "app.badge": "Powered to Protect · Maurice",
     "app.heroTitle": "Rentrez en sécurité, ensemble",
     "app.heroSubtitle":
       "Partagez un check-in avec une personne de confiance, trouvez une aide officielle et vérifiez les messages suspects — au même endroit.",
@@ -304,6 +307,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "app.ctaHelp": "Obtenir de l'aide",
 
     "nav.home": "Accueil",
+    "nav.menu": "Menu",
     "nav.checkins": "Check-ins",
     "nav.scam": "Vérif. arnaque",
     "nav.gethelp": "Obtenir de l'aide",
@@ -584,6 +588,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   km: {
     "app.name": "Anou Secure Moris",
     "app.tagline": "Enn konpagnon sekirite kalm pou Moris",
+    "app.badge": "Powered to Protect · Moris",
     "app.heroTitle": "Ariv lakaz an sekirite, ansam",
     "app.heroSubtitle":
       "Partaz enn check-in ek enn dimoun ou fer konfians, trouv led ofisiel, ek verif mesaz sispè — tou dan enn plas.",
@@ -591,6 +596,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "app.ctaHelp": "Gett led asterla",
 
     "nav.home": "Akey",
+    "nav.menu": "Menu",
     "nav.checkins": "Check-ins",
     "nav.scam": "Check arnak",
     "nav.gethelp": "Gett led",

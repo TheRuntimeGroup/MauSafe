@@ -1,5 +1,13 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Home, LifeBuoy, ListChecks, Phone, PhoneCall, ShieldAlert } from "lucide-react";
+import {
+  ChevronRight,
+  Home,
+  LifeBuoy,
+  ListChecks,
+  Phone,
+  PhoneCall,
+  ShieldAlert,
+} from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -20,20 +28,28 @@ export function AppShell() {
     <div className="min-h-screen bg-background lg:flex">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-border bg-card lg:flex">
-        <div className="flex items-center gap-3 px-6 py-6">
-          <Logo className="h-10 w-10" />
-          <div>
-            <p className="font-display text-lg font-bold leading-tight text-foreground">
+        <div className="flex items-center gap-3 px-5 pb-5 pt-6">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/15">
+            <Logo className="h-7 w-7" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-display text-lg font-extrabold leading-tight text-foreground">
               {t("app.name")}
             </p>
-            <p className="text-xs text-muted-foreground">{t("app.tagline")}</p>
+            <p className="truncate text-[11px] font-medium text-muted-foreground">
+              {t("app.tagline")}
+            </p>
           </div>
         </div>
 
-        <div className="mx-6 mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-          <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
-          Powered to Protect · Mauritius
+        <div className="mx-5 mb-5 flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-3 py-2">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+          <span className="truncate text-xs font-semibold text-primary">{t("app.badge")}</span>
         </div>
+
+        <p className="px-6 pb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          {t("nav.menu")}
+        </p>
 
         <nav className="flex flex-1 flex-col gap-1 px-3" aria-label="Primary">
           {NAV_ITEMS.map((item) => (
@@ -43,15 +59,29 @@ export function AppShell() {
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors",
+                  "group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-foreground hover:bg-muted",
                 )
               }
             >
-              <item.icon className="h-5 w-5" aria-hidden="true" />
-              {t(item.labelKey)}
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={cn(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors",
+                      isActive ? "bg-white/20" : "bg-muted group-hover:bg-background",
+                    )}
+                  >
+                    <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                  </span>
+                  {t(item.labelKey)}
+                  {isActive && (
+                    <ChevronRight className="ml-auto h-4 w-4 opacity-80" aria-hidden="true" />
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -59,40 +89,59 @@ export function AppShell() {
         <div className="space-y-3 border-t border-border p-4">
           <a
             href="tel:999"
-            className="flex items-center justify-center gap-2 rounded-2xl bg-danger px-4 py-3 text-sm font-semibold text-danger-foreground shadow-sm hover:bg-danger/90"
+            className="group flex items-center gap-3 rounded-2xl bg-danger p-3.5 text-white transition-transform hover:scale-[1.01]"
           >
-            <Phone className="h-4 w-4" aria-hidden="true" />
-            {t("help.call999")}
+            <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
+              <Phone className="h-5 w-5" aria-hidden="true" />
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-white ring-2 ring-danger" />
+            </span>
+            <span className="min-w-0 text-left">
+              <span className="block text-sm font-bold leading-tight">{t("help.call999")}</span>
+              <span className="block text-[11px] text-white/75">{t("home.quickHelp")}</span>
+            </span>
           </a>
           <div className="flex justify-center">
             <LanguageSwitcher />
           </div>
-          <p className="text-center text-xs text-muted-foreground">{t("footer.tagline")}</p>
+          <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+            {t("footer.tagline")}
+          </p>
         </div>
       </aside>
 
       {/* Mobile header */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card/95 px-4 py-3 backdrop-blur lg:hidden">
-        <NavLink to="/" className="flex items-center gap-2.5">
-          <Logo className="h-8 w-8" />
-          <span className="font-display text-base font-bold text-foreground">{t("app.name")}</span>
-        </NavLink>
-        <div className="flex items-center gap-2">
-          <a
-            href="tel:999"
-            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-danger px-3 text-sm font-semibold text-danger-foreground"
-            aria-label={t("help.call999")}
-          >
-            <Phone className="h-4 w-4" aria-hidden="true" />
-            999
-          </a>
-          <LanguageSwitcher />
+      <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md lg:hidden">
+        <div className="flex items-center justify-between gap-2 px-4 py-3">
+          <NavLink to="/" className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/15">
+              <Logo className="h-6 w-6" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate font-display text-base font-extrabold leading-none text-foreground">
+                {t("app.name")}
+              </span>
+              <span className="mt-1 block truncate text-[10px] font-medium text-muted-foreground">
+                {t("app.tagline")}
+              </span>
+            </span>
+          </NavLink>
+          <div className="flex shrink-0 items-center gap-2">
+            <a
+              href="tel:999"
+              className="flex h-10 items-center gap-1.5 rounded-xl bg-danger px-3 text-sm font-bold text-white shadow-sm"
+              aria-label={t("help.call999")}
+            >
+              <Phone className="h-4 w-4" aria-hidden="true" />
+              999
+            </a>
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 
       {/* Main content */}
       <main className="relative flex-1">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-dots opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-dots opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
         <div className="relative mx-auto w-full max-w-3xl px-4 pb-28 pt-5 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
           <Outlet />
           <footer className="mt-12 border-t border-border pt-6 text-center">

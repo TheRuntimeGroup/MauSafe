@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   BookOpen,
-  Check,
   Heart,
   LifeBuoy,
+  Link2,
   ListChecks,
   LockKeyhole,
   Phone,
@@ -14,6 +14,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Siren,
+  WifiOff,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listJourneys } from "@/lib/api";
@@ -48,10 +49,10 @@ const Index = () => {
     };
   }, []);
 
-  const trustBadges = [
-    t("home.trustBadge1"),
-    t("home.trustBadge2"),
-    t("home.trustBadge3"),
+  const trustItems = [
+    { icon: ShieldCheck, label: t("home.trustBadge1") },
+    { icon: WifiOff, label: t("home.trustBadge2") },
+    { icon: Link2, label: t("home.trustBadge3") },
   ];
 
   const features = [
@@ -71,48 +72,56 @@ const Index = () => {
   ];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-14">
       {/* Hero */}
-      <section className="relative grid items-center gap-10 lg:grid-cols-2">
+      <section className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-6 animate-fade-in-up">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-sm font-semibold text-primary">
             <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-            {t("app.tagline")}
+            {t("app.badge")}
           </span>
-          <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+
+          <h1 className="font-display text-[2.5rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]">
             {t("app.heroTitle")}
           </h1>
-          <p className="max-w-md text-base text-muted-foreground sm:text-lg">
+          <div className="h-1.5 w-24 rounded-full bg-primary/80" aria-hidden="true" />
+
+          <p className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
             {t("app.heroSubtitle")}
           </p>
+
           <div className="flex flex-wrap gap-3">
             <Link to="/start" className={appButtonVariants({ variant: "primary", size: "lg" })}>
               {t("app.ctaStart")}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-            <Link to="/emergency" className={appButtonVariants({ variant: "danger", size: "lg" })}>
-              <Siren className="h-4 w-4" aria-hidden="true" />
+            <Link to="/emergency" className={appButtonVariants({ variant: "outline", size: "lg" })}>
+              <Siren className="h-4 w-4 text-danger" aria-hidden="true" />
               {t("nav.emergency")}
             </Link>
           </div>
 
-          <ul className="flex flex-wrap gap-x-5 gap-y-2">
-            {trustBadges.map((badge) => (
-              <li key={badge} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
-                {badge}
+          <ul className="flex flex-wrap gap-2">
+            {trustItems.map((item) => (
+              <li
+                key={item.label}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground"
+              >
+                <item.icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                {item.label}
               </li>
             ))}
           </ul>
         </div>
-        <HeroIllustration className="animate-fade-in" />
+
+        <HeroIllustration className="animate-fade-in drop-shadow-sm" />
       </section>
 
       {/* Active check-in */}
       {!loading && active ? (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold text-foreground">
+            <h2 className="font-display text-lg font-extrabold text-foreground">
               {t("home.activeTitle")}
             </h2>
             <Link to={`/journey/${active.id}`} className="text-sm font-semibold text-primary">
@@ -122,36 +131,48 @@ const Index = () => {
           <Link to={`/journey/${active.id}`} className="block">
             <JourneyStatusCard
               journey={active.recipientSees}
-              className="transition-shadow hover:shadow-md"
+              className="transition-shadow hover:shadow-premium"
             />
           </Link>
         </section>
       ) : !loading ? (
-        <section className="rounded-2xl border border-dashed border-border bg-card p-6 text-center">
-          <p className="font-display text-base font-bold text-foreground">{t("home.noActive")}</p>
+        <section className="rounded-3xl border border-dashed border-primary/25 bg-primary/5 p-7 text-center">
+          <p className="font-display text-base font-extrabold text-foreground">{t("home.noActive")}</p>
           <p className="mt-1 text-sm text-muted-foreground">{t("home.noActiveHint")}</p>
+          <Link to="/start" className={appButtonVariants({ variant: "primary", size: "md", className: "mt-4" })}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {t("app.ctaStart")}
+          </Link>
         </section>
       ) : null}
 
       {/* Quick actions */}
       <section className="space-y-4">
-        <h2 className="font-display text-lg font-bold text-foreground">{t("home.quickTitle")}</h2>
+        <h2 className="font-display text-xl font-extrabold text-foreground">
+          {t("home.quickTitle")}
+        </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Link
             to="/start"
-            className="col-span-2 flex items-center justify-center gap-2 rounded-2xl bg-primary p-4 text-base font-bold text-primary-foreground shadow-sm hover:bg-primary/90 sm:col-span-1"
+            className="col-span-2 flex items-center justify-between gap-3 rounded-2xl bg-primary p-5 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-premium sm:col-span-1 sm:flex-col sm:items-start"
           >
-            <Plus className="h-5 w-5" aria-hidden="true" />
-            {t("app.ctaStart")}
+            <span>
+              <span className="block font-display text-base font-extrabold">{t("app.ctaStart")}</span>
+              <span className="mt-1 block text-sm text-white/80">{t("form.subtitle")}</span>
+            </span>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
+              <Plus className="h-5 w-5" aria-hidden="true" />
+            </span>
           </Link>
+
           {quickActions.map((action) => (
             <Link
               key={action.to}
               to={action.to}
               className={
                 action.tone === "danger"
-                  ? "flex flex-col items-start gap-3 rounded-2xl border border-danger/20 bg-danger/5 p-4 text-left hover:bg-danger/10"
-                  : "flex flex-col items-start gap-3 rounded-2xl border border-border bg-card p-4 text-left hover:bg-muted"
+                  ? "group flex flex-col items-start gap-3 rounded-2xl border border-danger/20 bg-danger/5 p-4 text-left transition-all hover:-translate-y-0.5 hover:bg-danger/10 hover:shadow-premium"
+                  : "group flex flex-col items-start gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-premium"
               }
             >
               <span
@@ -171,31 +192,42 @@ const Index = () => {
 
       {/* Features */}
       <section className="space-y-4">
-        <h2 className="font-display text-xl font-bold text-foreground">{t("home.featureTitle")}</h2>
+        <h2 className="font-display text-xl font-extrabold text-foreground">
+          {t("home.featureTitle")}
+        </h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {features.map((feature) => (
             <Link
               key={feature.title}
               to={feature.to}
-              className="group rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
+              className="group rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-premium"
             >
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <feature.icon className="h-5 w-5" aria-hidden="true" />
               </span>
-              <h3 className="mt-3 font-display text-base font-bold text-foreground">{feature.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{feature.body}</p>
+              <h3 className="mt-4 font-display text-base font-extrabold text-foreground">
+                {feature.title}
+              </h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{feature.body}</p>
+              <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                {t("action.open")}
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </span>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* Trust */}
-      <section className="rounded-2xl border border-border bg-secondary/60 p-6">
-        <div className="flex items-start gap-4">
-          <LockKeyhole className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+      {/* Trust band */}
+      <section className="relative overflow-hidden rounded-3xl bg-foreground p-7 sm:p-9">
+        <div className="pointer-events-none absolute inset-0 bg-dots opacity-20 [mask-image:linear-gradient(to_bottom_right,black,transparent)]" />
+        <div className="relative flex items-start gap-4">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+            <LockKeyhole className="h-6 w-6" aria-hidden="true" />
+          </span>
           <div>
-            <h2 className="font-display text-base font-bold text-foreground">{t("home.trustTitle")}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{t("home.trustBody")}</p>
+            <h2 className="font-display text-xl font-extrabold text-white">{t("home.trustTitle")}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/75">{t("home.trustBody")}</p>
           </div>
         </div>
       </section>

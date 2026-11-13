@@ -10,19 +10,20 @@ export function Logo({ className }: { className?: string }) {
       aria-hidden="true"
     >
       <path
-        d="M32 6.5 52 14v17c0 12.5-8.5 21-20 26.5C20.5 52 12 43.5 12 31V14L32 6.5Z"
-        fill="#F5F3FF"
-        stroke="#7C3AED"
-        strokeWidth="3.5"
+        d="M32 5.5 51 13v16.6C51 42.4 42.6 51.6 32 57 21.4 51.6 13 42.4 13 29.6V13L32 5.5Z"
+        fill="#7C3AED"
+        stroke="#6D28D9"
+        strokeWidth="2"
         strokeLinejoin="round"
       />
       <path
-        d="M24 32.5 29.5 38 41 27"
-        stroke="#7C3AED"
-        strokeWidth="4"
+        d="M24.5 32.5 29.6 37.6 40.2 27"
+        stroke="#FFFFFF"
+        strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      <circle cx="48" cy="16" r="4" fill="#F59E0B" />
     </svg>
   );
 }
