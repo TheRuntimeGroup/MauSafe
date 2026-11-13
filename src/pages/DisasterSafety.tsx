@@ -151,7 +151,7 @@ const DisasterSafety = () => {
         </section>
       ) : (
         <>
-          <section className="rounded-2xl bg-[#151321] p-6 text-white">
+          <section className="rounded-2xl bg-[#071B33] p-6 text-white">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold text-white/60">{data.region} · {t("weather.now")}</p>

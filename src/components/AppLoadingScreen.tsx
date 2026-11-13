@@ -32,7 +32,7 @@ export function AppLoadingScreen({ onComplete }: { onComplete: () => void }) {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[100] flex min-h-screen flex-col bg-[#151321] px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))] text-white transition-all duration-300",
+        "fixed inset-0 z-[100] flex min-h-screen flex-col bg-[#071B33] px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))] text-white transition-all duration-300",
         leaving && "pointer-events-none opacity-0",
       )}
       role="status"
@@ -45,20 +45,19 @@ export function AppLoadingScreen({ onComplete }: { onComplete: () => void }) {
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <Logo className="h-20 w-20 shadow-2xl" />
-        <p className="mt-8 font-display text-[2.75rem] font-extrabold leading-none tracking-[-0.055em] text-white">
-          {t("app.name")}
-        </p>
-        <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/55">{t("app.tagline")}</p>
+        <div className="rounded-[2rem] bg-white p-6 shadow-2xl">
+          <Logo variant="full" className="h-24 w-64 sm:w-72" />
+        </div>
+        <p className="mt-6 max-w-xs text-sm leading-relaxed text-white/60">{t("app.tagline")}</p>
       </div>
 
       <div className="mx-auto w-full max-w-xs">
         <div className="mb-3 flex items-center justify-between gap-4">
           <p className="text-xs font-medium text-white/60">{t("app.loading")}</p>
-          <span className="h-1.5 w-1.5 rounded-full bg-violet-400 motion-safe:animate-pulse" aria-hidden="true" />
+          <span className="h-1.5 w-1.5 rounded-full bg-sky-400 motion-safe:animate-pulse" aria-hidden="true" />
         </div>
         <div className="h-0.5 w-full overflow-hidden bg-white/10" aria-hidden="true">
-          <div className="h-full w-1/3 bg-violet-400 motion-safe:animate-app-loading" />
+          <div className="h-full w-1/3 bg-sky-400 motion-safe:animate-app-loading" />
         </div>
         <p className="mt-5 text-center text-[9px] font-bold uppercase tracking-[0.2em] text-white/35">
           {t("app.badge")}

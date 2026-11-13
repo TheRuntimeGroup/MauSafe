@@ -1,23 +1,28 @@
 import { cn } from "@/lib/utils";
 
-export function Logo({ className }: { className?: string }) {
+export function Logo({
+  className,
+  variant = "mark",
+}: {
+  className?: string;
+  variant?: "mark" | "full";
+}) {
   return (
     <svg
-      viewBox="0 0 64 64"
-      fill="none"
+      viewBox={variant === "full" ? "110 190 1245 390" : "105 185 450 420"}
       xmlns="http://www.w3.org/2000/svg"
       className={cn("h-8 w-8", className)}
-      aria-hidden="true"
+      role="img"
+      aria-label="MauSafe"
     >
-      <rect x="3" y="3" width="58" height="58" rx="18" fill="#6D28D9" />
-      <path
-        d="M17 42V22L32 36L47 22V42"
-        stroke="#FFFFFF"
-        strokeWidth="4.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+      <image
+        href="/images/mausafe-logo.png"
+        x="0"
+        y="0"
+        width="1365"
+        height="768"
+        preserveAspectRatio="xMidYMid meet"
       />
-      <circle cx="48" cy="16" r="4" fill="#FBBF24" />
     </svg>
   );
 }

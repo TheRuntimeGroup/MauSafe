@@ -89,9 +89,9 @@ const Index = () => {
         </section>
       )}
 
-      <section className="relative isolate overflow-hidden rounded-[1.75rem] bg-[#151321] p-6 text-white shadow-premium sm:p-7">
+      <section className="relative isolate overflow-hidden rounded-[1.75rem] bg-[#071B33] p-6 text-white shadow-premium sm:p-7">
         <svg
-          className="pointer-events-none absolute -right-10 -top-10 h-64 w-64 text-violet-400/20"
+          className="pointer-events-none absolute -right-10 -top-10 h-64 w-64 text-sky-400/20"
           viewBox="0 0 240 240"
           fill="none"
           aria-hidden="true"
@@ -103,7 +103,7 @@ const Index = () => {
         </svg>
 
         <div className="relative">
-          <div className="flex items-center gap-2.5 text-violet-300">
+          <div className="flex items-center gap-2.5 text-sky-300">
             <Navigation className="h-4 w-4" aria-hidden="true" />
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em]">{t("form.title")}</p>
           </div>
@@ -112,7 +112,7 @@ const Index = () => {
           </h2>
           <Link
             to="/start"
-            className="group mt-7 inline-flex min-h-12 items-center gap-3 rounded-xl bg-white px-5 text-sm font-extrabold text-[#151321] transition-transform hover:-translate-y-0.5 focus-visible:ring-white"
+            className="group mt-7 inline-flex min-h-12 items-center gap-3 rounded-xl bg-white px-5 text-sm font-extrabold text-[#071B33] transition-transform hover:-translate-y-0.5 focus-visible:ring-white"
           >
             {t("app.ctaStart")}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
