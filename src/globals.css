@@ -117,6 +117,20 @@
     scrollbar-width: none;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .animate-route-draw {
+      animation: none;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
+    }
+
+    .animate-route-signal {
+      animation: none;
+      stroke-dasharray: 24 76;
+      stroke-dashoffset: 0;
+    }
+  }
+
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }

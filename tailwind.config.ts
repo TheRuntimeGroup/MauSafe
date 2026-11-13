@@ -112,6 +112,24 @@ export default {
           from: { transform: "translate3d(-2%, 1%, 0)" },
           to: { transform: "translate3d(3%, -2%, 0)" },
         },
+        "logo-shutter": {
+          from: { opacity: "0.25", clipPath: "inset(0 50% round 28px)" },
+          to: { opacity: "1", clipPath: "inset(0 0% round 28px)" },
+        },
+        "flag-reveal": {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
+        },
+        "route-draw": {
+          "0%": { opacity: "0", strokeDasharray: "1", strokeDashoffset: "1" },
+          "15%": { opacity: "1" },
+          "100%": { opacity: "1", strokeDasharray: "1", strokeDashoffset: "0" },
+        },
+        "route-signal": {
+          "0%": { strokeDasharray: "0 100", strokeDashoffset: "0" },
+          "35%": { strokeDasharray: "24 76" },
+          "100%": { strokeDasharray: "0 100", strokeDashoffset: "-100" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -123,6 +141,10 @@ export default {
         "logo-enter": "logo-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both",
         "logo-halo": "logo-halo 2.6s ease-out 0.5s infinite",
         "ambient-drift": "ambient-drift 12s ease-in-out infinite alternate",
+        "logo-shutter": "logo-shutter 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both",
+        "flag-reveal": "flag-reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "route-draw": "route-draw 1.2s ease-out both",
+        "route-signal": "route-signal 2.1s linear infinite",
       },
     },
   },
