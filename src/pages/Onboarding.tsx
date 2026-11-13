@@ -537,7 +537,6 @@ const Onboarding = () => {
                         signInLabel={t("onboarding.signIn")}
                         title={t("onboarding.welcome.title")}
                         body={t("onboarding.welcome.body")}
-                        appName={t("app.name")}
                       />
                     )}
 
@@ -712,7 +711,6 @@ function WelcomeStep({
   signInLabel,
   title,
   body,
-  appName,
 }: {
   onStart: () => void;
   startLabel: string;
@@ -720,17 +718,10 @@ function WelcomeStep({
   signInLabel: string;
   title: string;
   body: string;
-  appName: string;
 }) {
   return (
     <div>
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0D2B45] text-white shadow-premium">
-        <ShieldCheck className="h-7 w-7" strokeWidth={1.9} aria-hidden="true" />
-      </span>
-      <p className="mt-6 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-        {`${appName} · ${new Date().getFullYear()}`}
-      </p>
-      <h1 className="mt-3 font-display text-[1.9rem] font-extrabold leading-[1.1] tracking-[-0.04em] text-foreground sm:text-[2.35rem]">
+      <h1 className="font-display text-[1.9rem] font-extrabold leading-[1.1] tracking-[-0.04em] text-foreground sm:text-[2.35rem]">
         {title}
       </h1>
       <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">{body}</p>
