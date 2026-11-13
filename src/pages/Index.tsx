@@ -9,10 +9,8 @@ import {
   ListChecks,
   LockKeyhole,
   Navigation,
-  Phone,
   PhoneCall,
   ShieldAlert,
-  Siren,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listJourneys } from "@/lib/api";
@@ -120,23 +118,6 @@ const Index = () => {
           )}
         </div>
       </section>
-
-      <a
-        href="tel:999"
-        className="group flex min-h-[4.75rem] items-center gap-4 rounded-2xl bg-danger px-5 text-white shadow-sm transition-transform hover:-translate-y-0.5"
-      >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
-          <Siren className="h-5 w-5" aria-hidden="true" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block font-display text-base font-extrabold">{t("nav.emergency")}</span>
-          <span className="mt-0.5 flex items-center gap-1.5 text-xs text-white/75">
-            <Phone className="h-3 w-3" aria-hidden="true" />
-            {t("help.call999")}
-          </span>
-        </span>
-        <ArrowUpRight className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
-      </a>
 
       <section className="space-y-4 pt-1">
         <div className="flex items-center justify-between px-1">
