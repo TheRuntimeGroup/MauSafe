@@ -27,7 +27,7 @@ export async function getSpeechAudio(value: string, language: Lang): Promise<Blo
   const text = value.replace(/\s+/g, " ").trim().slice(0, 800);
   if (!text) throw new Error("INVALID_TEXT");
 
-  const voiceProfile = language === "fr" ? "french-female-v1" : "elevenlabs-bella-v1";
+  const voiceProfile = language === "fr" ? "native-french-female-v2" : "elevenlabs-bella-v1";
   const key = `${voiceProfile}:${language}:${text}`;
   const cached = await getCachedAudio(key);
   if (cached) return cached;

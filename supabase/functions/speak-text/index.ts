@@ -11,7 +11,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY") ?? "";
 const ELEVENLABS_VOICE_EN = Deno.env.get("ELEVENLABS_VOICE_EN") ?? "EXAVITQu4vr4xnSDxMaL";
-const ELEVENLABS_VOICE_FR = Deno.env.get("ELEVENLABS_VOICE_FR") ?? "QynjFzqBt96iEuetB1Tq";
+const ELEVENLABS_VOICE_FR = Deno.env.get("ELEVENLABS_VOICE_FR") ?? "";
 const MAX_CHARACTERS = 800;
 const MAX_REQUESTS_PER_HOUR = 30;
 
@@ -37,6 +37,58 @@ function encodeAudio(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
   }
   return btoa(binary);
+}
+
+type SharedVoice = {
+  voice_id: string;
+  name?: string;
+  gender?: string;
+  language?: string;
+  accent?: string;
+};
+
+let cachedFrenchVoiceId: string | undefined;
+
+async function getFrenchFemaleVoiceId(): Promise<string> {
+  if (ELEVENLABS_VOICE_FR) return ELEVENLABS_VOICE_FR;
+  if (cachedFrenchVoiceId) return cachedFrenchVoiceId;
+
+  const url = new URL("https://api.elevenlabs.io/v1/shared-voices");
+  url.searchParams.set("language", "fr");
+  url.searchParams.set("gender", "female");
+  url.searchParams.set("sort", "usage");
+  url.searchParams.set("page_size", "25");
+
+  const response = await fetch(url, {
+    headers: { "xi-api-key": ELEVENLABS_API_KEY },
+    signal: AbortSignal.timeout(12000),
+  });
+  if (!response.ok) {
+    const detail = await response.text();
+    console.error("[speak-text] failed to find a native French female voice", response.status, detail);
+    throw new Error("FRENCH_VOICE_LOOKUP_FAILED");
+  }
+
+  const payload = await response.json();
+  const voices = Array.isArray(payload?.voices) ? payload.voices as SharedVoice[] : [];
+  const frenchVoices = voices.filter((voice) =>
+    voice.gender?.toLowerCase() === "female"
+    && /^fr(?:-|$)/i.test(voice.language ?? ""));
+  const voice = frenchVoices.find((candidate) =>
+    /fr-fr|france|paris/i.test(`${candidate.language ?? ""} ${candidate.accent ?? ""}`),
+  ) ?? frenchVoices[0];
+
+  if (!voice?.voice_id) {
+    throw new Error("No French female voice with a French locale was returned");
+  }
+
+  cachedFrenchVoiceId = voice.voice_id;
+  console.log("[speak-text] selected French female voice", {
+    name: voice.name,
+    language: voice.language,
+    accent: voice.accent,
+  });
+  return cachedFrenchVoiceId;
 }
 
 serve(async (req) => {
@@ -94,7 +146,15 @@ serve(async (req) => {
       return json({ error: "SPEECH_UNAVAILABLE" });
     }
 
-    const voiceId = language === "fr" ? ELEVENLABS_VOICE_FR : ELEVENLABS_VOICE_EN;
+    let voiceId: string;
+    try {
+      voiceId = language === "fr" ? await getFrenchFemaleVoiceId() : ELEVENLABS_VOICE_EN;
+    } catch (error) {
+      await supabase.from("speech_requests").delete().eq("id", requestRecord.id);
+      console.error("[speak-text] French voice selection failed", error);
+      return json({ error: "SPEECH_UNAVAILABLE" });
+    }
+
     let response: Response;
     try {
       response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
