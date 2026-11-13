@@ -62,8 +62,9 @@ export default function Index() {
     const owner = (typeof registeredName === "string" ? registeredName : "").trim()
       || getOwnerName().trim()
       || loadEmergencyProfile().fullName.trim();
-    return owner ? owner.split(/\s+/)[0] : "";
-  }, [profile, user]);
+  const firstName = owner ? owner.split(/\s+/)[0] : "";
+    return firstName.charAt(0).toLocaleUpperCase(locale) + firstName.slice(1);
+  }, [profile, user, locale]);
 
   const greeting = `${t(greetingKey(new Date(now).getHours()))}${displayName ? `, ${displayName}` : ""}`;
   const dateLabel = new Intl.DateTimeFormat(locale, {
