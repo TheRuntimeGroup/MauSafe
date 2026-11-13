@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
-  Captions,
   Check,
   Ear,
   Eye,
@@ -20,7 +19,6 @@ import {
   ShieldCheck,
   Sparkles,
   User,
-  Volume2,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,7 +45,6 @@ type StepId =
   | "email"
   | "verifyEmail"
   | "accessibility"
-  | "voice"
   | "password"
   | "review";
 
@@ -55,7 +52,6 @@ interface Draft {
   name: string;
   email: string;
   needs: AccessibilityNeed[];
-  voiceGuide: boolean;
 }
 
 function loadDraft(): Draft | null {
@@ -68,7 +64,6 @@ function loadDraft(): Draft | null {
       name: typeof parsed.name === "string" ? parsed.name : "",
       email: typeof parsed.email === "string" ? parsed.email : "",
       needs: Array.isArray(parsed.needs) ? parsed.needs : [],
-      voiceGuide: Boolean(parsed.voiceGuide),
     };
   } catch {
     return null;
@@ -105,9 +100,6 @@ const Onboarding = () => {
   const [needs, setNeeds] = useState<AccessibilityNeed[]>(
     () => draft?.needs ?? profile?.accessibility_needs ?? [],
   );
-  const [voiceGuide, setVoiceGuide] = useState(
-    () => draft?.voiceGuide ?? profile?.voice_guide ?? false,
-  );
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -129,11 +121,10 @@ const Onboarding = () => {
     list.push("name");
     if (!user) list.push("email", "verifyEmail");
     list.push("accessibility");
-    if (needs.includes("visual")) list.push("voice");
     if (!user) list.push("password");
     list.push("review");
     return list;
-  }, [user, needs]);
+  }, [user]);
 
   // Jump straight to the review step when returning after email confirmation.
   useEffect(() => {
@@ -280,7 +271,7 @@ const Onboarding = () => {
       fullName: name.trim(),
       phone: profile?.phone?.trim() ?? "",
       accessibilityNeeds: needs,
-      voiceGuide,
+      voiceGuide: profile?.voice_guide ?? false,
     };
 
     try {
@@ -306,7 +297,7 @@ const Onboarding = () => {
         return;
       }
 
-      saveDraft({ name: name.trim(), email: email.trim(), needs, voiceGuide });
+      saveDraft({ name: name.trim(), email: email.trim(), needs });
       await createVerifiedAccount({ email: email.trim(), password });
 
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -637,23 +628,6 @@ const Onboarding = () => {
                       />
                     )}
 
-                    {finish === "none" && currentStep === "voice" && (
-                      <VoiceStep
-                        eyebrow={t("onboarding.voice.eyebrow")}
-                        title={t("onboarding.voice.title")}
-                        subtitle={t("onboarding.voice.subtitle")}
-                        value={voiceGuide}
-                        onChange={(value) => setVoiceGuide(value)}
-                        yesTitle={t("onboarding.voice.yes.title")}
-                        yesBody={t("onboarding.voice.yes.body")}
-                        noTitle={t("onboarding.voice.no.title")}
-                        noBody={t("onboarding.voice.no.body")}
-                        comingSoon={t("onboarding.voice.coming")}
-                        onContinue={goNext}
-                        continueLabel={t("onboarding.continue")}
-                      />
-                    )}
-
                     {finish === "none" && currentStep === "password" && (
                       <PasswordStep
                         eyebrow={t("onboarding.password.eyebrow")}
@@ -682,14 +656,10 @@ const Onboarding = () => {
                         name={name}
                         email={email}
                         needs={needs}
-                        voiceGuide={voiceGuide}
                         labels={{
                           name: t("onboarding.review.name"),
                           email: t("onboarding.review.email"),
                           needs: t("onboarding.review.needs"),
-                          voice: t("onboarding.review.voice"),
-                          voiceOn: t("onboarding.review.voiceOn"),
-                          voiceOff: t("onboarding.review.voiceOff"),
                           edit: t("onboarding.review.edit"),
                         }}
                         needsLabel={needsLabel}
@@ -951,103 +921,6 @@ function AccessibilityStep({
   );
 }
 
-function VoiceStep({
-  eyebrow,
-  title,
-  subtitle,
-  value,
-  onChange,
-  yesTitle,
-  yesBody,
-  noTitle,
-  noBody,
-  comingSoon,
-  onContinue,
-  continueLabel,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-  value: boolean;
-  onChange: (value: boolean) => void;
-  yesTitle: string;
-  yesBody: string;
-  noTitle: string;
-  noBody: string;
-  comingSoon: string;
-  onContinue: () => void;
-  continueLabel: string;
-}) {
-  const choices: { value: boolean; icon: LucideIcon; title: string; body: string }[] = [
-    { value: true, icon: Volume2, title: yesTitle, body: yesBody },
-    { value: false, icon: Captions, title: noTitle, body: noBody },
-  ];
-
-  return (
-    <div>
-      <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{eyebrow}</p>
-      <h1 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-[-0.03em] text-foreground sm:text-3xl">
-        {title}
-      </h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
-
-      <div className="mt-6 space-y-3">
-        {choices.map((choice) => {
-          const isSelected = value === choice.value;
-          const Icon = choice.icon;
-          return (
-            <button
-              key={String(choice.value)}
-              type="button"
-              onClick={() => onChange(choice.value)}
-              aria-pressed={isSelected}
-              className={cn(
-                "flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all",
-                isSelected
-                  ? "border-primary bg-primary/[0.04] ring-2 ring-primary/15"
-                  : "border-input bg-white hover:border-primary/40 hover:bg-muted/50",
-              )}
-            >
-              <span
-                className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors",
-                  isSelected ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground",
-                )}
-                aria-hidden="true"
-              >
-                <Icon className="h-5 w-5" strokeWidth={2} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-extrabold text-foreground">{choice.title}</span>
-                <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{choice.body}</span>
-              </span>
-              <span
-                className={cn(
-                  "mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-                  isSelected ? "border-primary bg-primary text-white" : "border-border bg-white text-transparent",
-                )}
-                aria-hidden="true"
-              >
-                <Check className="h-3.5 w-3.5" strokeWidth={3} />
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">
-        <Sparkles className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-        <span>{comingSoon}</span>
-      </div>
-
-      <AppButton size="xl" onClick={onContinue} className="mt-6">
-        {continueLabel}
-        <ArrowRight className="h-5 w-5" aria-hidden="true" />
-      </AppButton>
-    </div>
-  );
-}
-
 function PasswordStep({
   eyebrow,
   title,
@@ -1143,7 +1016,6 @@ function ReviewStep({
   name,
   email,
   needs,
-  voiceGuide,
   labels,
   needsLabel,
   onSubmit,
@@ -1158,14 +1030,10 @@ function ReviewStep({
   name: string;
   email: string;
   needs: AccessibilityNeed[];
-  voiceGuide: boolean;
   labels: {
     name: string;
     email: string;
     needs: string;
-    voice: string;
-    voiceOn: string;
-    voiceOff: string;
     edit: string;
   };
   needsLabel: (id: AccessibilityNeed) => string;
@@ -1206,12 +1074,6 @@ function ReviewStep({
                 </span>
               ))
             )}
-          </dd>
-        </div>
-        <div className="flex items-start justify-between gap-4 px-4 py-3.5">
-          <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{labels.voice}</dt>
-          <dd className="text-sm font-semibold text-foreground">
-            {voiceGuide ? labels.voiceOn : labels.voiceOff}
           </dd>
         </div>
       </dl>
