@@ -93,11 +93,24 @@ export default {
         },
         "app-loading": {
           from: { transform: "translateX(-110%)" },
-          to: { transform: "translateX(310%)" },
+          to: { transform: "translateX(410%)" },
         },
         "alarm-flash": {
           "0%, 49%": { backgroundColor: "#DC2626" },
           "50%, 100%": { backgroundColor: "#7F1D1D" },
+        },
+        "logo-enter": {
+          from: { opacity: "0", transform: "translateY(14px) scale(0.965)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "logo-halo": {
+          "0%": { opacity: "0", transform: "scale(0.98)" },
+          "35%": { opacity: "0.55" },
+          "100%": { opacity: "0", transform: "scale(1.08)" },
+        },
+        "ambient-drift": {
+          from: { transform: "translate3d(-2%, 1%, 0)" },
+          to: { transform: "translate3d(3%, -2%, 0)" },
         },
       },
       animation: {
@@ -105,8 +118,11 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.4s ease-out both",
         "fade-in-up": "fade-in-up 0.5s ease-out both",
-        "app-loading": "app-loading 1s ease-in-out infinite",
+        "app-loading": "app-loading 1.35s cubic-bezier(0.65, 0, 0.35, 1) infinite",
         "alarm-flash": "alarm-flash 1s step-end infinite",
+        "logo-enter": "logo-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "logo-halo": "logo-halo 2.6s ease-out 0.5s infinite",
+        "ambient-drift": "ambient-drift 12s ease-in-out infinite alternate",
       },
     },
   },
