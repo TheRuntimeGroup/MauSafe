@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type AccessibilityNeed = "visual" | "hearing" | "motor" | "none";
+export type AccessibilityNeed = "visual" | "motor" | "none";
 
 export interface Profile {
   id: string;

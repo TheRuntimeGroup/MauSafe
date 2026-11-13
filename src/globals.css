@@ -59,13 +59,58 @@
   }
 
   html.accessibility-monochrome {
-    --muted-foreground: 217 20% 30%;
-    --border: 220 15% 70%;
-    --input: 220 15% 65%;
+    --background: 0 0% 100%;
+    --foreground: 220 8% 16%;
+    --card-foreground: 220 8% 16%;
+    --primary: 220 9% 27%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 220 9% 27%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 220 6% 31%;
+    --border: 0 0% 76%;
+    --input: 0 0% 72%;
+    --ring: 220 9% 27%;
   }
 
-  html.accessibility-monochrome body {
-    filter: grayscale(1) contrast(1.08);
+  html.accessibility-monochrome [class*="bg-"]:not([class*="bg-transparent"]):not(.mausafe-logo):not(.mausafe-logo *) {
+    background-image: none !important;
+    background-color: #ffffff !important;
+  }
+
+  html.accessibility-monochrome [class*="text-"]:not(.mausafe-logo):not(.mausafe-logo *) {
+    color: #293137 !important;
+  }
+
+  html.accessibility-monochrome [class*="border-"]:not(.mausafe-logo):not(.mausafe-logo *) {
+    border-color: #c7ccd1 !important;
+  }
+
+  html.accessibility-monochrome .bg-primary,
+  html.accessibility-monochrome .bg-danger,
+  html.accessibility-monochrome .bg-success,
+  html.accessibility-monochrome .bg-warning,
+  html.accessibility-monochrome .bg-destructive,
+  html.accessibility-monochrome .bg-[#0D2B45],
+  html.accessibility-monochrome .bg-[#071A2E] {
+    background-color: #303b45 !important;
+  }
+
+  html.accessibility-monochrome .text-white,
+  html.accessibility-monochrome .text-primary-foreground,
+  html.accessibility-monochrome .text-slate-100,
+  html.accessibility-monochrome .text-slate-200,
+  html.accessibility-monochrome .text-slate-300 {
+    color: #ffffff !important;
+  }
+
+  html.accessibility-reduced-motion *,
+  html.accessibility-reduced-motion *::before,
+  html.accessibility-reduced-motion *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 
   .accessibility-speaking-section {

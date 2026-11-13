@@ -8,10 +8,8 @@ import {
   ArrowRight,
   BadgeCheck,
   Check,
-  Ear,
   Eye,
   EyeOff,
-  Heart,
   LoaderCircle,
   LogIn,
   Mail,
@@ -27,9 +25,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { saveOnboardingProfile, type AccessibilityNeed } from "@/lib/profile";
 import { createVerifiedAccount, sendOtp, verifyEmailCode } from "@/lib/otp";
 import { checkPersonName } from "@/lib/nameValidation";
+import { applyVisualSupport } from "@/lib/visualPreferences";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { AccessibilityQuickSettings } from "@/components/AccessibilityQuickSettings";
+import { MobilityResources } from "@/components/MobilityResources";
 import { OtpVerificationPanel } from "@/components/OtpVerificationPanel";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
@@ -99,9 +99,10 @@ const Onboarding = () => {
     () => draft?.name ?? profile?.full_name ?? user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? "",
   );
   const [email, setEmail] = useState(() => draft?.email ?? user?.email ?? "");
-  const [needs, setNeeds] = useState<AccessibilityNeed[]>(
-    () => draft?.needs ?? profile?.accessibility_needs ?? [],
-  );
+  const [needs, setNeeds] = useState<AccessibilityNeed[]>(() => {
+    const savedNeeds: string[] = draft?.needs ?? profile?.accessibility_needs ?? [];
+    return savedNeeds.filter((need): need is AccessibilityNeed => need !== "hearing");
+  });
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -210,9 +211,15 @@ const Onboarding = () => {
   function toggleNeed(id: AccessibilityNeed) {
     setError(null);
     setNeeds((current) => {
-      if (id === "none") return current.includes("none") ? [] : ["none"];
+      if (id === "none") {
+        const selected = !current.includes("none");
+        if (selected) applyVisualSupport(false);
+        return selected ? ["none"] : [];
+      }
       const next = current.filter((item) => item !== "none");
-      return next.includes(id) ? next.filter((item) => item !== id) : [...next, id];
+      const selected = next.includes(id) ? next.filter((item) => item !== id) : [...next, id];
+      if (id === "visual") applyVisualSupport(selected.includes("visual"));
+      return selected;
     });
   }
 
@@ -386,13 +393,6 @@ const Onboarding = () => {
       tone: "bg-sky-100 text-sky-700",
       title: t("onboarding.accessibility.visual.title"),
       body: t("onboarding.accessibility.visual.body"),
-    },
-    {
-      id: "hearing",
-      icon: Ear,
-      tone: "bg-violet-100 text-violet-700",
-      title: t("onboarding.accessibility.hearing.title"),
-      body: t("onboarding.accessibility.hearing.body"),
     },
     {
       id: "motor",
@@ -633,8 +633,6 @@ const Onboarding = () => {
                         onToggle={toggleNeed}
                         onContinue={goNext}
                         continueLabel={t("onboarding.continue")}
-                        motorNote={t("onboarding.motor.help")}
-                        hearingNote={t("onboarding.hearing.help")}
                       />
                     )}
 
@@ -838,8 +836,6 @@ function AccessibilityStep({
   onToggle,
   onContinue,
   continueLabel,
-  motorNote,
-  hearingNote,
 }: {
   eyebrow: string;
   title: string;
@@ -855,8 +851,6 @@ function AccessibilityStep({
   onToggle: (id: AccessibilityNeed) => void;
   onContinue: () => void;
   continueLabel: string;
-  motorNote: string;
-  hearingNote: string;
 }) {
   return (
     <div>
@@ -910,18 +904,7 @@ function AccessibilityStep({
         })}
       </div>
 
-      {selected.includes("motor") && (
-        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs leading-relaxed text-emerald-900">
-          <Heart className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-          <span>{motorNote}</span>
-        </div>
-      )}
-      {selected.includes("hearing") && (
-        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-xs leading-relaxed text-sky-900">
-          <Eye className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-          <span>{hearingNote}</span>
-        </div>
-      )}
+      {selected.includes("motor") && <MobilityResources />}
 
       <AppButton size="xl" onClick={onContinue} disabled={selected.length === 0} className="mt-6">
         {continueLabel}

@@ -11,7 +11,7 @@ export function Logo({
     <svg
       viewBox={variant === "full" ? "100 125 1265 455" : "100 125 440 455"}
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("h-8 w-8", className)}
+      className={cn("mausafe-logo h-8 w-8", className)}
       role="img"
       aria-label="MauSafe"
     >

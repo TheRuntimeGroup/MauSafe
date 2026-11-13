@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
 import { I18nProvider } from "@/i18n/I18nContext";
+import { restoreVisualPreferences } from "@/lib/visualPreferences";
 import { AppLoadingScreen } from "@/components/AppLoadingScreen";
 import { AppShell } from "@/components/AppShell";
 import { SessionContextProvider, useAuth } from "@/contexts/AuthContext";
@@ -61,6 +62,10 @@ function RequireAuth() {
 
 const App = () => {
   const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    restoreVisualPreferences();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
