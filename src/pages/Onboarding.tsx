@@ -716,10 +716,12 @@ const Onboarding = () => {
             </div>
           </div>
 
-          <p className="mx-auto mt-5 flex max-w-md items-start gap-2.5 px-2 text-left text-xs leading-relaxed text-muted-foreground">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
-            <span>{t("onboarding.privacy")}</span>
-          </p>
+          <div className="mx-auto mt-5 flex max-w-sm flex-col items-center gap-2 px-4 text-center">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#D7E5FA] bg-[#EDF4FF] text-[#2563EB] shadow-sm">
+              <BadgeCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+            </span>
+            <p className="text-xs leading-relaxed text-muted-foreground">{t("onboarding.privacy")}</p>
+          </div>
         </div>
       </main>
     </div>
