@@ -381,6 +381,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     "auth.invalidCredentials": "Incorrect email or password.",
     "auth.alreadyRegistered": "This email is already registered. Try signing in.",
     "auth.genericError": "Something went wrong. Please try again.",
+    "auth.showPassword": "Show password",
+    "auth.hidePassword": "Hide password",
 
     "home.quickTitle": "Quick actions",
     "home.trustBadge1": "On-device scam check",
@@ -877,6 +879,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     "auth.invalidCredentials": "E-mail ou mot de passe incorrect.",
     "auth.alreadyRegistered": "Cet e-mail est déjà enregistré. Essayez de vous connecter.",
     "auth.genericError": "Une erreur est survenue. Réessayez.",
+    "auth.showPassword": "Afficher le mot de passe",
+    "auth.hidePassword": "Masquer le mot de passe",
 
     "home.quickTitle": "Actions rapides",
     "home.trustBadge1": "Vérification d'arnaque sur l'appareil",
@@ -1372,6 +1376,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     "auth.invalidCredentials": "Email ouswa password inkorek.",
     "auth.alreadyRegistered": "Sa email la deza anrezistre. Esey konekte.",
     "auth.genericError": "Enn problem inn arive. Reesey.",
+    "auth.showPassword": "Montre password",
+    "auth.hidePassword": "Kasiet password",
 
     "home.quickTitle": "Aksion rapid",
     "home.trustBadge1": "Check arnak lor aparèy",

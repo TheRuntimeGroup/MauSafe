@@ -1,9 +1,17 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, LoaderCircle, ShieldCheck } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Check,
+  Eye,
+  EyeOff,
+  LoaderCircle,
+} from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Logo } from "@/components/Logo";
 import { AppButton } from "@/components/ui/app-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +27,8 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -38,6 +48,8 @@ const AuthPage = () => {
     setError(null);
     setNotice(null);
     setConfirmation("");
+    setShowPassword(false);
+    setShowConfirmation(false);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -104,6 +116,8 @@ const AuthPage = () => {
     setMode("sign_in");
     setPassword("");
     setConfirmation("");
+    setShowPassword(false);
+    setShowConfirmation(false);
   }
 
   async function handleForgot() {
@@ -131,121 +145,217 @@ const AuthPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
-      <div className="overflow-hidden rounded-[1.75rem] border border-[#DDE6ED] bg-white shadow-premium">
-        <div className="flex items-center gap-3 border-b border-foreground/[0.07] bg-[#F6F9FC] px-6 py-5">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0D2B45] text-white">
-            <ShieldCheck className="h-6 w-6" strokeWidth={1.9} aria-hidden="true" />
-          </span>
-          <div>
-            <h1 className="font-display text-xl font-extrabold tracking-tight text-foreground">
-              {t("auth.title")}
-            </h1>
-            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("auth.subtitle")}</p>
-          </div>
-        </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="overflow-hidden rounded-[2rem] border border-[#DDE6ED] bg-white shadow-premium motion-safe:animate-fade-in-up">
+        <div className="grid lg:grid-cols-[1.05fr_1fr]">
+          <aside className="relative isolate hidden overflow-hidden bg-[#0D2B45] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+            <svg
+              className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 text-sky-300/10"
+              viewBox="0 0 220 220"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle cx="110" cy="110" r="82" stroke="currentColor" />
+              <circle cx="110" cy="110" r="54" stroke="currentColor" />
+              <path d="M16 150C60 130 76 76 126 86C168 94 178 48 222 42" stroke="currentColor" />
+            </svg>
+            <svg
+              className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 text-emerald-200/10"
+              viewBox="0 0 220 220"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle cx="110" cy="110" r="82" stroke="currentColor" />
+              <circle cx="110" cy="110" r="54" stroke="currentColor" />
+            </svg>
 
-        <div className="px-6 py-7 sm:px-8 sm:py-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="font-semibold text-foreground">
-                {t("auth.emailLabel")}
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="h-12 rounded-[14px] border-[#DDE6ED] bg-white text-foreground focus-visible:border-primary"
-                required
-              />
+            <div className="relative flex items-center gap-3">
+              <Logo className="h-11 w-11" />
+              <div>
+                <p className="font-display text-xl font-extrabold tracking-tight">{t("app.name")}</p>
+                <p className="text-[11px] font-medium text-sky-200">{t("app.badge")}</p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="password" className="font-semibold text-foreground">
-                  {t("auth.passwordLabel")}
-                </Label>
-                {mode === "sign_in" && (
+            <div className="relative">
+              <h2 className="max-w-sm font-display text-[1.9rem] font-extrabold leading-[1.15] tracking-[-0.04em]">
+                {t("app.heroTitle")}
+              </h2>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">{t("home.trustBody")}</p>
+            </div>
+
+            <ul className="relative space-y-3">
+              {[t("home.trustBadge1"), t("home.trustBadge2"), t("home.trustBadge3")].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm font-medium text-slate-200">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                    <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </aside>
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-3 bg-[#0D2B45] px-6 py-5 text-white lg:hidden">
+              <Logo className="h-9 w-9" />
+              <div>
+                <p className="font-display text-lg font-extrabold tracking-tight">{t("app.name")}</p>
+                <p className="text-[11px] font-medium text-sky-200">{t("app.tagline")}</p>
+              </div>
+            </div>
+
+            <div className="px-6 py-7 sm:px-9 sm:py-9">
+              <div className="mb-6">
+                <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
+                  {mode === "sign_in" ? t("auth.title") : t("auth.signUp")}
+                </h1>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t("auth.subtitle")}</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="font-semibold text-foreground">
+                    {t("auth.emailLabel")}
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    autoFocus
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    className="h-12 rounded-[14px] border-[#DDE6ED] bg-white text-foreground focus-visible:border-primary"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Label htmlFor="password" className="font-semibold text-foreground">
+                      {t("auth.passwordLabel")}
+                    </Label>
+                    {mode === "sign_in" && (
+                      <button
+                        type="button"
+                        onClick={handleForgot}
+                        disabled={loading}
+                        className="text-xs font-bold text-primary transition-colors hover:underline disabled:opacity-50"
+                      >
+                        {t("auth.forgotPassword")}
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete={mode === "sign_in" ? "current-password" : "new-password"}
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      className="h-12 rounded-[14px] border-[#DDE6ED] bg-white pr-12 text-foreground focus-visible:border-primary"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((value) => !value)}
+                      className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary"
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {mode === "sign_up" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password" className="font-semibold text-foreground">
+                      {t("auth.confirmPassword")}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirm-password"
+                        type={showConfirmation ? "text" : "password"}
+                        autoComplete="new-password"
+                        value={confirmation}
+                        onChange={(event) => setConfirmation(event.target.value)}
+                        className="h-12 rounded-[14px] border-[#DDE6ED] bg-white pr-12 text-foreground focus-visible:border-primary"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmation((value) => !value)}
+                        className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary"
+                        aria-label={showConfirmation ? t("auth.hidePassword") : t("auth.showPassword")}
+                      >
+                        {showConfirmation ? (
+                          <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                        ) : (
+                          <Eye className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger/[0.06] px-4 py-3 text-sm font-medium text-danger"
+                  >
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>{error}</span>
+                  </div>
+                )}
+                {notice && (
+                  <div
+                    role="status"
+                    className="flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+                  >
+                    <Check className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+                    <span>{notice}</span>
+                  </div>
+                )}
+
+                <AppButton type="submit" size="xl" disabled={loading} className="w-full">
+                  {loading ? (
+                    <>
+                      <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
+                      {t("common.loading")}
+                    </>
+                  ) : mode === "sign_in" ? (
+                    t("auth.signIn")
+                  ) : (
+                    t("auth.signUp")
+                  )}
+                </AppButton>
+              </form>
+
+              <div className="mt-7 text-center">
+                {mode === "sign_in" ? (
                   <button
                     type="button"
-                    onClick={handleForgot}
-                    disabled={loading}
-                    className="text-xs font-bold text-primary transition-colors hover:underline disabled:opacity-50"
+                    onClick={() => switchMode("sign_up")}
+                    className="text-sm font-bold text-primary transition-colors hover:underline"
                   >
-                    {t("auth.forgotPassword")}
+                    {t("auth.noAccount")}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => switchMode("sign_in")}
+                    className="text-sm font-bold text-primary transition-colors hover:underline"
+                  >
+                    {t("auth.haveAccount")}
                   </button>
                 )}
               </div>
-              <Input
-                id="password"
-                type="password"
-                autoComplete={mode === "sign_in" ? "current-password" : "new-password"}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="h-12 rounded-[14px] border-[#DDE6ED] bg-white text-foreground focus-visible:border-primary"
-                required
-              />
             </div>
-
-            {mode === "sign_up" && (
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="font-semibold text-foreground">
-                  {t("auth.confirmPassword")}
-                </Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirmation}
-                  onChange={(event) => setConfirmation(event.target.value)}
-                  className="h-12 rounded-[14px] border-[#DDE6ED] bg-white text-foreground focus-visible:border-primary"
-                  required
-                />
-              </div>
-            )}
-
-            {error && <p className="text-sm font-medium text-danger">{error}</p>}
-            {notice && (
-              <p className="rounded-xl bg-secondary px-4 py-3 text-sm font-medium text-secondary-foreground">
-                {notice}
-              </p>
-            )}
-
-            <AppButton type="submit" size="xl" disabled={loading} className="w-full">
-              {loading ? (
-                <>
-                  <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
-                  {t("common.loading")}
-                </>
-              ) : mode === "sign_in" ? (
-                t("auth.signIn")
-              ) : (
-                t("auth.signUp")
-              )}
-            </AppButton>
-          </form>
-
-          <div className="mt-6 text-center">
-            {mode === "sign_in" ? (
-              <button
-                type="button"
-                onClick={() => switchMode("sign_up")}
-                className="text-sm font-bold text-primary transition-colors hover:underline"
-              >
-                {t("auth.noAccount")}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => switchMode("sign_in")}
-                className="text-sm font-bold text-primary transition-colors hover:underline"
-              >
-                {t("auth.haveAccount")}
-              </button>
-            )}
           </div>
         </div>
       </div>
