@@ -8,6 +8,7 @@ import {
   Eye,
   EyeOff,
   LoaderCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,7 @@ import { Logo } from "@/components/Logo";
 import { AppButton } from "@/components/ui/app-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 type Mode = "sign_in" | "sign_up";
 
@@ -113,7 +115,6 @@ const AuthPage = () => {
     }
 
     setNotice(t("auth.checkEmail"));
-    setMode("sign_in");
     setPassword("");
     setConfirmation("");
     setShowPassword(false);
@@ -144,10 +145,18 @@ const AuthPage = () => {
     setNotice(t("auth.checkEmail"));
   }
 
+  const toggleClass = (active: boolean) =>
+    cn(
+      "rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
+      active
+        ? "bg-white text-foreground shadow-sm"
+        : "text-muted-foreground hover:text-foreground",
+    );
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="overflow-hidden rounded-[2rem] border border-[#DDE6ED] bg-white shadow-premium motion-safe:animate-fade-in-up">
-        <div className="grid lg:grid-cols-[1.05fr_1fr]">
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
           <aside className="relative isolate hidden overflow-hidden bg-[#0D2B45] p-10 text-white lg:flex lg:flex-col lg:justify-between">
             <svg
               className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 text-sky-300/10"
@@ -159,15 +168,6 @@ const AuthPage = () => {
               <circle cx="110" cy="110" r="54" stroke="currentColor" />
               <path d="M16 150C60 130 76 76 126 86C168 94 178 48 222 42" stroke="currentColor" />
             </svg>
-            <svg
-              className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 text-emerald-200/10"
-              viewBox="0 0 220 220"
-              fill="none"
-              aria-hidden="true"
-            >
-              <circle cx="110" cy="110" r="82" stroke="currentColor" />
-              <circle cx="110" cy="110" r="54" stroke="currentColor" />
-            </svg>
 
             <div className="relative flex items-center gap-3">
               <Logo className="h-11 w-11" />
@@ -178,22 +178,18 @@ const AuthPage = () => {
             </div>
 
             <div className="relative">
-              <h2 className="max-w-sm font-display text-[1.9rem] font-extrabold leading-[1.15] tracking-[-0.04em]">
+              <h2 className="max-w-sm font-display text-[2rem] font-extrabold leading-[1.12] tracking-[-0.04em]">
                 {t("app.heroTitle")}
               </h2>
-              <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">{t("home.trustBody")}</p>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">{t("app.heroSubtitle")}</p>
             </div>
 
-            <ul className="relative space-y-3">
-              {[t("home.trustBadge1"), t("home.trustBadge2"), t("home.trustBadge3")].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm font-medium text-slate-200">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
-                    <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <div className="relative flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3.5 backdrop-blur-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                <ShieldCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+              </span>
+              <p className="text-xs leading-relaxed text-slate-200">{t("home.trustBody")}</p>
+            </div>
           </aside>
 
           <div className="min-w-0">
@@ -206,7 +202,26 @@ const AuthPage = () => {
             </div>
 
             <div className="px-6 py-7 sm:px-9 sm:py-9">
-              <div className="mb-6">
+              <div className="grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1.5">
+                <button
+                  type="button"
+                  onClick={() => switchMode("sign_in")}
+                  className={toggleClass(mode === "sign_in")}
+                  aria-pressed={mode === "sign_in"}
+                >
+                  {t("auth.signIn")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode("sign_up")}
+                  className={toggleClass(mode === "sign_up")}
+                  aria-pressed={mode === "sign_up"}
+                >
+                  {t("auth.signUp")}
+                </button>
+              </div>
+
+              <div className="mb-6 mt-7">
                 <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
                   {mode === "sign_in" ? t("auth.title") : t("auth.signUp")}
                 </h1>
@@ -226,6 +241,7 @@ const AuthPage = () => {
                     autoFocus
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
+                    placeholder="you@example.com"
                     className="h-12 rounded-[14px] border-[#DDE6ED] bg-white text-foreground focus-visible:border-primary"
                     required
                   />
@@ -254,6 +270,7 @@ const AuthPage = () => {
                       autoComplete={mode === "sign_in" ? "current-password" : "new-password"}
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
+                      placeholder="••••••••"
                       className="h-12 rounded-[14px] border-[#DDE6ED] bg-white pr-12 text-foreground focus-visible:border-primary"
                       required
                     />
@@ -335,26 +352,6 @@ const AuthPage = () => {
                   )}
                 </AppButton>
               </form>
-
-              <div className="mt-7 text-center">
-                {mode === "sign_in" ? (
-                  <button
-                    type="button"
-                    onClick={() => switchMode("sign_up")}
-                    className="text-sm font-bold text-primary transition-colors hover:underline"
-                  >
-                    {t("auth.noAccount")}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => switchMode("sign_in")}
-                    className="text-sm font-bold text-primary transition-colors hover:underline"
-                  >
-                    {t("auth.haveAccount")}
-                  </button>
-                )}
-              </div>
             </div>
           </div>
         </div>
