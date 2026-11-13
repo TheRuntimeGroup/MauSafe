@@ -14,6 +14,7 @@ import {
   EyeOff,
   Heart,
   LoaderCircle,
+  LogIn,
   Mail,
   PartyPopper,
   Phone,
@@ -27,10 +28,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { saveOnboardingProfile, type AccessibilityNeed } from "@/lib/profile";
+import { sendOtp, verifySignup } from "@/lib/otp";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { OtpVerificationPanel } from "@/components/OtpVerificationPanel";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
+
+const RESEND_SECONDS = 30;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DRAFT_KEY = "mausafe.onboarding.draft";
@@ -47,6 +52,7 @@ type StepId =
 
 interface Draft {
   name: string;
+  email: string;
   phone: string;
   needs: AccessibilityNeed[];
   voiceGuide: boolean;
@@ -60,6 +66,7 @@ function loadDraft(): Draft | null {
     if (!parsed || typeof parsed !== "object") return null;
     return {
       name: typeof parsed.name === "string" ? parsed.name : "",
+      email: typeof parsed.email === "string" ? parsed.email : "",
       phone: typeof parsed.phone === "string" ? parsed.phone : "",
       needs: Array.isArray(parsed.needs) ? parsed.needs : [],
       voiceGuide: Boolean(parsed.voiceGuide),
@@ -95,7 +102,7 @@ const Onboarding = () => {
 
   const [stepIndex, setStepIndex] = useState(0);
   const [name, setName] = useState(() => draft?.name ?? profile?.full_name ?? "");
-  const [email, setEmail] = useState(() => user?.email ?? "");
+  const [email, setEmail] = useState(() => draft?.email ?? user?.email ?? "");
   const [phone, setPhone] = useState(() => draft?.phone ?? profile?.phone ?? "");
   const [needs, setNeeds] = useState<AccessibilityNeed[]>(
     () => draft?.needs ?? profile?.accessibility_needs ?? [],
@@ -107,8 +114,12 @@ const Onboarding = () => {
   const [confirmation, setConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [finish, setFinish] = useState<"none" | "checkEmail" | "done">("none");
+  const [finish, setFinish] = useState<"none" | "verifyOtp" | "done">("none");
 
   const redirectedRef = useRef(false);
 
@@ -150,9 +161,34 @@ const Onboarding = () => {
     }
   }, [user, profile, loading, profileLoading, navigate]);
 
+  // Countdown for the resend button.
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((value) => value - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
+
   const currentStep: StepId = steps[stepIndex] ?? steps[steps.length - 1];
   const isProfileMode = Boolean(user);
-  const redirectTo = new URL("/auth/callback", window.location.origin).href;
+
+  function toOtpError(code: string): string {
+    switch (code) {
+      case "EMAIL_TAKEN":
+        return t("auth.alreadyRegistered");
+      case "EXPIRED_CODE":
+        return t("otp.expired");
+      case "INVALID_CODE":
+        return t("otp.wrong");
+      case "PASSWORD_TOO_SHORT":
+        return t("auth.passwordTooShort");
+      case "INVALID_EMAIL":
+        return t("auth.emailInvalid");
+      case "EMAIL_NOT_CONFIGURED":
+        return t("otp.notConfigured");
+      default:
+        return t("auth.genericError");
+    }
+  }
 
   function toggleNeed(id: AccessibilityNeed) {
     setError(null);
@@ -188,12 +224,6 @@ const Onboarding = () => {
   function goBack() {
     setError(null);
     if (stepIndex > 0) setStepIndex((index) => index - 1);
-  }
-
-  function toMessage(message: string): string {
-    if (/already registered/i.test(message)) return t("auth.alreadyRegistered");
-    if (/password should be at least/i.test(message)) return t("auth.passwordTooShort");
-    return t("auth.genericError");
   }
 
   async function handleSubmit(event?: FormEvent<HTMLFormElement>) {
@@ -238,32 +268,67 @@ const Onboarding = () => {
         return;
       }
 
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: { emailRedirectTo: redirectTo },
-      });
-
-      if (signUpError) {
-        setError(toMessage(signUpError.message));
-        return;
-      }
-
-      if (data.session?.user) {
-        await saveOnboardingProfile(data.session.user.id, input);
-        clearDraft();
-        await refreshProfile();
-        setFinish("done");
-        return;
-      }
-
-      // Email confirmation is required. Keep the answers safe for their return.
-      saveDraft({ name: name.trim(), phone: phone.trim(), needs, voiceGuide });
-      setFinish("checkEmail");
-    } catch {
-      setError(t("auth.genericError"));
+      saveDraft({ name: name.trim(), email: email.trim(), phone: phone.trim(), needs, voiceGuide });
+      await sendOtp(email.trim());
+      setOtpCode("");
+      setCooldown(RESEND_SECONDS);
+      setFinish("verifyOtp");
+    } catch (error) {
+      setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleResendOtp() {
+    setError(null);
+    setSendingOtp(true);
+    try {
+      await sendOtp(email.trim());
+      setOtpCode("");
+      setCooldown(RESEND_SECONDS);
+    } catch (error) {
+      setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+    } finally {
+      setSendingOtp(false);
+    }
+  }
+
+  async function handleVerifyOtp() {
+    if (otpCode.length !== 6) {
+      setError(t("otp.wrong"));
+      return;
+    }
+
+    setError(null);
+    setVerifying(true);
+
+    try {
+      await verifySignup({ email: email.trim(), code: otpCode, password });
+
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (signInError || !signInData.user) {
+        setError(t("auth.genericError"));
+        return;
+      }
+
+      await saveOnboardingProfile(signInData.user.id, {
+        fullName: name.trim(),
+        phone: phone.trim(),
+        accessibilityNeeds: needs,
+        voiceGuide,
+      });
+      clearDraft();
+      await refreshProfile();
+      setFinish("done");
+    } catch (error) {
+      setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+    } finally {
+      setVerifying(false);
     }
   }
 
@@ -426,14 +491,37 @@ const Onboarding = () => {
                   )}
 
                   <div key={`${currentStep}-${finish}`} className="motion-safe:animate-fade-in-up">
-                    {finish === "checkEmail" && (
-                      <FinishScreen
-                        icon={<Mail className="h-9 w-9" strokeWidth={1.8} aria-hidden="true" />}
-                        title={t("onboarding.checkEmail.title")}
-                        body={t("onboarding.checkEmail.body")}
-                        hint={t("onboarding.checkEmail.hint")}
-                        ctaLabel={t("onboarding.signIn")}
-                        ctaTo="/auth"
+                    {finish === "verifyOtp" && (
+                      <OtpVerificationPanel
+                        eyebrow={t("otp.eyebrow")}
+                        title={t("otp.title")}
+                        subtitle={t("otp.subtitle", { email: email.trim() })}
+                        code={otpCode}
+                        onCodeChange={(value) => {
+                          setOtpCode(value);
+                          setError(null);
+                        }}
+                        onSubmit={handleVerifyOtp}
+                        submitting={verifying}
+                        error={error}
+                        verifyLabel={t("otp.verify")}
+                        resendLabel={cooldown > 0 ? t("otp.resendIn", { seconds: cooldown }) : t("otp.resend")}
+                        resendDisabled={cooldown > 0 || sendingOtp}
+                        onResend={handleResendOtp}
+                        changeEmailLabel={t("otp.changeEmail")}
+                        onChangeEmail={() => {
+                          setFinish("none");
+                          setError(null);
+                          setOtpCode("");
+                          const emailIndex = steps.indexOf("email");
+                          if (emailIndex >= 0) setStepIndex(emailIndex);
+                        }}
+                        backLabel={t("onboarding.back")}
+                        onBack={() => {
+                          setFinish("none");
+                          setError(null);
+                          setOtpCode("");
+                        }}
                       />
                     )}
 
@@ -657,12 +745,15 @@ function WelcomeStep({
         {startLabel}
         <ArrowRight className="h-5 w-5" aria-hidden="true" />
       </AppButton>
-      <p className="mt-5 text-sm font-medium text-muted-foreground">
-        {haveAccount}{" "}
-        <Link to="/auth" className="font-bold text-primary hover:underline">
-          {signInLabel}
+      <div className="mt-6 border-t border-foreground/[0.08] pt-6">
+        <p className="text-center text-sm font-medium text-muted-foreground">{haveAccount}</p>
+        <Link to="/auth" className="mt-3 block">
+          <AppButton size="lg" variant="outline" className="w-full">
+            <LogIn className="h-4 w-4" aria-hidden="true" />
+            {signInLabel}
+          </AppButton>
         </Link>
-      </p>
+      </div>
     </div>
   );
 }
