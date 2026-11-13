@@ -388,17 +388,9 @@ const Onboarding = () => {
       </div>
 
       <header className="relative z-10 flex items-center justify-between gap-3 px-5 pt-[max(1rem,env(safe-area-inset-top))] sm:px-8">
-        {user ? (
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-xl text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            {t("auth.back")}
-          </Link>
-        ) : (
-          <span aria-hidden="true" />
-        )}
+        <Link to="/" aria-label={t("auth.back")} className="inline-flex shrink-0 items-center rounded-xl">
+          <Logo variant="full" className="h-10 w-32" />
+        </Link>
         <div className="flex items-center gap-2">
           <AccessibilityQuickSettings />
           <LanguageSwitcher compact />
@@ -460,14 +452,6 @@ const Onboarding = () => {
               </aside>
 
               <div className="min-w-0">
-                <div className="flex items-center gap-3 bg-[#0D2B45] px-6 py-5 text-white lg:hidden">
-                  <Logo className="h-9 w-9" />
-                  <div>
-                    <p className="font-display text-lg font-extrabold tracking-tight">{t("app.name")}</p>
-                    <p className="text-[11px] font-medium text-sky-200">{t("app.tagline")}</p>
-                  </div>
-                </div>
-
                 <div className="px-6 py-7 sm:px-10 sm:py-9">
                   {finish === "none" && (
                     <div className="mb-7">
