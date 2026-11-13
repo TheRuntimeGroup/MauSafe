@@ -31,6 +31,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     "nav.callcheckShort": "Number",
 
     "home.activeTitle": "Your active check-in",
+    "home.dashboardTitle": "Your safety, at a glance.",
+    "home.moreTools": "More tools",
     "home.noActive": "No active check-in right now",
     "home.noActiveHint": "Start one before your next journey home.",
     "home.howTitle": "How it works",
@@ -341,6 +343,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     "nav.callcheckShort": "Numéro",
 
     "home.activeTitle": "Votre check-in actif",
+    "home.dashboardTitle": "Votre sécurité, en un coup d'œil.",
+    "home.moreTools": "Plus d'outils",
     "home.noActive": "Aucun check-in actif",
     "home.noActiveHint": "Démarrez-en un avant votre prochain trajet.",
     "home.howTitle": "Comment ça marche",
@@ -651,6 +655,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     "nav.callcheckShort": "Nimero",
 
     "home.activeTitle": "Ou check-in aktif",
+    "home.dashboardTitle": "Ou sekirite, dan enn koudey.",
+    "home.moreTools": "Plis zouti",
     "home.noActive": "Pena okenn check-in aktif",
     "home.noActiveHint": "Koumans enn avan ou prosin traze.",
     "home.howTitle": "Kouma li fonksionne",

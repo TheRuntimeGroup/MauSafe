@@ -118,10 +118,10 @@ export function AppShell() {
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(25,21,46,0.08)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 bg-[#151321] pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_35px_rgba(21,19,33,0.18)] lg:hidden"
         aria-label={t("nav.menu")}
       >
-        <div className="grid grid-cols-5 px-1 pt-1.5">
+        <div className="grid grid-cols-5 px-2 pb-1 pt-2">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -129,8 +129,8 @@ export function AppShell() {
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  "flex min-h-[3.75rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground",
+                  "flex min-h-[3.9rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
+                  isActive ? "text-white" : "text-white/45",
                 )
               }
             >
@@ -138,11 +138,11 @@ export function AppShell() {
                 <>
                   <span
                     className={cn(
-                      "flex h-8 w-12 items-center justify-center rounded-full transition-colors",
-                      isActive ? "bg-primary text-white" : "text-muted-foreground",
+                      "flex h-8 w-11 items-center justify-center rounded-xl transition-colors",
+                      isActive ? "bg-white/10 text-violet-300" : "text-white/50",
                     )}
                   >
-                    <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.4 : 2} aria-hidden="true" />
+                    <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.4 : 1.9} aria-hidden="true" />
                   </span>
                   <span className={cn("max-w-full truncate text-center leading-tight", isActive && "font-bold")}>
                     {t(item.shortLabelKey)}

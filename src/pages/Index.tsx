@@ -4,20 +4,15 @@ import {
   ArrowRight,
   ArrowUpRight,
   BookOpen,
-  CheckCircle2,
   Heart,
   LifeBuoy,
-  Link2,
   ListChecks,
   LockKeyhole,
-  MapPin,
+  Navigation,
   Phone,
   PhoneCall,
-  Plus,
   ShieldAlert,
-  ShieldCheck,
   Siren,
-  WifiOff,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listJourneys } from "@/lib/api";
@@ -50,227 +45,154 @@ const Index = () => {
     };
   }, []);
 
-  const trustItems = [
-    { icon: ShieldCheck, label: t("home.trustBadge1") },
-    { icon: WifiOff, label: t("home.trustBadge2") },
-    { icon: Link2, label: t("home.trustBadge3") },
-  ];
-
   const tools = [
-    {
-      icon: ListChecks,
-      label: t("nav.checkins"),
-      body: t("home.feature1Body"),
-      to: "/check-ins",
-    },
-    {
-      icon: PhoneCall,
-      label: t("nav.callcheck"),
-      body: t("callcheck.subtitle"),
-      to: "/call-checker",
-    },
-    {
-      icon: ShieldAlert,
-      label: t("nav.scam"),
-      body: t("home.feature3Body"),
-      to: "/scam-check",
-    },
-    {
-      icon: LifeBuoy,
-      label: t("nav.gethelp"),
-      body: t("home.feature2Body"),
-      to: "/get-help",
-    },
-    {
-      icon: Heart,
-      label: t("nav.contacts"),
-      body: t("contacts.subtitle"),
-      to: "/contacts",
-    },
-    {
-      icon: BookOpen,
-      label: t("nav.tips"),
-      body: t("tips.subtitle"),
-      to: "/safety-tips",
-    },
+    { icon: ShieldAlert, label: t("nav.scam"), to: "/scam-check" },
+    { icon: PhoneCall, label: t("nav.callcheck"), to: "/call-checker" },
+    { icon: LifeBuoy, label: t("nav.gethelp"), to: "/get-help" },
+    { icon: Heart, label: t("nav.contacts"), to: "/contacts" },
   ];
 
-  const steps = [
-    { icon: MapPin, title: t("home.how1Title"), body: t("home.how1Body") },
-    { icon: Link2, title: t("home.how2Title"), body: t("home.how2Body") },
-    { icon: CheckCircle2, title: t("home.how3Title"), body: t("home.how3Body") },
+  const moreTools = [
+    { icon: ListChecks, label: t("nav.checkins"), body: t("home.feature1Body"), to: "/check-ins" },
+    { icon: BookOpen, label: t("nav.tips"), body: t("tips.subtitle"), to: "/safety-tips" },
   ];
 
   return (
-    <div className="space-y-14 lg:space-y-20">
-      <section className="overflow-hidden border border-foreground/10 bg-white sm:rounded-2xl">
-        <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="flex flex-col justify-center px-6 py-9 sm:px-10 sm:py-12 lg:px-12 lg:py-16">
-            <p className="border-l-2 border-primary pl-3 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
-              {t("app.badge")}
-            </p>
-            <h1 className="mt-7 max-w-xl font-display text-[2.65rem] font-extrabold leading-[1.04] tracking-[-0.045em] text-foreground sm:text-6xl">
-              {t("app.heroTitle")}
-            </h1>
-            <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">
-              {t("app.heroSubtitle")}
-            </p>
-            <div className="mt-8 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-7">
-              <Link
-                to="/start"
-                className="group inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-primary px-5 text-sm font-extrabold text-white transition-colors hover:bg-primary/90"
-              >
-                {t("app.ctaStart")}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-              </Link>
-              <a
-                href="tel:999"
-                className="inline-flex min-h-11 items-center gap-2 border-b border-danger/30 text-sm font-extrabold text-danger transition-colors hover:border-danger"
-              >
-                <Phone className="h-4 w-4" aria-hidden="true" />
-                {t("help.call999")}
-              </a>
-            </div>
-          </div>
+    <div className="space-y-7">
+      <header className="px-1 pt-1">
+        <p className="text-xs font-semibold text-muted-foreground">{t("app.tagline")}</p>
+        <h1 className="mt-2 font-display text-[2rem] font-extrabold leading-tight tracking-[-0.04em] text-foreground sm:text-4xl">
+          {t("home.dashboardTitle")}
+        </h1>
+      </header>
 
-          <div className="relative order-first min-h-64 overflow-hidden bg-secondary sm:min-h-80 lg:order-last lg:min-h-[500px]">
-            <img
-              src="https://images.unsplash.com/photo-1540202404-a2f29016b523?auto=format&fit=crop&w=1400&q=85"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
-              loading="eager"
-              fetchPriority="high"
-            />
-            <p className="absolute bottom-0 left-0 bg-white px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-foreground">
-              Mauritius · 20.3484° S, 57.5522° E
-            </p>
-          </div>
-        </div>
-
-        <ul className="grid gap-4 border-t border-foreground/10 px-6 py-5 sm:grid-cols-3 sm:px-10 lg:px-12">
-          {trustItems.map((item) => (
-            <li key={item.label} className="flex items-center gap-2.5 text-xs font-semibold text-muted-foreground">
-              <item.icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-              {item.label}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {!loading && active ? (
-        <section className="space-y-4 animate-fade-in-up">
-          <div className="flex items-center justify-between gap-4 border-b border-foreground/10 pb-3">
-            <div className="flex items-center gap-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-primary" aria-hidden="true" />
-              <h2 className="font-display text-lg font-extrabold text-foreground">
-                {t("home.activeTitle")}
-              </h2>
-            </div>
-            <Link
-              to={`/journey/${active.id}`}
-              className="inline-flex items-center gap-1 text-sm font-bold text-primary"
-            >
+      {!loading && active && (
+        <section className="space-y-3 animate-fade-in-up">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="flex items-center gap-2 text-sm font-extrabold text-foreground">
+              <span className="h-2 w-2 rounded-full bg-success" aria-hidden="true" />
+              {t("home.activeTitle")}
+            </h2>
+            <Link to={`/journey/${active.id}`} className="text-xs font-bold text-primary">
               {t("action.open")}
-              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
           <Link to={`/journey/${active.id}`} className="block">
-            <JourneyStatusCard journey={active.recipientSees} className="transition-shadow hover:shadow-premium" />
+            <JourneyStatusCard journey={active.recipientSees} />
           </Link>
         </section>
-      ) : !loading ? (
-        <section className="flex flex-col items-start gap-4 border-l-4 border-primary bg-white px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <h2 className="font-display text-base font-extrabold text-foreground">{t("home.noActive")}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{t("home.noActiveHint")}</p>
+      )}
+
+      <section className="relative isolate overflow-hidden rounded-[1.75rem] bg-[#151321] p-6 text-white shadow-premium sm:p-7">
+        <svg
+          className="pointer-events-none absolute -right-10 -top-10 h-64 w-64 text-violet-400/20"
+          viewBox="0 0 240 240"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M-20 174C48 151 50 89 112 103C174 117 174 50 260 45" stroke="currentColor" strokeWidth="2" />
+          <path d="M-10 208C62 185 76 126 133 140C190 154 201 86 252 81" stroke="currentColor" strokeWidth="2" />
+          <circle cx="112" cy="103" r="6" fill="currentColor" />
+          <circle cx="174" cy="50" r="6" fill="currentColor" />
+        </svg>
+
+        <div className="relative">
+          <div className="flex items-center gap-2.5 text-violet-300">
+            <Navigation className="h-4 w-4" aria-hidden="true" />
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em]">{t("form.title")}</p>
           </div>
+          <h2 className="mt-6 max-w-md font-display text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
+            {t("form.subtitle")}
+          </h2>
           <Link
             to="/start"
-            className="inline-flex min-h-10 shrink-0 items-center gap-2 border-b border-primary/30 text-sm font-extrabold text-primary hover:border-primary"
+            className="group mt-7 inline-flex min-h-12 items-center gap-3 rounded-xl bg-white px-5 text-sm font-extrabold text-[#151321] transition-transform hover:-translate-y-0.5 focus-visible:ring-white"
           >
-            <Plus className="h-4 w-4" aria-hidden="true" />
             {t("app.ctaStart")}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </Link>
-        </section>
-      ) : null}
 
-      <section className="grid gap-7 lg:grid-cols-[210px_1fr] lg:gap-12">
-        <header>
-          <p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+          {!loading && !active && (
+            <div className="mt-7 flex items-center gap-2 border-t border-white/10 pt-4 text-xs text-white/55">
+              <span className="h-1.5 w-1.5 rounded-full bg-white/45" aria-hidden="true" />
+              {t("home.noActive")}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <a
+        href="tel:999"
+        className="group flex min-h-[4.75rem] items-center gap-4 rounded-2xl bg-danger px-5 text-white shadow-sm transition-transform hover:-translate-y-0.5"
+      >
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
+          <Siren className="h-5 w-5" aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-base font-extrabold">{t("nav.emergency")}</span>
+          <span className="mt-0.5 flex items-center gap-1.5 text-xs text-white/75">
+            <Phone className="h-3 w-3" aria-hidden="true" />
+            {t("help.call999")}
+          </span>
+        </span>
+        <ArrowUpRight className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+      </a>
+
+      <section className="space-y-4 pt-1">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="font-display text-lg font-extrabold tracking-tight text-foreground">
             {t("home.quickTitle")}
-          </p>
-          <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight text-foreground sm:text-3xl">
-            {t("home.featureTitle")}
           </h2>
-        </header>
-
-        <div>
-          <a
-            href="tel:999"
-            className="group mb-5 flex items-center gap-4 border border-danger/20 border-l-4 border-l-danger bg-white p-5 transition-colors hover:bg-danger/5"
-          >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-danger text-white">
-              <Siren className="h-5 w-5" aria-hidden="true" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block font-display text-base font-extrabold text-danger">{t("nav.emergency")}</span>
-              <span className="mt-1 block text-sm text-muted-foreground">{t("home.quickHelp")}</span>
-            </span>
-            <span className="font-display text-2xl font-extrabold tracking-tight text-danger">999</span>
-          </a>
-
-          <div className="border-t border-foreground/15">
-            {tools.map((tool) => (
-              <Link
-                key={tool.to}
-                to={tool.to}
-                className="group flex items-start gap-4 border-b border-foreground/15 py-5 transition-colors hover:bg-white sm:items-center sm:px-3"
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
-                  <tool.icon className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-display text-base font-extrabold text-foreground">{tool.label}</span>
-                  <span className="mt-1 block max-w-xl text-sm leading-relaxed text-muted-foreground">{tool.body}</span>
-                </span>
+          <span className="font-mono text-[10px] font-bold text-muted-foreground">04</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {tools.map((tool) => (
+            <Link
+              key={tool.to}
+              to={tool.to}
+              className="group flex min-h-36 flex-col justify-between rounded-2xl border border-foreground/[0.07] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-premium"
+            >
+              <div className="flex items-start justify-between">
+                <tool.icon className="h-6 w-6 text-primary" strokeWidth={1.8} aria-hidden="true" />
                 <ArrowUpRight
-                  className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary sm:mt-0"
+                  className="h-4 w-4 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
                   aria-hidden="true"
                 />
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-foreground/15 pt-8">
-        <div className="grid gap-8 lg:grid-cols-[210px_1fr] lg:gap-12">
-          <div>
-            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-primary">01 — 02 — 03</p>
-            <h2 className="mt-3 font-display text-2xl font-extrabold text-foreground">{t("home.howTitle")}</h2>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-3 sm:gap-6">
-            {steps.map((step, index) => (
-              <div key={step.title} className="border-t-2 border-primary/20 pt-5">
-                <div className="flex items-center justify-between">
-                  <step.icon className="h-5 w-5 text-primary" aria-hidden="true" />
-                  <span className="font-mono text-xs font-bold text-muted-foreground">0{index + 1}</span>
-                </div>
-                <h3 className="mt-5 font-display text-base font-extrabold text-foreground">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
               </div>
-            ))}
-          </div>
+              <span className="mt-6 font-display text-sm font-extrabold leading-tight text-foreground sm:text-base">
+                {tool.label}
+              </span>
+            </Link>
+          ))}
         </div>
       </section>
 
-      <section className="flex items-start gap-4 border-t border-foreground/15 pt-8">
-        <LockKeyhole className="mt-1 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
-        <div>
-          <h2 className="font-display text-lg font-extrabold text-foreground">{t("home.trustTitle")}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("home.trustBody")}</p>
+      <section className="space-y-3 pt-1">
+        <h2 className="px-1 font-display text-lg font-extrabold tracking-tight text-foreground">
+          {t("home.moreTools")}
+        </h2>
+        <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-white px-5">
+          {moreTools.map((tool) => (
+            <Link
+              key={tool.to}
+              to={tool.to}
+              className="group flex items-center gap-4 border-b border-foreground/[0.07] py-5 last:border-b-0"
+            >
+              <tool.icon className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.8} aria-hidden="true" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold text-foreground">{tool.label}</span>
+                <span className="mt-1 line-clamp-2 block text-xs leading-relaxed text-muted-foreground">{tool.body}</span>
+              </span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true" />
+            </Link>
+          ))}
         </div>
       </section>
+
+      <div className="flex items-start gap-2.5 px-1 pb-2 text-xs leading-relaxed text-muted-foreground">
+        <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+        <p>{t("home.trustBody")}</p>
+      </div>
     </div>
   );
 };

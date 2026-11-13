@@ -9,21 +9,15 @@ export function Logo({ className }: { className?: string }) {
       className={cn("h-8 w-8", className)}
       aria-hidden="true"
     >
+      <rect x="3" y="3" width="58" height="58" rx="18" fill="#6D28D9" />
       <path
-        d="M32 5.5 51 13v16.6C51 42.4 42.6 51.6 32 57 21.4 51.6 13 42.4 13 29.6V13L32 5.5Z"
-        fill="#7C3AED"
-        stroke="#6D28D9"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M24.5 32.5 29.6 37.6 40.2 27"
+        d="M17 42V22L32 36L47 22V42"
         stroke="#FFFFFF"
         strokeWidth="4.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="48" cy="16" r="4" fill="#F59E0B" />
+      <circle cx="48" cy="16" r="4" fill="#FBBF24" />
     </svg>
   );
 }

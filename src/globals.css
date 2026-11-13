@@ -4,19 +4,19 @@
 
 @layer base {
   :root {
-    --background: 250 50% 98.5%;
-    --foreground: 224 40% 16%;
+    --background: 45 25% 98%;
+    --foreground: 240 14% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 40% 16%;
+    --card-foreground: 240 14% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 217 33% 17%;
+    --popover-foreground: 240 14% 12%;
 
-    --primary: 262 83% 58%;
+    --primary: 262 68% 46%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 262 60% 96%;
+    --secondary: 262 35% 95%;
     --secondary-foreground: 262 40% 30%;
 
     --muted: 210 40% 96.1%;
@@ -54,7 +54,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
     font-feature-settings: "cv11", "ss01";
   }
 
@@ -62,7 +62,7 @@
   h2,
   h3,
   h4 {
-    font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
     letter-spacing: -0.02em;
   }
 
