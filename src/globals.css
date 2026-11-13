@@ -4,43 +4,31 @@
 
 @layer base {
   :root {
-    --background: 45 25% 98%;
-    --foreground: 240 14% 12%;
-
+    --background: 90 20% 96%;
+    --foreground: 163 38% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 240 14% 12%;
-
+    --card-foreground: 163 38% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 14% 12%;
-
-    --primary: 213 88% 29%;
+    --popover-foreground: 163 38% 15%;
+    --primary: 176 75% 21%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 70% 95%;
-    --secondary-foreground: 213 55% 25%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 217 15% 45%;
-
-    --accent: 210 70% 95%;
-    --accent-foreground: 213 55% 25%;
-
-    --destructive: 0 72% 51%;
+    --secondary: 110 20% 92%;
+    --secondary-foreground: 163 38% 20%;
+    --muted: 110 16% 94%;
+    --muted-foreground: 155 9% 42%;
+    --accent: 73 78% 68%;
+    --accent-foreground: 163 38% 15%;
+    --destructive: 8 58% 48%;
     --destructive-foreground: 0 0% 100%;
-
-    --success: 152 69% 31%;
+    --success: 143 38% 36%;
     --success-foreground: 0 0% 100%;
-
-    --warning: 32 95% 44%;
+    --warning: 38 64% 43%;
     --warning-foreground: 0 0% 100%;
-
-    --danger: 0 72% 51%;
+    --danger: 8 58% 48%;
     --danger-foreground: 0 0% 100%;
-
-    --border: 224 22% 89%;
-    --input: 224 22% 89%;
-    --ring: 213 88% 29%;
-
+    --border: 110 15% 85%;
+    --input: 110 15% 85%;
+    --ring: 176 75% 21%;
     --radius: 1rem;
   }
 
@@ -49,89 +37,57 @@
   }
 
   html {
+    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
-    font-feature-settings: "cv11", "ss01";
+    min-width: 320px;
+    font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
-    letter-spacing: -0.02em;
+  button,
+  a,
+  summary,
+  input,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  summary {
+    touch-action: manipulation;
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
+    outline: 3px solid #4c8f82;
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: #ddf566;
+    color: #17332f;
   }
 }
 
 @layer utilities {
-  .tap-target {
-    min-height: 44px;
+  .animate-fade-in-up {
+    animation: fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 
-  .bg-dots {
-    background-image: radial-gradient(hsl(var(--primary) / 0.12) 1.2px, transparent 1.2px);
-    background-size: 20px 20px;
-  }
-
-  .shadow-premium {
-    box-shadow:
-      0 1px 2px hsl(224 40% 16% / 0.04),
-      0 14px 34px -14px hsl(213 70% 32% / 0.22);
-  }
-
-  .glass-panel {
-    border: 1px solid hsl(0 0% 100% / 0.78);
-    background: hsl(0 0% 100% / 0.62);
-    box-shadow:
-      inset 0 1px 0 hsl(0 0% 100% / 0.95),
-      0 18px 45px -24px hsl(240 20% 20% / 0.28);
-    backdrop-filter: blur(24px) saturate(145%);
-    -webkit-backdrop-filter: blur(24px) saturate(145%);
-  }
-
-  .glass-card {
-    border: 1px solid hsl(0 0% 100% / 0.82);
-    background: hsl(0 0% 100% / 0.52);
-    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.9);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-  }
-
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .glass-panel,
-    .glass-card {
-      background: hsl(0 0% 100% / 0.96);
-    }
-  }
-
-  .scrollbar-none {
-    scrollbar-width: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .animate-route-draw {
-      animation: none;
-      stroke-dasharray: 1;
-      stroke-dashoffset: 0;
-    }
-
-    .animate-route-signal {
-      animation: none;
-      stroke-dasharray: 24 76;
-      stroke-dashoffset: 0;
-    }
-  }
-
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
