@@ -34,7 +34,7 @@ export default defineHandler(async (event) => {
   const label = String(body.label ?? "").slice(0, 100);
   const senderName = String(body.senderName ?? "").slice(0, 60).trim() || "Someone";
   const contact = String(body.contact ?? "").slice(0, 100).trim();
-  const isDemo = body.isDemo === true;
+  const isDemo = false;
   const journeyKind: JourneyKind = body.journeyKind === "child" ? "child" : "standard";
   const locationEnabled = body.locationEnabled === true;
 

@@ -11,7 +11,7 @@ const Contacts = () => {
   const [contacts, setContacts] = useState<TrustedContact[]>(() => listContacts());
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
-  const [relationship, setRelationship] = useState("");
+  const [relationship, setRelationship] = useState("family");
   const [showForm, setShowForm] = useState(false);
 
   function handleAdd(event: React.FormEvent) {
@@ -20,7 +20,7 @@ const Contacts = () => {
     setContacts(addContact({ name, contact, relationship }));
     setName("");
     setContact("");
-    setRelationship("");
+    setRelationship("family");
     setShowForm(false);
   }
 
@@ -75,13 +75,16 @@ const Contacts = () => {
             <label htmlFor="contact-relationship" className="text-sm font-semibold text-foreground">
               {t("contacts.relationshipLabel")}
             </label>
-            <input
+            <select
               id="contact-relationship"
               value={relationship}
               onChange={(e) => setRelationship(e.target.value)}
-              placeholder={t("contacts.relationshipPlaceholder")}
-              className="h-12 w-full rounded-2xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
+              className="h-12 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {["family", "friend", "neighbour", "other"].map((option) => (
+                <option key={option} value={option}>{t(`contacts.relation.${option}`)}</option>
+              ))}
+            </select>
           </div>
           <div className="flex gap-2">
             <AppButton type="submit" variant="primary" size="lg" disabled={!name.trim() || !contact.trim()}>
@@ -115,7 +118,11 @@ const Contacts = () => {
                   <p className="font-display text-base font-bold text-foreground">{c.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {c.contact}
-                    {c.relationship ? ` · ${c.relationship}` : ""}
+                    {c.relationship
+                      ? ` · ${["family", "friend", "neighbour", "other"].includes(c.relationship)
+                          ? t(`contacts.relation.${c.relationship}`)
+                          : c.relationship}`
+                      : ""}
                   </p>
                 </div>
               </div>

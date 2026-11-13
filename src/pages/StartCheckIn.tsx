@@ -28,7 +28,6 @@ const StartCheckIn = () => {
   const [customMode, setCustomMode] = useState(false);
   const [name, setName] = useState(() => getOwnerName());
   const [contact, setContact] = useState(() => getOwnerContact());
-  const [isDemo, setIsDemo] = useState(false);
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -43,7 +42,7 @@ const StartCheckIn = () => {
         durationMinutes: Math.max(1, Math.round(duration)),
         senderName: name.trim() || "Someone",
         contact: contact.trim(),
-        isDemo,
+        isDemo: false,
         locationEnabled,
       });
       setOwnerName(name.trim());
@@ -198,19 +197,6 @@ const StartCheckIn = () => {
             checked={locationEnabled}
             onCheckedChange={setLocationEnabled}
             aria-label={t("form.locationLabel")}
-          />
-        </div>
-
-        {/* Demo */}
-        <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4">
-          <div>
-            <p className="text-sm font-semibold text-foreground">{t("form.demoLabel")}</p>
-            <p className="text-xs text-muted-foreground">{t("form.demoHint")}</p>
-          </div>
-          <Switch
-            checked={isDemo}
-            onCheckedChange={setIsDemo}
-            aria-label={t("form.demoLabel")}
           />
         </div>
 
