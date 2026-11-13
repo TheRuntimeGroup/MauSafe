@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { analyzeScam, type ScamResult } from "@/lib/scamCheck";
+import { getAiAssessment, type AiAssessment } from "@/lib/aiScam";
 import {
   checkLinkReputation,
   type ReputationResult,
@@ -214,23 +215,138 @@ function SourceCard({ source }: { source: ReputationResult["sources"][number] })
   );
 }
 
-const ScamCheck = () => {
+function AiPanel({
+  assessment,
+  loading,
+  unavailable,
+}: {
+  assessment: AiAssessment | null;
+  loading: boolean;
+  unavailable: boolean;
+}) {
   const { t } = useI18n();
+
+  if (loading) {
+    return (
+      <div role="status" className="flex items-center gap-3 rounded-2xl border border-[#DDE6ED] bg-[#F4F8FB] p-4 text-sm font-semibold text-foreground">
+        <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
+        {t("scam.ai.loading")}
+      </div>
+    );
+  }
+  if (unavailable) {
+    return (
+      <p role="status" className="rounded-2xl border border-border bg-secondary/50 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+        {t("scam.ai.unavailable")}
+      </p>
+    );
+  }
+  if (!assessment) return null;
+
+  return (
+    <article className="rounded-2xl border border-[#DDE6ED] bg-[#F4F8FB] p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <div>
+            <h2 className="font-display text-base font-extrabold text-foreground">{t("scam.ai.title")}</h2>
+            <p className="mt-0.5 text-xs font-semibold text-muted-foreground">DeepSeek</p>
+          </div>
+        </div>
+        <span className="rounded-full bg-white px-3 py-1.5 text-xs font-extrabold text-primary shadow-sm">
+          {t(`scam.ai.verdict.${assessment.verdict}`)}
+        </span>
+      </div>
+
+      <p className="mt-4 text-sm leading-relaxed text-foreground">{assessment.summary}</p>
+
+      {assessment.reasons.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-xs font-extrabold uppercase tracking-wide text-muted-foreground">{t("scam.ai.reasoning")}</h3>
+          <ul className="mt-2 space-y-2">
+            {assessment.reasons.map((reason, index) => (
+              <li key={`${index}-${reason}`} className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                {reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {assessment.actions.length > 0 && (
+        <div className="mt-4 rounded-xl border border-primary/10 bg-white p-3.5">
+          <h3 className="text-xs font-extrabold uppercase tracking-wide text-primary">{t("scam.ai.actions")}</h3>
+          <ul className="mt-2 space-y-2">
+            {assessment.actions.map((action, index) => (
+              <li key={`${index}-${action}`} className="flex items-start gap-2 text-sm leading-relaxed text-foreground">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                {action}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+        {assessment.confidence !== null && `${t("scam.ai.confidence", { value: assessment.confidence })} · `}
+        {t("scam.ai.note")}
+      </p>
+    </article>
+  );
+}
+
+const ScamCheck = () => {
+  const { t, lang } = useI18n();
+  const aiRequestRef = useRef(0);
   const [tab, setTab] = useState<Tab>("message");
 
   // Message tab state
   const [text, setText] = useState("");
   const [result, setResult] = useState<ScamResult | null>(null);
+  const [messageAi, setMessageAi] = useState<AiAssessment | null>(null);
+  const [messageAiLoading, setMessageAiLoading] = useState(false);
+  const [messageAiError, setMessageAiError] = useState(false);
 
   // Link tab state
   const [url, setUrl] = useState("");
   const [linkResult, setLinkResult] = useState<ReputationResult | null>(null);
+  const [linkAi, setLinkAi] = useState<AiAssessment | null>(null);
+  const [linkAiLoading, setLinkAiLoading] = useState(false);
+  const [linkAiError, setLinkAiError] = useState(false);
   const [linkLoading, setLinkLoading] = useState(false);
   const [linkError, setLinkError] = useState<"invalid_url" | "network" | null>(null);
 
   function runMessage(textToAnalyze: string) {
     if (!textToAnalyze.trim()) return;
-    setResult(analyzeScam(textToAnalyze));
+    const localResult = analyzeScam(textToAnalyze);
+    const requestId = ++aiRequestRef.current;
+    setResult(localResult);
+    setMessageAi(null);
+    setMessageAiError(false);
+    setMessageAiLoading(true);
+
+    getAiAssessment({
+      text: textToAnalyze,
+      language: lang,
+      type: "message",
+      technical: {
+        score: localResult.score,
+        risk: localResult.risk,
+        findings: localResult.findings,
+      },
+    })
+      .then((assessment) => {
+        if (requestId === aiRequestRef.current) setMessageAi(assessment);
+      })
+      .catch(() => {
+        if (requestId === aiRequestRef.current) setMessageAiError(true);
+      })
+      .finally(() => {
+        if (requestId === aiRequestRef.current) setMessageAiLoading(false);
+      });
   }
 
   function useMessageExample() {
@@ -247,16 +363,40 @@ const ScamCheck = () => {
 
   async function runLink(raw: string) {
     if (!raw.trim()) return;
+    const requestId = ++aiRequestRef.current;
     setLinkLoading(true);
     setLinkError(null);
     setLinkResult(null);
+    setLinkAi(null);
+    setLinkAiError(false);
+    setLinkAiLoading(false);
+
     try {
       const data = await checkLinkReputation(raw);
+      if (requestId !== aiRequestRef.current) return;
       setLinkResult(data);
+      setLinkAiLoading(true);
+
+      getAiAssessment({
+        text: data.url,
+        language: lang,
+        type: "link",
+        technical: data,
+      })
+        .then((assessment) => {
+          if (requestId === aiRequestRef.current) setLinkAi(assessment);
+        })
+        .catch(() => {
+          if (requestId === aiRequestRef.current) setLinkAiError(true);
+        })
+        .finally(() => {
+          if (requestId === aiRequestRef.current) setLinkAiLoading(false);
+        });
     } catch (err) {
+      if (requestId !== aiRequestRef.current) return;
       setLinkError(err instanceof Error && err.message === "invalid_url" ? "invalid_url" : "network");
     } finally {
-      setLinkLoading(false);
+      if (requestId === aiRequestRef.current) setLinkLoading(false);
     }
   }
 
@@ -316,6 +456,10 @@ const ScamCheck = () => {
             onChange={(e) => {
               setText(e.target.value);
               setResult(null);
+              setMessageAi(null);
+              setMessageAiLoading(false);
+              setMessageAiError(false);
+              aiRequestRef.current += 1;
             }}
             rows={6}
             placeholder={t("scam.placeholder")}
@@ -342,6 +486,10 @@ const ScamCheck = () => {
                 setUrl(e.target.value);
                 setLinkResult(null);
                 setLinkError(null);
+                setLinkAi(null);
+                setLinkAiLoading(false);
+                setLinkAiError(false);
+                aiRequestRef.current += 1;
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void runLink(url);
@@ -415,6 +563,8 @@ const ScamCheck = () => {
               </p>
             )}
           </div>
+
+          <AiPanel assessment={messageAi} loading={messageAiLoading} unavailable={messageAiError} />
 
           {text.trim() && result.matchedTerms.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-4">
@@ -520,6 +670,8 @@ const ScamCheck = () => {
               {t("reputation.domainLabel")}: {linkResult.domain}
             </p>
           </div>
+
+          <AiPanel assessment={linkAi} loading={linkAiLoading} unavailable={linkAiError} />
 
           {linkResult.signals.length > 0 ? (
             <div className="space-y-2">
