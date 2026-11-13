@@ -113,17 +113,17 @@ const SafetyAlarm = () => {
         </div>
 
         <div className="mt-5 space-y-3">
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card/60 p-3 text-sm font-semibold">
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-white/60 p-3 text-sm font-semibold">
             <input type="checkbox" checked={soundEnabled} onChange={(e) => setSoundEnabled(e.target.checked)} className="h-5 w-5 accent-[hsl(var(--primary))]" />
             <Volume2 className="h-4 w-4 text-primary" aria-hidden="true" />
             {t("alarm.soundLabel")}
           </label>
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card/60 p-3 text-sm font-semibold">
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-white/60 p-3 text-sm font-semibold">
             <input type="checkbox" checked={vibrationEnabled} onChange={(e) => setVibrationEnabled(e.target.checked)} className="h-5 w-5 accent-[hsl(var(--primary))]" />
             <Vibrate className="h-4 w-4 text-primary" aria-hidden="true" />
             {t("alarm.vibrateLabel")}
           </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card/60 p-3 text-sm font-semibold">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-white/60 p-3 text-sm font-semibold">
             <input type="checkbox" checked={strobeEnabled} onChange={(e) => setStrobeEnabled(e.target.checked)} className="mt-0.5 h-5 w-5 accent-[hsl(var(--primary))]" />
             <span>
               {t("alarm.strobeLabel")}

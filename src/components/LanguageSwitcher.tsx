@@ -18,7 +18,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
         className={cn(
           "cursor-pointer border text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           compact
-            ? "h-10 w-[4.25rem] appearance-none rounded-full border-foreground/[0.08] bg-card pl-3.5 pr-6 text-xs font-extrabold uppercase shadow-sm"
+            ? "h-10 w-[4.25rem] appearance-none rounded-full border-foreground/[0.08] bg-white pl-3.5 pr-6 text-xs font-extrabold uppercase shadow-sm"
             : "h-10 rounded-xl border-input bg-card pl-9 pr-3 text-sm font-medium",
         )}
       >

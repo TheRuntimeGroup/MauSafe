@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import {
   Heart,
   Home,
   LifeBuoy,
   ListChecks,
-  Moon,
   Phone,
   ShieldAlert,
   Siren,
-  Sun,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { Logo } from "@/components/Logo";
-import { AmbientBackground } from "@/components/AmbientBackground";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 
@@ -25,43 +21,9 @@ const NAV_ITEMS = [
 ];
 
 const MOBILE_ITEMS = NAV_ITEMS;
-type Theme = "light" | "dark";
-
-function initialTheme(): Theme {
-  try {
-    const saved = localStorage.getItem("mausafe.theme");
-    if (saved === "light" || saved === "dark") return saved;
-  } catch {
-    // Use system preference when storage is unavailable.
-  }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
 
 export function AppShell() {
   const { t } = useI18n();
-  const [theme, setTheme] = useState<Theme>(initialTheme);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    try {
-      localStorage.setItem("mausafe.theme", theme);
-    } catch {
-      // The visual theme still works when persistence is unavailable.
-    }
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#101728" : "#0A4C8C");
-  }, [theme]);
-
-  const themeToggle = (
-    <button
-      type="button"
-      onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")}
-      aria-label={theme === "dark" ? t("theme.light") : t("theme.dark")}
-      title={theme === "dark" ? t("theme.light") : t("theme.dark")}
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-foreground/[0.08] bg-card text-foreground shadow-sm transition-colors hover:text-primary"
-    >
-      {theme === "dark" ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
-    </button>
-  );
 
   const mobileTab = (item: (typeof MOBILE_ITEMS)[number]) => (
     <NavLink
@@ -87,9 +49,13 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-background lg:flex">
-      <AmbientBackground />
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -left-28 top-20 h-80 w-80 rounded-full bg-sky-300/25 blur-[100px]" />
+        <div className="absolute -right-24 top-1/3 h-96 w-96 rounded-full bg-emerald-200/25 blur-[110px]" />
+        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-amber-100/45 blur-[90px]" />
+      </div>
 
-      <aside className="sticky top-0 z-10 hidden h-screen w-72 shrink-0 flex-col border-r border-border bg-card/75 backdrop-blur-2xl lg:flex">
+      <aside className="sticky top-0 z-10 hidden h-screen w-72 shrink-0 flex-col border-r border-white/70 bg-white/75 backdrop-blur-2xl lg:flex">
         <NavLink to="/" className="flex items-center gap-3 border-b border-foreground/[0.07] px-6 py-6">
           <Logo className="h-10 w-10 shrink-0" />
           <div className="min-w-0">
@@ -143,9 +109,8 @@ export function AppShell() {
             <Heart className="h-4 w-4" aria-hidden="true" />
             {t("nav.contacts")}
           </NavLink>
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex justify-center">
             <LanguageSwitcher />
-            {themeToggle}
           </div>
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
             {t("footer.tagline")}
@@ -157,20 +122,19 @@ export function AppShell() {
         <div className="mx-auto flex h-[4.5rem] max-w-3xl items-center justify-between gap-3 px-5">
           <NavLink to="/" className="flex min-w-0 items-center gap-2.5" aria-label={t("nav.home")}>
             <Logo className="h-9 w-9 shrink-0" />
-            <span className="hidden font-display text-xl font-extrabold tracking-[-0.045em] text-foreground min-[360px]:inline">
+            <span className="font-display text-xl font-extrabold tracking-[-0.045em] text-foreground">
               {t("app.name")}
             </span>
           </NavLink>
           <div className="flex shrink-0 items-center gap-2">
             <NavLink
               to="/contacts"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/[0.08] bg-card text-foreground shadow-sm transition-colors hover:text-primary"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/[0.08] bg-white text-foreground shadow-sm transition-colors hover:text-primary"
               aria-label={t("nav.contacts")}
             >
               <Heart className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
             </NavLink>
             <LanguageSwitcher compact />
-            {themeToggle}
           </div>
         </div>
       </header>
