@@ -694,9 +694,9 @@ const Onboarding = () => {
             </div>
           </div>
 
-          <p className="mt-5 flex items-center justify-center gap-2 text-center text-xs leading-relaxed text-muted-foreground">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-success" aria-hidden="true" />
-            {t("onboarding.privacy")}
+          <p className="mx-auto mt-5 flex max-w-md items-start gap-2.5 px-2 text-left text-xs leading-relaxed text-muted-foreground">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
+            <span>{t("onboarding.privacy")}</span>
           </p>
         </div>
       </main>
