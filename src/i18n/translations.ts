@@ -41,6 +41,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     "home.activeTitle": "Your active check-in",
     "home.dashboardTitle": "Your safety, at a glance.",
+    "home.latestAnnouncement": "Latest update",
     "home.greeting.morning": "Good morning",
     "home.greeting.afternoon": "Good afternoon",
     "home.greeting.evening": "Good evening",
@@ -770,6 +771,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     "home.activeTitle": "Votre check-in actif",
     "home.dashboardTitle": "Votre sécurité, en un coup d'œil.",
+    "home.latestAnnouncement": "Dernière information",
     "home.greeting.morning": "Bonjour",
     "home.greeting.afternoon": "Bon après-midi",
     "home.greeting.evening": "Bonsoir",

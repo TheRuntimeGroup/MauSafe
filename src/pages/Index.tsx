@@ -102,8 +102,6 @@ export default function Index() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-7">
-      <AnnouncementBanner />
-
       <header className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0D2B45] px-6 py-7 text-white shadow-[0_24px_60px_-30px_rgba(13,43,69,0.7)] motion-safe:animate-fade-in-up sm:px-8 sm:py-8">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -130,6 +128,7 @@ export default function Index() {
             <p className="mt-0.5 text-xs leading-relaxed text-slate-300">{status.body}</p>
           </div>
         </div>
+        <AnnouncementBanner variant="dashboard" />
       </header>
 
       {loadError && (
