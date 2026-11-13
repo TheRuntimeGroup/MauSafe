@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   Heart,
   Home,
+  LayoutGrid,
   LifeBuoy,
   ListChecks,
   Megaphone,
@@ -22,7 +23,12 @@ const NAV_ITEMS = [
   { to: "/get-help", labelKey: "nav.gethelp", shortLabelKey: "nav.gethelpShort", icon: LifeBuoy, end: false },
 ];
 
-const MOBILE_ITEMS = NAV_ITEMS;
+const MOBILE_ITEMS = [
+  { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
+  { to: "/check-ins", labelKey: "nav.checkins", shortLabelKey: "nav.journeysShort", icon: ListChecks, end: false },
+  { to: "/scam-check", labelKey: "nav.scam", shortLabelKey: "nav.scamShort", icon: ShieldAlert, end: false },
+  { to: "/more", labelKey: "nav.more", shortLabelKey: "nav.moreShort", icon: LayoutGrid, end: false },
+];
 
 export function AppShell() {
   const { t } = useI18n();

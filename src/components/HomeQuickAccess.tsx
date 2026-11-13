@@ -161,14 +161,13 @@ export function HomeQuickAccess() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {selectedTools.map((tool, index) => (
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+        {selectedTools.map((tool) => (
           <Link
             key={tool.id}
             to={tool.to}
-            className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-[1.35rem] border border-[#DDE6ED] bg-white p-5 shadow-[0_12px_32px_-26px_rgba(13,43,69,0.6)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-premium sm:min-h-44 sm:p-6"
+            className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-[1.35rem] border border-[#DDE6ED] bg-white p-5 shadow-[0_12px_32px_-26px_rgba(13,43,69,0.6)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-premium md:min-h-36"
           >
-            <span className="pointer-events-none absolute -bottom-10 -right-10 h-28 w-28 rounded-full border border-primary/[0.06] transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
             <div className="relative flex items-start justify-between gap-3">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEF5FA] text-primary ring-1 ring-primary/10 transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
                 <tool.icon className="h-[22px] w-[22px]" strokeWidth={1.8} aria-hidden="true" />
@@ -180,9 +179,6 @@ export function HomeQuickAccess() {
             <div className="relative mt-7 flex items-end justify-between gap-2">
               <span className="font-display text-[15px] font-extrabold leading-snug tracking-tight text-foreground sm:text-base">
                 {t(tool.labelKey)}
-              </span>
-              <span className="mb-0.5 hidden font-mono text-[10px] font-bold tracking-widest text-slate-300 sm:block" aria-hidden="true">
-                {String(index + 1).padStart(2, "0")}
               </span>
             </div>
           </Link>
