@@ -3,22 +3,19 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   ArrowUpRight,
-  Baby,
   BookOpen,
-  CloudSun,
   FileWarning,
   Heart,
   IdCard,
-  LifeBuoy,
   ListChecks,
   LockKeyhole,
   Navigation,
-  ShieldAlert,
   Siren,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listJourneys } from "@/lib/api";
 import { JourneyStatusCard } from "@/components/JourneyStatusCard";
+import { HomeQuickAccess } from "@/components/HomeQuickAccess";
 import type { OwnerJourney } from "@/lib/types";
 
 const Index = () => {
@@ -46,13 +43,6 @@ const Index = () => {
       cancelled = true;
     };
   }, []);
-
-  const tools = [
-    { icon: ShieldAlert, label: t("nav.scam"), to: "/scam-check" },
-    { icon: LifeBuoy, label: t("nav.gethelp"), to: "/get-help" },
-    { icon: Baby, label: t("nav.child"), to: "/child-safety" },
-    { icon: CloudSun, label: t("nav.disaster"), to: "/disaster-safety" },
-  ];
 
   const moreTools = [
     { icon: ListChecks, label: t("nav.checkins"), body: t("home.feature1Body"), to: "/check-ins" },
@@ -127,34 +117,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="space-y-4 pt-1">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="font-display text-lg font-extrabold tracking-tight text-foreground">
-            {t("home.quickTitle")}
-          </h2>
-          <span className="font-mono text-[10px] font-bold text-muted-foreground">04</span>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {tools.map((tool) => (
-            <Link
-              key={tool.to}
-              to={tool.to}
-              className="glass-card group flex min-h-36 flex-col justify-between rounded-2xl p-5 transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-premium"
-            >
-              <div className="flex items-start justify-between">
-                <tool.icon className="h-6 w-6 text-primary" strokeWidth={1.8} aria-hidden="true" />
-                <ArrowUpRight
-                  className="h-4 w-4 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
-                  aria-hidden="true"
-                />
-              </div>
-              <span className="mt-6 font-display text-sm font-extrabold leading-tight text-foreground sm:text-base">
-                {tool.label}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <HomeQuickAccess />
 
       <section className="space-y-3 pt-1">
         <h2 className="px-1 font-display text-lg font-extrabold tracking-tight text-foreground">

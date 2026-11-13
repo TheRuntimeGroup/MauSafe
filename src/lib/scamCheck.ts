@@ -7,6 +7,8 @@ export interface ScamFinding {
 
 export interface ScamResult {
   label: "warning" | "clean";
+  risk: "low" | "medium" | "high";
+  score: number;
   findings: ScamFinding[];
   matchedTerms: string[];
   links: string[];
@@ -88,8 +90,18 @@ export function analyzeScam(text: string): ScamResult {
     }
   }
 
+  const weights: Record<ScamRuleId, number> = { urgency: 18, otp: 35, payment: 25, link: 12 };
+  const baseScore = findings.reduce((total, finding) => total + weights[finding.ruleId], 0);
+  SUSPICIOUS_URL_RE.lastIndex = 0;
+  const suspiciousBonus = SUSPICIOUS_URL_RE.test(text) ? 20 : 0;
+  const score = findings.length === 0
+    ? 0
+    : Math.min(100, baseScore + suspiciousBonus + Math.min(10, matched.size * 2));
+
   return {
     label: findings.length > 0 ? "warning" : "clean",
+    risk: score >= 60 ? "high" : score >= 25 ? "medium" : "low",
+    score,
     findings,
     matchedTerms: Array.from(matched).sort((a, b) => b.length - a.length),
     links: Array.from(links),

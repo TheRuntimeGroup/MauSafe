@@ -22,6 +22,7 @@ import DisasterSafety from "./pages/DisasterSafety";
 import IncidentReports from "./pages/IncidentReports";
 import SafetyAlarm from "./pages/SafetyAlarm";
 import EmergencyId from "./pages/EmergencyId";
+import SafePlaces from "./pages/SafePlaces";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => {
                   <Route path="/incident-report" element={<IncidentReports />} />
                   <Route path="/safety-alarm" element={<SafetyAlarm />} />
                   <Route path="/emergency-id" element={<EmergencyId />} />
+                  <Route path="/safe-places" element={<SafePlaces />} />
                 </Route>
                 <Route path="/j/:token" element={<GuestView />} />
                 <Route path="*" element={<NotFound />} />
