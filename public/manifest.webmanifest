@@ -1,12 +1,12 @@
 {
-  "name": "AnouSecure Moris — Scam Check",
-  "short_name": "AnouSecure",
-  "description": "Check suspicious messages and links for explainable warning signals and independent reputation evidence.",
+  "name": "MauSafe",
+  "short_name": "MauSafe",
+  "description": "A calm, privacy-first safety companion for Mauritius: journey check-ins, official help directory and scam check.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#F5F7F2",
-  "theme_color": "#0D5C56",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0A4C8C",
   "icons": [
     {
       "src": "/logo.svg",

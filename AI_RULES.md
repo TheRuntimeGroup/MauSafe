@@ -32,7 +32,7 @@ This project has a Nitro server layer for backend API routes. A `nitro.config.ts
 
 - Write routes in `server/routes/api/` (NEVER top-level `/api/`).
 - Dynamic routes: `[param].ts`. Method-specific: `hello.get.ts`, `hello.post.ts`.
-- Runtime config: `useRuntimeConfig()` (env vars prefixed with `NITRO_`). The installed Nitro beta exports this helper from `"nitro/runtime-config"`.
+- Runtime config: `useRuntimeConfig()` (env vars prefixed with `NITRO_`).
 
 ### Imports — read carefully
 
@@ -73,9 +73,9 @@ Any package used inside `server/` (database drivers like `@neondatabase/serverle
 ## AnouSecureMoris Project Guidelines
 
 ### Project Overview
-AnouSecureMoris is a privacy-conscious scam-check web application designed for people living in Mauritius.
+AnouSecureMoris is a safety and protection web application designed for people living in Mauritius.
 
-The current application checks suspicious messages and links using explainable warning signals, technical inspection and independent reputation providers.
+The application aims to help users protect themselves against crime, fraud, scams, and emergency situations.
 
 ### User Experience
 - Design a modern, premium, and responsive interface.
@@ -85,13 +85,15 @@ The current application checks suspicious messages and links using explainable w
 - Support accessibility for elderly users and people with disabilities.
 - Plan multilingual support for English, French, and Mauritian Creole.
 
-### Current Feature Scope
-- Message scam-signal analysis with matched evidence.
-- URL structure, DNS and optional live website inspection.
-- Optional Trustpilot, Google Safe Browsing and VirusTotal checks.
-- Clear provider availability states and no simulated reputation results.
-- Practical next steps plus copyable and downloadable reports.
-- Add future features one at a time only when explicitly requested.
+### Planned Core Features
+- Emergency SOS with trusted contact notifications.
+- Crime and incident reporting.
+- Scam and suspicious link detection.
+- Safe journey tracking and voluntary location sharing.
+- Safety alerts and incident maps.
+- Trusted contact management.
+- Accessible elderly-friendly interface.
+- Administrative dashboard for managing reports.
 
 ### Security and Privacy
 - Protect personal information and sensitive user data.

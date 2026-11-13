@@ -19,10 +19,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
-        display: ["DM Sans", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
-        serif: ["Newsreader", "Georgia", "serif"],
-        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
+        sans: ["Manrope", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        display: ["Manrope", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

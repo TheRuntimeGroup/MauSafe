@@ -9,24 +9,19 @@ export function Logo({
 }) {
   return (
     <svg
-      viewBox="0 0 48 48"
-      className={cn("h-10 w-10", className)}
+      viewBox={variant === "full" ? "110 190 1245 390" : "105 185 450 420"}
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("h-8 w-8", className)}
       role="img"
-      aria-label="AnouSecure Moris"
-      data-variant={variant}
+      aria-label="MauSafe"
     >
-      <rect width="48" height="48" rx="15" fill="#0D5C56" />
-      <path
-        d="M24 10.5 36 15v8.7c0 7.4-4.8 11.6-12 14-7.2-2.4-12-6.6-12-14V15l12-4.5Z"
-        fill="#DDF566"
-      />
-      <path
-        d="m18.5 24 3.6 3.6 7.8-8"
-        fill="none"
-        stroke="#0D5C56"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+      <image
+        href="/images/mausafe-logo.png"
+        x="0"
+        y="0"
+        width="1365"
+        height="768"
+        preserveAspectRatio="xMidYMid meet"
       />
     </svg>
   );

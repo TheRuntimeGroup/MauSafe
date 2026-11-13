@@ -1,110 +1,93 @@
-# AnouSecure Moris — Scam Check
+# MauSafe
 
-AnouSecure Moris is now a single-purpose, privacy-conscious scam-check application. The earlier SOS, journey, contacts, map, alert, emergency ID and incident-report features and their backend routes have been removed.
+A mobile-first safety companion for the **Powered to Protect** challenge in Mauritius. It brings together three calm, privacy-first tools:
 
-## What the user can do
+1. **Journey check-in** — start a check-in, share an expiring, read-only guest link with someone you trust, and let them see server-clock status: *On the way*, *Arrived safely*, *Overdue*, or *Cancelled*.
+2. **Get Help** — a searchable directory built from cleaned, official Mauritius Police data (Family Protection Unit, stations, 999, MAUCORS+). Works offline from the bundled dataset.
+3. **Scam check** — an on-device checker with explainable rules in English, French and Kreol Morisien. Pasted content never leaves the device.
+4. **Emergency** — a calm, reassuring SOS screen with the verified 999 number, secondary emergency numbers, and step-by-step guidance.
+5. **Trusted contacts** — save the people you trust locally and send a check-in to them in one tap via WhatsApp, SMS or email.
+6. **Safety tips** — practical, localized guidance for journeys, transit, meeting someone new and online safety.
 
-- Paste an SMS, WhatsApp, email or social-media message for explainable warning-signal analysis.
-- Paste a URL or domain directly, or let a message check extract up to five URLs automatically.
-- Toggle live website inspection, Trustpilot, Google Safe Browsing and VirusTotal independently.
-- See the overall warning-signal score alongside the exact message phrases, URL patterns and provider responses behind it.
-- Distinguish a clean provider response from a provider that was unavailable, turned off or not configured.
-- Copy a readable report, download the full JSON evidence, or reset the form for another check.
-- Read practical steps for payments, exposed passwords, shared one-time codes and installed files.
+The interface is a calm light design: deep ink text, violet primary action, green arrivals, amber overdue, and red reserved strictly for emergencies. Bottom navigation on mobile, a compact sidebar on desktop, and full i18n (EN / FR / KM).
 
-The app does **not** label anything “100% legit” or “safe.” The score is a warning-signal score, not an AI confidence value, probability or guarantee.
+## The team
 
-## Verification layers
+Our project is based on the 1st Title given which is **POWERED TO PROTECT**.
 
-| Layer | Implementation | What the result means |
-| --- | --- | --- |
-| Message language | Server-side pattern rules for English, French and Mauritian Creole | Detects requests for secrets, payments, urgency, threats, prizes, secrecy and organisation claims |
-| URL structure | Standard `URL` parsing plus explicit rules | Detects embedded credentials, HTTP, raw IPs, Punycode, shorteners, deep subdomains, unusual ports, long domains and selected brand/domain mismatches |
-| DNS | Node DNS lookup with public-address validation | Reports resolution, failure or a blocked private/local destination |
-| Live website | Timeout-limited HTTP/HTTPS request with manual redirect handling | Reports the actual HTTP response, final destination, redirect count and page title when readable |
-| Trustpilot | Exact-domain public profile lookup, or Business API when configured | Reports the profile, rating and review count only when returned by Trustpilot; manual search remains available |
-| Google Safe Browsing | Threat Matches API when configured | Reports only a real threat match, a real no-match response, or unavailable |
-| VirusTotal | Domain report API when configured | Reports actual malicious/suspicious engine counts, no report, or unavailable |
+Group name: **DEAD SIGNAL**
 
-Trustpilot reviews are contextual reputation evidence. A business profile or strong rating does not prove that a particular message came from that business. DNS success, HTTPS, an HTTP response, no Safe Browsing match and no VirusTotal flags likewise do not prove legitimacy.
+- SULAKSHNA DEVI CHINIAH — Team Leader
+- VENCATASEN VRISHNI
+- LALLBEEHARRY KAUSHAL
+- MANDHUB DIVESH
 
-## Request flow
+Our aim is to change the way people stay safe in their daily lives — empowering individuals at risk with rapid emergency alerts, trusted-contact safety tools, and proactive fraud and crime prevention.
 
-1. `src/components/scam/ScamChecker.tsx` validates the selected mode and sends the request through `checkScam()` in `src/lib/scamCheck.ts`.
-2. `POST /api/scam-check` rate-limits requests, validates the JSON body with Zod and applies input limits: 12,000 characters for messages and 2,048 for links.
-3. Message analysis and up to five link inspections run on the Nitro server. Selected external checks run in parallel with bounded timeouts.
-4. The endpoint returns one typed `ScamCheckResult` containing findings, source-specific states and recommended next steps.
-5. `ResultsPanel.tsx` renders the evidence and exports the same returned data. There is no fabricated loading progress or provider response.
+## Stack
 
-Example request body:
+- **React 19 + TypeScript** (Vite)
+- **React Router** — routes live in `src/App.tsx`
+- **Tailwind CSS** + shadcn/ui primitives
+- **Nitro** server layer (`server/`) with **better-sqlite3** for local persistence
+- **PWA** manifest + service worker for offline support
 
-```json
-{
-  "mode": "link",
-  "input": "https://example.com/login",
-  "options": {
-    "liveWebsite": true,
-    "trustpilot": true,
-    "safeBrowsing": true,
-    "virusTotal": true
-  }
-}
+## Getting started
+
+```bash
+npm install
+npm run dev
 ```
 
-Only `/api/scam-check` remains as an application API. The old feature endpoints have been deleted rather than hidden.
+The app runs on the Vite dev server (port 8080 by default). Journey data is stored in a local SQLite file at `.data/anou.db` (gitignored), so no external database or secrets are required for local development.
 
-## Scoring overview
+## Architecture
 
-Message rule weights are added and capped at 100:
+```
+server/
+  lib/
+    db.ts         SQLite schema + connection (journeys table)
+    security.ts   SHA-256, token generation, in-memory rate limiter
+    journey.ts    journey CRUD + server-clock status computation
+    guard.ts      owner authorization helper
+  routes/api/
+    journeys.post.ts            create journey
+    journeys.get.ts             list my journeys
+    journeys/[id].get.ts        get my journey
+    journeys/[id]/arrive.post.ts
+    journeys/[id]/extend.post.ts
+    journeys/[id]/cancel.post.ts
+    journeys/[id]/revoke.post.ts
+    guest/[token].get.ts        public guest view
 
-- Credential or one-time-code request: 42
-- Payment or financial-detail request: 28
-- Secrecy instruction: 25
-- Unexpected reward: 24
-- Account, legal or delivery threat: 20
-- Urgency: 18
-- Organisation claim without verification: 8
+src/
+  pages/         Index, CheckIns, StartCheckIn, JourneyDetail, GuestView, Emergency, Contacts, SafetyTips, ScamCheck, GetHelp, NotFound
+  components/    AppShell, JourneyStatusCard, SharePanel, StatusPill, Logo, LanguageSwitcher
+  lib/           api client, scam rules engine, storage, formatting, types
+  i18n/          EN / FR / KM dictionaries + provider
+  data/          bundled help-directory.json + search helpers
+```
 
-For messages, a capped contribution from the highest-scoring inspected link is added to the message score. For direct link checks, the link score is used. A Google Safe Browsing threat match sets that link to 100; VirusTotal flags also raise the result to high risk.
+## Security & privacy model
 
-- **0–14:** no strong signals
-- **15–54:** proceed with caution
-- **55–100:** high-risk signals
-- **Any external threat/provider flag:** high risk regardless of the numerical base score
+- **Device-bound owner identity.** The client generates a high-entropy secret on first use (`localStorage` key `anou.ownerSecret`), sends it as `Authorization: Bearer`, and the server stores only its SHA-256 hash. Journeys are listed and fetched by secret hash.
+- **Guest links.** High-entropy `base64url` tokens, 48-hour TTL, revocable. The guest endpoint returns only agreed fields and is rate-limited in memory.
+- **Server-clock status.** `arrived_at` / `cancelled_at` are stored, and *overdue* is computed server-side (`now > expected_arrival_at`). The client never sends absolute arrival times — only a duration in minutes.
+- **Voluntary location sharing.** A check-in can optionally share live location; the owner must enable it and grant browser permission first, and can stop sharing at any time.
+- **Scam check runs on-device.** Pasted content is never sent or stored; suspicious links are rendered as plain text and are never clickable.
 
-Unavailable or disabled providers neither add points nor count as clean evidence.
+## Help directory data
 
-## Optional provider configuration
+The directory ships as a versioned dataset at `src/data/help-directory.json` so it works offline. It is a cleaned seed dataset from public Mauritius Police Force pages. Phone numbers are marked `phoneVerified: false` (and tap-to-call stays disabled) except for the national emergency number 999, until the team confirms each number against a current official source. Always confirm against official sources before relying on it.
 
-Set these as server-side environment variables only. Never expose them through `VITE_` variables or import provider credentials into `src/`.
+## Demo timer
 
-| Environment variable | Behaviour |
-| --- | --- |
-| `NITRO_TRUSTPILOT_API_KEY` | Uses Trustpilot’s Business Units API; without it, the app attempts an exact-domain public profile lookup |
-| `NITRO_GOOGLE_SAFE_BROWSING_API_KEY` | Enables Google Safe Browsing threat lookups; without it, the result explicitly says not configured |
-| `NITRO_VIRUSTOTAL_API_KEY` | Enables VirusTotal domain reports; without it, the result explicitly says not configured |
+For presentations, **Check-ins** has a *Start demo check-in* button that creates a 1-minute journey with `isDemo: true`. Demo records are clearly labelled and kept separate from real records, and no live alerts are sent.
 
-No API keys, user accounts or database are required for the built-in message rules, URL structure rules or DNS checks. Some public websites, including Trustpilot, may rate-limit or block automated requests; those cases appear as unavailable with a working manual-search link rather than simulated data.
+## Language note
 
-## Privacy and network safeguards
+English, French and Kreol Morisien are wired throughout via `t()`. The Kreol Morisien wording should be reviewed by a fluent speaker before any public release.
 
-- The client sends pasted content to the same-origin Nitro endpoint for the current check only; the app does not persist checks or report history.
-- Message text is never forwarded to Trustpilot, Google or VirusTotal. Enabled providers receive only the URL or domain their API requires.
-- Live website requests accept only HTTP/HTTPS and reject localhost, private, link-local, documentation and other non-public address ranges.
-- Every redirect is revalidated. Non-web redirects and URLs with embedded credentials are not opened by the live inspector.
-- External calls have seven-second timeouts; page-title extraction is size-limited.
-- Responses are marked `Cache-Control: no-store`; requests are limited to 20 per client IP per ten minutes by the single-instance rate limiter.
+## AI tooling disclosure
 
-For a multi-instance production deployment, replace the in-memory rate limiter with a shared rate-limit store. Automated checking remains heuristic and should support—not replace—independent verification through official channels.
-
-## Main files
-
-- `src/pages/Index.tsx` — page composition and product shell
-- `src/components/scam/ScamChecker.tsx` — inputs, options and request state
-- `src/components/scam/ResultsPanel.tsx` — verdict, evidence, next steps and exports
-- `src/components/scam/InfoSections.tsx` — methodology and recovery guidance
-- `src/lib/scamCheck.ts` — shared result contracts and browser API client
-- `server/routes/api/scam-check.post.ts` — validation, orchestration, scoring and limits
-- `server/lib/scam-message.ts` — multilingual message rules
-- `server/lib/scam-url.ts` — URL, DNS, network safety and live response checks
-- `server/lib/scam-reputation.ts` — Trustpilot, Safe Browsing and VirusTotal clients
+The scam checker uses transparent, explainable pattern rules (not a black-box model): urgency/pressure, one-time-code requests, unexpected payment/prize, and suspicious links. Rules are human-readable in `src/lib/scamCheck.ts` and the matched words are highlighted for the user.
