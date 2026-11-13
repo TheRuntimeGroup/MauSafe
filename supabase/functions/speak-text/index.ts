@@ -45,6 +45,10 @@ type SharedVoice = {
   gender?: string;
   language?: string;
   accent?: string;
+  category?: string;
+  description?: string;
+  descriptive?: string;
+  use_case?: string;
 };
 
 let cachedFrenchVoiceId: string | undefined;
@@ -74,9 +78,22 @@ async function getFrenchFemaleVoiceId(): Promise<string> {
   const frenchVoices = voices.filter((voice) =>
     voice.gender?.toLowerCase() === "female"
     && /^fr(?:-|$)/i.test(voice.language ?? ""));
-  const voice = frenchVoices.find((candidate) =>
-    /fr-fr|france|paris/i.test(`${candidate.language ?? ""} ${candidate.accent ?? ""}`),
-  ) ?? frenchVoices[0];
+  const professionalVoices = frenchVoices.filter((voice) =>
+    /professional|high_quality/.test(voice.category?.toLowerCase() ?? ""));
+  const candidates = professionalVoices.length > 0 ? professionalVoices : frenchVoices;
+
+  function naturalVoiceScore(candidate: SharedVoice): number {
+    const metadata = `${candidate.language ?? ""} ${candidate.accent ?? ""} ${candidate.category ?? ""} ${candidate.description ?? ""} ${candidate.descriptive ?? ""} ${candidate.use_case ?? ""}`.toLowerCase();
+    let score = 0;
+    if (/fr-fr|france|paris/.test(metadata)) score += 60;
+    if (/professional/.test(metadata)) score += 100;
+    if (/high_quality/.test(metadata)) score += 80;
+    if (/natural|conversational|narration|documentary|audiobook|podcast|warm|calm/.test(metadata)) score += 35;
+    if (/generated|robot|anime|cartoon|character|video game|whisper|seductive|dramatic|child/.test(metadata)) score -= 90;
+    return score;
+  }
+
+  const voice = candidates.sort((a, b) => naturalVoiceScore(b) - naturalVoiceScore(a))[0];
 
   if (!voice?.voice_id) {
     throw new Error("No French female voice with a French locale was returned");
@@ -167,14 +184,16 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           text,
-          model_id: "eleven_multilingual_v2",
+          model_id: language === "fr" ? "eleven_v3" : "eleven_multilingual_v2",
           language_code: language,
-          voice_settings: {
-            stability: 0.52,
-            similarity_boost: 0.82,
-            style: 0.12,
-            use_speaker_boost: true,
-          },
+          voice_settings: language === "fr"
+            ? { stability: 0.5, similarity_boost: 0.8 }
+            : {
+                stability: 0.52,
+                similarity_boost: 0.82,
+                style: 0.12,
+                use_speaker_boost: true,
+              },
         }),
       });
     } catch (error) {
