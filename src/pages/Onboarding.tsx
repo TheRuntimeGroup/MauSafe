@@ -95,7 +95,9 @@ const Onboarding = () => {
   const [hydrated, setHydrated] = useState(() => !draft);
 
   const [stepIndex, setStepIndex] = useState(0);
-  const [name, setName] = useState(() => draft?.name ?? profile?.full_name ?? "");
+  const [name, setName] = useState(
+    () => draft?.name ?? profile?.full_name ?? user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? "",
+  );
   const [email, setEmail] = useState(() => draft?.email ?? user?.email ?? "");
   const [needs, setNeeds] = useState<AccessibilityNeed[]>(
     () => draft?.needs ?? profile?.accessibility_needs ?? [],
@@ -140,6 +142,14 @@ const Onboarding = () => {
       setStepIndex(Math.max(0, steps.length - 1));
     }
   }, [stepIndex, steps.length]);
+
+  useEffect(() => {
+    if (name.trim()) return;
+    const registeredName = profile?.full_name ?? user?.user_metadata?.full_name ?? user?.user_metadata?.name;
+    if (typeof registeredName === "string" && registeredName.trim()) {
+      setName(registeredName);
+    }
+  }, [name, profile, user]);
 
   // Already onboarded users shouldn't stay on this page.
   useEffect(() => {
@@ -298,7 +308,7 @@ const Onboarding = () => {
       }
 
       saveDraft({ name: name.trim(), email: email.trim(), needs });
-      await createVerifiedAccount({ email: email.trim(), password });
+      await createVerifiedAccount({ email: email.trim(), password, fullName: input.fullName });
 
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: email.trim(),

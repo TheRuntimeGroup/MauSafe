@@ -35,6 +35,7 @@ serve(async (req) => {
     const email = String(body?.email ?? "").trim().toLowerCase();
     const code = String(body?.code ?? "").replace(/\D/g, "");
     const password = String(body?.password ?? "");
+    const fullName = String(body?.fullName ?? "").trim().slice(0, 60);
     const creatingAccount = password.length > 0;
 
     if (!EMAIL_PATTERN.test(email)) {
@@ -101,6 +102,7 @@ serve(async (req) => {
       email,
       password,
       email_confirm: true,
+      user_metadata: { full_name: fullName },
     });
 
     if (createError || !created.user) {
