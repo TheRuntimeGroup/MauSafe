@@ -3,7 +3,6 @@ export type Lang = "en" | "fr" | "km";
 export const LANGUAGES: { code: Lang; label: string; native: string }[] = [
   { code: "en", label: "English", native: "English" },
   { code: "fr", label: "French", native: "Français" },
-  { code: "km", label: "Kreol Morisien", native: "Kreol Morisien" },
 ];
 
 export const translations: Record<Lang, Record<string, string>> = {

@@ -346,8 +346,9 @@ const Onboarding = () => {
     }
   }
 
-  async function handleVerifyOtp() {
-    if (otpCode.length !== 6) {
+  async function handleVerifyOtp(submittedCode = otpCode) {
+    const code = submittedCode.replace(/\D/g, "");
+    if (code.length !== 6) {
       setError(t("otp.wrong"));
       return;
     }
@@ -360,7 +361,7 @@ const Onboarding = () => {
     setVerifying(true);
 
     try {
-      await verifyEmailCode({ email: email.trim(), code: otpCode });
+      await verifyEmailCode({ email: email.trim(), code });
       setOtpExpiresAt(null);
       setOtpCode("");
       if (stepIndex < steps.length - 1) setStepIndex((index) => index + 1);

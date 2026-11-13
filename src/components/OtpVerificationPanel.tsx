@@ -8,7 +8,7 @@ interface OtpVerificationPanelProps {
   subtitle: string;
   code: string;
   onCodeChange: (code: string) => void;
-  onSubmit: () => void;
+  onSubmit: (code: string) => void;
   submitting: boolean;
   error: string | null;
   expiresLabel: string;
@@ -95,7 +95,7 @@ export function OtpVerificationPanel({
 
       <AppButton
         size="xl"
-        onClick={onSubmit}
+        onClick={() => onSubmit(code)}
         disabled={code.length !== 6 || submitting}
         className="mt-6"
       >

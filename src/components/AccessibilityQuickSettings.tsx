@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Accessibility, Check, Ear, Eye, Hand, Volume2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { synthesizeSpeech } from "@/lib/speech";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 
@@ -30,40 +31,16 @@ function readStoredBoolean(key: string): boolean {
   }
 }
 
-function mostNaturalVoice(voices: SpeechSynthesisVoice[], locale: string): SpeechSynthesisVoice | undefined {
-  const requested = locale.toLowerCase().replace("_", "-");
-  const language = requested.split("-")[0];
-
-  return voices
-    .filter((voice) => {
-      const voiceLanguage = voice.lang.toLowerCase().replace("_", "-");
-      return voiceLanguage === requested || voiceLanguage.split("-")[0] === language;
-    })
-    .sort((a, b) => voiceScore(b, requested) - voiceScore(a, requested))[0];
-}
-
-function voiceScore(voice: SpeechSynthesisVoice, requestedLocale: string): number {
-  const name = voice.name.toLowerCase();
-  const language = voice.lang.toLowerCase().replace("_", "-");
-  let score = language === requestedLocale ? 12 : 6;
-
-  if (/natural|neural/.test(name)) score += 30;
-  if (/premium|enhanced/.test(name)) score += 24;
-  if (/siri/.test(name)) score += 20;
-  if (/google/.test(name)) score += 16;
-  if (/compact|espeak|robot/.test(name)) score -= 20;
-  if (voice.default) score += 2;
-
-  return score;
-}
-
 export function AccessibilityQuickSettings() {
-  const { t, locale } = useI18n();
+  const { t, lang } = useI18n();
   const [monochrome, setMonochrome] = useState(() => readStoredBoolean(MONOCHROME_KEY));
   const [readAloud, setReadAloud] = useState(() => readStoredBoolean(HEARING_KEY));
   const [speaking, setSpeaking] = useState(false);
+  const [loadingSpeech, setLoadingSpeech] = useState(false);
   const [speechError, setSpeechError] = useState(false);
-  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+  const speechRequestRef = useRef(0);
 
   useEffect(() => {
     document.documentElement.classList.toggle("accessibility-monochrome", monochrome);
@@ -82,56 +59,67 @@ export function AccessibilityQuickSettings() {
     }
   }, [readAloud]);
 
-  useEffect(() => {
-    if (!("speechSynthesis" in window)) return;
-
-    const loadVoices = () => {
-      voicesRef.current = window.speechSynthesis.getVoices();
-    };
-    loadVoices();
-    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
-
-    return () => {
-      window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
-      window.speechSynthesis.cancel();
-    };
+  const releaseAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
   }, []);
 
   const stopSpeaking = useCallback(() => {
-    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    speechRequestRef.current += 1;
+    releaseAudio();
+    setLoadingSpeech(false);
     setSpeaking(false);
-  }, []);
+  }, [releaseAudio]);
+
+  useEffect(() => {
+    return () => stopSpeaking();
+  }, [stopSpeaking]);
 
   const speakSection = useCallback(
-    (text: string) => {
-      if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
-        setSpeechError(true);
-        return;
-      }
-
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      const voice = mostNaturalVoice(voicesRef.current, locale);
-      if (voice) utterance.voice = voice;
-      utterance.lang = voice?.lang ?? locale;
-      utterance.rate = 0.88;
-      utterance.pitch = 1;
-      utterance.onend = () => setSpeaking(false);
-      utterance.onerror = (event) => {
-        setSpeaking(false);
-        if (event.error !== "canceled" && event.error !== "interrupted") setSpeechError(true);
-      };
+    async (text: string) => {
+      stopSpeaking();
+      const requestId = ++speechRequestRef.current;
+      setSpeechError(false);
+      setLoadingSpeech(true);
 
       try {
-        setSpeechError(false);
+        const audioBlob = await synthesizeSpeech(text.slice(0, 800), lang);
+        if (requestId !== speechRequestRef.current) return;
+
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audioUrlRef.current = audioUrl;
+        audioRef.current = audio;
+        audio.onended = () => {
+          if (requestId !== speechRequestRef.current) return;
+          releaseAudio();
+          setSpeaking(false);
+        };
+        audio.onerror = () => {
+          if (requestId !== speechRequestRef.current) return;
+          releaseAudio();
+          setSpeaking(false);
+          setSpeechError(true);
+        };
+
+        setLoadingSpeech(false);
         setSpeaking(true);
-        window.speechSynthesis.speak(utterance);
+        await audio.play();
       } catch {
+        if (requestId !== speechRequestRef.current) return;
+        releaseAudio();
+        setLoadingSpeech(false);
         setSpeaking(false);
         setSpeechError(true);
       }
     },
-    [locale],
+    [lang, releaseAudio, stopSpeaking],
   );
 
   useEffect(() => {
@@ -189,7 +177,7 @@ export function AccessibilityQuickSettings() {
         didHold = true;
         readingTarget = target;
         readingTarget.classList.add("accessibility-speaking-section");
-        speakSection(text);
+        void speakSection(text);
       }, HOLD_DELAY);
     };
 
@@ -320,7 +308,13 @@ export function AccessibilityQuickSettings() {
             {t("accessibility.naturalVoice")}
           </p>
           <p className="mt-2 min-h-4 text-center text-[11px] font-semibold text-muted-foreground" aria-live="polite">
-            {speechError ? t("accessibility.speechUnsupported") : speaking ? t("accessibility.speaking") : ""}
+            {speechError
+              ? t("accessibility.speechUnsupported")
+              : loadingSpeech
+                ? t("accessibility.preparingVoice")
+                : speaking
+                  ? t("accessibility.speaking")
+                  : ""}
           </p>
         </section>
 

@@ -15,7 +15,7 @@ const I18nContext = createContext<I18nValue | null>(null);
 function getInitialLang(): Lang {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "en" || saved === "fr" || saved === "km") return saved;
+    if (saved === "en" || saved === "fr") return saved;
   } catch {
     // ignore storage errors
   }
@@ -53,7 +53,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [lang],
   );
 
-  const locale = lang === "en" ? "en-GB" : lang === "fr" ? "fr-FR" : "fr-MU";
+  const locale = lang === "en" ? "en-GB" : "fr-FR";
 
   const value = useMemo(() => ({ lang, setLang, t, locale }), [lang, t]);
 

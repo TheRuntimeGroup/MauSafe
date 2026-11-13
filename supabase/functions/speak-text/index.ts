@@ -1,0 +1,139 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Cache-Control": "no-store",
+};
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY") ?? "";
+const ELEVENLABS_VOICE_EN = Deno.env.get("ELEVENLABS_VOICE_EN") ?? "cuTixVvCOWFxeH3oGE9m";
+const ELEVENLABS_VOICE_FR = Deno.env.get("ELEVENLABS_VOICE_FR") ?? "QynjFzqBt96iEuetB1Tq";
+const MAX_CHARACTERS = 800;
+const MAX_REQUESTS_PER_HOUR = 30;
+
+function json(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const bytes = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function encodeAudio(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 8192;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  }
+  return btoa(binary);
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+  if (req.method !== "POST") {
+    return json({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
+  try {
+    const body = await req.json();
+    const text = String(body?.text ?? "").replace(/\s+/g, " ").trim();
+    const language = body?.language === "fr" ? "fr" : "en";
+
+    if (!text || text.length > MAX_CHARACTERS) {
+      return json({ error: "INVALID_TEXT" });
+    }
+    if (!ELEVENLABS_API_KEY) {
+      console.error("[speak-text] ElevenLabs API key is not configured");
+      return json({ error: "SPEECH_NOT_CONFIGURED" });
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const requestIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || req.headers.get("x-real-ip")
+      || "unknown";
+    const requestIpHash = await sha256Hex(`speech-request:${SUPABASE_SERVICE_ROLE_KEY}:${requestIp}`);
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+    const { count, error: limitError } = await supabase
+      .from("speech_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("request_ip_hash", requestIpHash)
+      .gte("created_at", oneHourAgo);
+
+    if (limitError) {
+      console.error("[speak-text] failed to check request limits", limitError);
+      return json({ error: "SPEECH_UNAVAILABLE" });
+    }
+    if ((count ?? 0) >= MAX_REQUESTS_PER_HOUR) {
+      return json({ error: "RATE_LIMITED" });
+    }
+
+    const { data: requestRecord, error: insertError } = await supabase
+      .from("speech_requests")
+      .insert({ request_ip_hash: requestIpHash, character_count: text.length })
+      .select("id")
+      .single();
+
+    if (insertError) {
+      console.error("[speak-text] failed to record speech request", insertError);
+      return json({ error: "SPEECH_UNAVAILABLE" });
+    }
+
+    const voiceId = language === "fr" ? ELEVENLABS_VOICE_FR : ELEVENLABS_VOICE_EN;
+    let response: Response;
+    try {
+      response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
+        method: "POST",
+        signal: AbortSignal.timeout(20000),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "audio/mpeg",
+          "xi-api-key": ELEVENLABS_API_KEY,
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_multilingual_v2",
+          language_code: language,
+          voice_settings: {
+            stability: 0.52,
+            similarity_boost: 0.82,
+            style: 0.12,
+            use_speaker_boost: true,
+          },
+        }),
+      });
+    } catch (error) {
+      await supabase.from("speech_requests").delete().eq("id", requestRecord.id);
+      console.error("[speak-text] ElevenLabs request could not be completed", error);
+      return json({ error: "SPEECH_UNAVAILABLE" });
+    }
+
+    if (!response.ok) {
+      const detail = await response.text();
+      await supabase.from("speech_requests").delete().eq("id", requestRecord.id);
+      console.error("[speak-text] ElevenLabs request failed", response.status, detail);
+      return json({ error: "SPEECH_UNAVAILABLE" });
+    }
+
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    return json({ ok: true, audioBase64: encodeAudio(bytes), contentType: "audio/mpeg" });
+  } catch (error) {
+    console.error("[speak-text] unexpected error", error);
+    return json({ error: "SPEECH_UNAVAILABLE" });
+  }
+});
