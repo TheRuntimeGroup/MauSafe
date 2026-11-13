@@ -136,22 +136,22 @@ export function AppShell() {
 
       <header className="glass-panel sticky top-0 z-40 border-x-0 border-t-0 pt-[env(safe-area-inset-top)] lg:hidden">
         <div className="mx-auto flex h-[4.5rem] max-w-3xl items-center justify-between gap-3 px-5">
-          <div className="flex min-w-0 items-center gap-3">
-            <AccountMenu variant="header" />
-            <NavLink to="/" className="flex min-w-0 items-center gap-2.5" aria-label={t("nav.home")}>
-              <Logo className="h-9 w-9 shrink-0" />
-              <span className="font-display text-xl font-extrabold tracking-[-0.045em] text-foreground">
-                {t("app.name")}
-              </span>
-            </NavLink>
-          </div>
-          <NavLink
-            to="/contacts"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-foreground/[0.08] bg-white text-foreground shadow-sm transition-colors hover:text-primary"
-            aria-label={t("nav.contacts")}
-          >
-            <Heart className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+          <NavLink to="/" className="flex min-w-0 items-center gap-2.5" aria-label={t("nav.home")}>
+            <Logo className="h-9 w-9 shrink-0" />
+            <span className="font-display text-xl font-extrabold tracking-[-0.045em] text-foreground">
+              {t("app.name")}
+            </span>
           </NavLink>
+          <div className="flex shrink-0 items-center gap-2">
+            <NavLink
+              to="/contacts"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/[0.08] bg-white text-foreground shadow-sm transition-colors hover:text-primary"
+              aria-label={t("nav.contacts")}
+            >
+              <Heart className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+            </NavLink>
+            <AccountMenu variant="header" />
+          </div>
         </div>
       </header>
 
