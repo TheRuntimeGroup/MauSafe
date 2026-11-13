@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { I18nProvider } from "@/i18n/I18nContext";
 import { AppLoadingScreen } from "@/components/AppLoadingScreen";
 import { AppShell } from "@/components/AppShell";
+import { SessionContextProvider } from "@/contexts/AuthContext";
+import AuthPage from "./pages/AuthPage";
+import AuthCallback from "./pages/AuthCallback";
+import ResetPassword from "./pages/ResetPassword";
 import Index from "./pages/Index";
 import CheckIns from "./pages/CheckIns";
 import ScamCheck from "./pages/ScamCheck";
@@ -38,29 +42,34 @@ const App = () => {
           <Sonner />
           {!ready && <AppLoadingScreen onComplete={() => setReady(true)} />}
           {ready && (
-            <BrowserRouter>
-              <Routes>
-                <Route element={<AppShell />}>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/check-ins" element={<CheckIns />} />
-                  <Route path="/scam-check" element={<ScamCheck />} />
-                  <Route path="/get-help" element={<GetHelp />} />
-                  <Route path="/start" element={<StartCheckIn />} />
-                  <Route path="/journey/:id" element={<JourneyDetail />} />
-                  <Route path="/emergency" element={<Emergency />} />
-                  <Route path="/contacts" element={<Contacts />} />
-                  <Route path="/safety-tips" element={<SafetyTips />} />
-                  <Route path="/child-safety" element={<ChildSafety />} />
-                  <Route path="/disaster-safety" element={<DisasterSafety />} />
-                  <Route path="/incident-report" element={<IncidentReports />} />
-                  <Route path="/safety-alarm" element={<SafetyAlarm />} />
-                  <Route path="/emergency-id" element={<EmergencyId />} />
-                  <Route path="/safe-places" element={<SafePlaces />} />
-                </Route>
-                <Route path="/j/:token" element={<GuestView />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <SessionContextProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route element={<AppShell />}>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/check-ins" element={<CheckIns />} />
+                    <Route path="/scam-check" element={<ScamCheck />} />
+                    <Route path="/get-help" element={<GetHelp />} />
+                    <Route path="/start" element={<StartCheckIn />} />
+                    <Route path="/journey/:id" element={<JourneyDetail />} />
+                    <Route path="/emergency" element={<Emergency />} />
+                    <Route path="/contacts" element={<Contacts />} />
+                    <Route path="/safety-tips" element={<SafetyTips />} />
+                    <Route path="/child-safety" element={<ChildSafety />} />
+                    <Route path="/disaster-safety" element={<DisasterSafety />} />
+                    <Route path="/incident-report" element={<IncidentReports />} />
+                    <Route path="/safety-alarm" element={<SafetyAlarm />} />
+                    <Route path="/emergency-id" element={<EmergencyId />} />
+                    <Route path="/safe-places" element={<SafePlaces />} />
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                  </Route>
+                  <Route path="/j/:token" element={<GuestView />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </SessionContextProvider>
           )}
         </TooltipProvider>
       </I18nProvider>

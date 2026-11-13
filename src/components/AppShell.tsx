@@ -11,6 +11,7 @@ import {
 import { useI18n } from "@/i18n/I18nContext";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { AccountMenu } from "@/components/AccountMenu";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -109,6 +110,7 @@ export function AppShell() {
             <Heart className="h-4 w-4" aria-hidden="true" />
             {t("nav.contacts")}
           </NavLink>
+          <AccountMenu variant="sidebar" />
           <div className="flex justify-center">
             <LanguageSwitcher />
           </div>
@@ -127,6 +129,7 @@ export function AppShell() {
             </span>
           </NavLink>
           <div className="flex shrink-0 items-center gap-2">
+            <AccountMenu variant="header" />
             <NavLink
               to="/contacts"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/[0.08] bg-white text-foreground shadow-sm transition-colors hover:text-primary"
