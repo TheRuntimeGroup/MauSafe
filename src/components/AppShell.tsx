@@ -20,13 +20,18 @@ export function AppShell() {
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-border bg-card lg:flex">
         <div className="flex items-center gap-3 px-6 py-6">
-          <Logo className="h-9 w-9" />
+          <Logo className="h-10 w-10" />
           <div>
             <p className="font-display text-lg font-bold leading-tight text-foreground">
               {t("app.name")}
             </p>
             <p className="text-xs text-muted-foreground">{t("app.tagline")}</p>
           </div>
+        </div>
+
+        <div className="mx-6 mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
+          Powered to Protect · Mauritius
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 px-3" aria-label="Primary">
@@ -39,7 +44,7 @@ export function AppShell() {
                 cn(
                   "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors",
                   isActive
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-foreground hover:bg-muted",
                 )
               }
@@ -53,7 +58,7 @@ export function AppShell() {
         <div className="space-y-3 border-t border-border p-4">
           <a
             href="tel:999"
-            className="flex items-center justify-center gap-2 rounded-2xl bg-danger px-4 py-3 text-sm font-semibold text-danger-foreground hover:bg-danger/90"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-danger px-4 py-3 text-sm font-semibold text-danger-foreground shadow-sm hover:bg-danger/90"
           >
             <Phone className="h-4 w-4" aria-hidden="true" />
             {t("help.call999")}
@@ -61,6 +66,7 @@ export function AppShell() {
           <div className="flex justify-center">
             <LanguageSwitcher />
           </div>
+          <p className="text-center text-xs text-muted-foreground">{t("footer.tagline")}</p>
         </div>
       </aside>
 
@@ -84,15 +90,22 @@ export function AppShell() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1">
-        <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-5 lg:px-8 lg:pb-16 lg:pt-8">
+      <main className="relative flex-1">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-dots opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+        <div className="relative mx-auto w-full max-w-3xl px-4 pb-28 pt-5 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
           <Outlet />
+          <footer className="mt-12 border-t border-border pt-6 text-center">
+            <p className="text-xs text-muted-foreground">{t("footer.tagline")}</p>
+            <p className="mx-auto mt-1 max-w-md text-[11px] leading-relaxed text-muted-foreground/80">
+              {t("footer.dataNote")}
+            </p>
+          </footer>
         </div>
       </main>
 
       {/* Mobile bottom navigation */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
         aria-label="Primary"
       >
         <div className="grid grid-cols-4">

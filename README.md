@@ -5,6 +5,9 @@ A mobile-first safety companion for the **Powered to Protect** challenge in Maur
 1. **Journey check-in** — start a check-in, share an expiring, read-only guest link with someone you trust, and let them see server-clock status: *On the way*, *Arrived safely*, *Overdue*, or *Cancelled*.
 2. **Get Help** — a searchable directory built from cleaned, official Mauritius Police data (Family Protection Unit, stations, 999, MAUCORS+). Works offline from the bundled dataset.
 3. **Scam check** — an on-device checker with explainable rules in English, French and Kreol Morisien. Pasted content never leaves the device.
+4. **Emergency** — a calm, reassuring SOS screen with the verified 999 number, secondary emergency numbers, and step-by-step guidance.
+5. **Trusted contacts** — save the people you trust locally and send a check-in to them in one tap via WhatsApp, SMS or email.
+6. **Safety tips** — practical, localized guidance for journeys, transit, meeting someone new and online safety.
 
 The interface is a calm light design: deep ink text, violet primary action, green arrivals, amber overdue, and red reserved strictly for emergencies. Bottom navigation on mobile, a compact sidebar on desktop, and full i18n (EN / FR / KM).
 
@@ -58,7 +61,7 @@ server/
     guest/[token].get.ts        public guest view
 
 src/
-  pages/         Index, CheckIns, StartCheckIn, JourneyDetail, GuestView, ScamCheck, GetHelp, NotFound
+  pages/         Index, CheckIns, StartCheckIn, JourneyDetail, GuestView, Emergency, Contacts, SafetyTips, ScamCheck, GetHelp, NotFound
   components/    AppShell, JourneyStatusCard, SharePanel, StatusPill, Logo, LanguageSwitcher, HeroIllustration
   lib/           api client, scam rules engine, storage, formatting, types
   i18n/          EN / FR / KM dictionaries + provider

@@ -12,6 +12,9 @@ import GetHelp from "./pages/GetHelp";
 import StartCheckIn from "./pages/StartCheckIn";
 import JourneyDetail from "./pages/JourneyDetail";
 import GuestView from "./pages/GuestView";
+import Emergency from "./pages/Emergency";
+import Contacts from "./pages/Contacts";
+import SafetyTips from "./pages/SafetyTips";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +34,9 @@ const App = () => (
               <Route path="/get-help" element={<GetHelp />} />
               <Route path="/start" element={<StartCheckIn />} />
               <Route path="/journey/:id" element={<JourneyDetail />} />
+              <Route path="/emergency" element={<Emergency />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/safety-tips" element={<SafetyTips />} />
             </Route>
             <Route path="/j/:token" element={<GuestView />} />
             <Route path="*" element={<NotFound />} />
