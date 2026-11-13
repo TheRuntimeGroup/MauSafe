@@ -102,9 +102,12 @@ export function HomeQuickAccess() {
   return (
     <section className="space-y-4 pt-1">
       <div className="flex items-center justify-between gap-3 px-1">
-        <h2 className="font-display text-lg font-extrabold tracking-tight text-foreground">
-          {t("home.quickTitle")}
-        </h2>
+        <div>
+          <p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{t("app.name")}</p>
+          <h2 className="mt-1 font-display text-xl font-extrabold tracking-tight text-foreground">
+            {t("home.quickTitle")}
+          </h2>
+        </div>
         <Dialog
           open={open}
           onOpenChange={(next) => {
@@ -113,7 +116,7 @@ export function HomeQuickAccess() {
           }}
         >
           <DialogTrigger asChild>
-            <button type="button" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3 text-xs font-bold text-primary hover:bg-secondary">
+            <button type="button" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-[#DDE6ED] bg-white px-3 text-xs font-bold text-primary shadow-sm transition-all hover:border-primary/20 hover:bg-secondary">
               <Settings2 className="h-4 w-4" aria-hidden="true" />
               {t("home.customise")}
             </button>
@@ -158,20 +161,30 @@ export function HomeQuickAccess() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {selectedTools.map((tool) => (
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {selectedTools.map((tool, index) => (
           <Link
             key={tool.id}
             to={tool.to}
-            className="glass-card group flex min-h-36 flex-col justify-between rounded-2xl p-5 transition-all hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-premium"
+            className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-[1.35rem] border border-[#DDE6ED] bg-white p-5 shadow-[0_12px_32px_-26px_rgba(13,43,69,0.6)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-premium sm:min-h-44 sm:p-6"
           >
-            <div className="flex items-start justify-between">
-              <tool.icon className="h-6 w-6 text-primary" strokeWidth={1.8} aria-hidden="true" />
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true" />
+            <span className="pointer-events-none absolute -bottom-10 -right-10 h-28 w-28 rounded-full border border-primary/[0.06] transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
+            <div className="relative flex items-start justify-between gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEF5FA] text-primary ring-1 ring-primary/10 transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
+                <tool.icon className="h-[22px] w-[22px]" strokeWidth={1.8} aria-hidden="true" />
+              </span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-all duration-300 group-hover:border-primary/20 group-hover:bg-secondary group-hover:text-primary">
+                <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+              </span>
             </div>
-            <span className="mt-6 font-display text-sm font-extrabold leading-tight text-foreground sm:text-base">
-              {t(tool.labelKey)}
-            </span>
+            <div className="relative mt-7 flex items-end justify-between gap-2">
+              <span className="font-display text-[15px] font-extrabold leading-snug tracking-tight text-foreground sm:text-base">
+                {t(tool.labelKey)}
+              </span>
+              <span className="mb-0.5 hidden font-mono text-[10px] font-bold tracking-widest text-slate-300 sm:block" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+            </div>
           </Link>
         ))}
       </div>

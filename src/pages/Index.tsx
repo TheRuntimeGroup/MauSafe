@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LockKeyhole } from "lucide-react";
+import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listJourneys } from "@/lib/api";
 import { JourneyStatusCard } from "@/components/JourneyStatusCard";
@@ -35,36 +35,64 @@ const Index = () => {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <header className="px-1 pt-1">
-        <p className="text-xs font-semibold text-muted-foreground">{t("app.tagline")}</p>
-        <h1 className="mt-2 font-display text-[2rem] font-extrabold leading-tight tracking-[-0.04em] text-foreground sm:text-4xl">
-          {t("home.dashboardTitle")}
-        </h1>
+      <header className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0D2B45] px-6 py-7 text-white shadow-[0_24px_60px_-30px_rgba(13,43,69,0.7)] motion-safe:animate-fade-in-up sm:px-8 sm:py-8">
+        <svg
+          className="pointer-events-none absolute -right-8 -top-12 h-56 w-56 text-sky-300/10"
+          viewBox="0 0 220 220"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle cx="110" cy="110" r="82" stroke="currentColor" />
+          <circle cx="110" cy="110" r="54" stroke="currentColor" />
+          <path d="M16 150C60 130 76 76 126 86C168 94 178 48 222 42" stroke="currentColor" />
+        </svg>
+
+        <div className="relative">
+          <div className="flex items-center gap-2.5 text-sky-200">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/10">
+              <ShieldCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+            </span>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em]">{t("app.name")}</p>
+          </div>
+          <h1 className="mt-6 max-w-md font-display text-[2rem] font-extrabold leading-[1.12] tracking-[-0.045em] text-white sm:text-4xl">
+            {t("home.dashboardTitle")}
+          </h1>
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-300">{t("app.tagline")}</p>
+        </div>
       </header>
 
       <HomeQuickAccess />
 
       {!loading && active && (
-        <section className="space-y-3 animate-fade-in-up">
+        <section className="space-y-3 motion-safe:animate-fade-in-up">
           <div className="flex items-center justify-between px-1">
             <h2 className="flex items-center gap-2 text-sm font-extrabold text-foreground">
               <span className="h-2 w-2 rounded-full bg-success" aria-hidden="true" />
               {t("home.activeTitle")}
             </h2>
-            <Link to={`/journey/${active.id}`} className="text-xs font-bold text-primary">
+            <Link
+              to={`/journey/${active.id}`}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl px-2 text-xs font-bold text-primary transition-colors hover:bg-secondary"
+            >
               {t("action.open")}
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
-          <Link to={`/journey/${active.id}`} className="block">
-            <JourneyStatusCard journey={active.recipientSees} />
+          <Link to={`/journey/${active.id}`} className="block rounded-2xl focus-visible:outline-primary">
+            <JourneyStatusCard journey={active.recipientSees} className="shadow-premium transition-transform hover:-translate-y-0.5" />
           </Link>
         </section>
       )}
 
-      <div className="flex items-start gap-2.5 rounded-2xl border border-white/80 bg-white/60 p-4 text-xs leading-relaxed text-muted-foreground">
-        <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-        <p>{t("home.trustBody")}</p>
-      </div>
+      <aside className="flex items-start gap-4 rounded-[1.35rem] border border-[#DDE6ED] bg-white/80 p-5 shadow-[0_12px_35px_-28px_rgba(13,43,69,0.55)]">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary ring-1 ring-primary/10">
+          <LockKeyhole className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+        </span>
+        <div>
+          <h2 className="text-sm font-extrabold tracking-tight text-foreground">{t("home.trustTitle")}</h2>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{t("home.trustBody")}</p>
+        </div>
+      </aside>
     </div>
   );
 };
