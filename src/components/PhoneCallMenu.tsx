@@ -38,7 +38,7 @@ export function PhoneCallMenu({ serviceName, phones }: { serviceName: string; ph
           {t("help.chooseLine")} · {options.length}
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-[calc(100vw-2rem)] rounded-3xl border-white/80 bg-white/90 p-6 shadow-2xl backdrop-blur-2xl sm:max-w-sm">
+      <DialogContent className="max-w-[calc(100vw-2rem)] rounded-3xl border-border bg-card/95 p-6 shadow-2xl backdrop-blur-2xl sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-display text-xl font-extrabold text-foreground">
             {t("help.chooseNumber")}
@@ -52,7 +52,7 @@ export function PhoneCallMenu({ serviceName, phones }: { serviceName: string; ph
             <a
               key={phone}
               href={`tel:${phone}`}
-              className="flex min-h-14 items-center justify-between gap-4 rounded-xl border border-border bg-white px-4 py-3 text-base font-extrabold text-foreground transition-colors hover:border-primary/30 hover:bg-secondary"
+              className="flex min-h-14 items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3 text-base font-extrabold text-foreground transition-colors hover:border-primary/30 hover:bg-secondary"
             >
               {phone}
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white">

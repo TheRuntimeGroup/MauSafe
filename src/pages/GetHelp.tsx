@@ -171,7 +171,7 @@ const GetHelp = () => {
                     aria-label={savedIds.has(entry.id) ? t("help.removeSaved") : t("help.save")}
                     aria-pressed={savedIds.has(entry.id)}
                     className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white/70 transition-colors hover:bg-white",
+                      "flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card/70 transition-colors hover:bg-card",
                       savedIds.has(entry.id) ? "text-amber-500" : "text-muted-foreground",
                     )}
                   >
@@ -182,7 +182,7 @@ const GetHelp = () => {
                       href={entry.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-white/70 px-3 text-sm font-semibold text-primary hover:bg-white"
+                      className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card/70 px-3 text-sm font-semibold text-primary hover:bg-card"
                     >
                       {t("action.open")}
                       <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
@@ -204,7 +204,7 @@ const GetHelp = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${t("help.directions")} — ${entry.serviceName}`}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white/70 text-primary hover:bg-white"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card/70 text-primary hover:bg-card"
                     >
                       <Navigation className="h-4 w-4" aria-hidden="true" />
                     </a>

@@ -62,7 +62,7 @@ export function ServiceDetailsDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-h-[88vh] max-w-[calc(100vw-1.5rem)] overflow-y-auto rounded-[1.75rem] border-white/80 bg-white/90 p-0 shadow-2xl backdrop-blur-2xl sm:max-w-lg">
+      <DialogContent className="max-h-[88vh] max-w-[calc(100vw-1.5rem)] overflow-y-auto rounded-[1.75rem] border-border bg-card/95 p-0 shadow-2xl backdrop-blur-2xl sm:max-w-lg">
         <div className="border-b border-border px-6 pb-5 pt-6">
           <DialogHeader>
             <DialogTitle className="pr-8 font-display text-2xl font-extrabold leading-tight text-foreground">
@@ -97,7 +97,7 @@ export function ServiceDetailsDialog({
                   <a
                     key={phone}
                     href={`tel:${phone}`}
-                    className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-border bg-white px-4 font-mono text-sm font-extrabold text-foreground transition-colors hover:border-primary/30 hover:bg-secondary"
+                    className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 font-mono text-sm font-extrabold text-foreground transition-colors hover:border-primary/30 hover:bg-secondary"
                   >
                     {phone}
                     <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
@@ -137,7 +137,7 @@ export function ServiceDetailsDialog({
             {entry.email && (
               <a
                 href={`mailto:${entry.email}`}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-bold text-foreground"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-bold text-foreground"
               >
                 <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
                 {t("help.email")}
