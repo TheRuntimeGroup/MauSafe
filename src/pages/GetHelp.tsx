@@ -7,7 +7,6 @@ import {
   searchHelp,
   type HelpCategory,
 } from "@/data/helpDirectory";
-import { appButtonVariants } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
 
 const GetHelp = () => {
@@ -26,17 +25,32 @@ const GetHelp = () => {
         <p className="mt-1 text-sm text-muted-foreground">{t("help.subtitle")}</p>
       </header>
 
-      {/* Immediate help */}
-      <section className="grid gap-3 sm:grid-cols-2">
-        <a href="tel:999" className={appButtonVariants({ variant: "danger", size: "lg" })}>
-          <Phone className="h-4 w-4" aria-hidden="true" />
-          {t("help.call999")}
-        </a>
+      {/* National emergency contacts */}
+      <section className="rounded-2xl border border-danger/15 bg-card p-4">
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">{t("emergency.otherTitle")}</h2>
+        <div className="grid grid-cols-3 gap-2">
+          <a href="tel:999" className="flex min-h-20 flex-col items-center justify-center rounded-xl bg-danger px-2 text-center text-white">
+            <Phone className="h-4 w-4" aria-hidden="true" />
+            <span className="mt-1 text-xs font-bold">{t("nav.emergency")}</span>
+            <span className="font-display text-lg font-extrabold">999</span>
+          </a>
+          <a href="tel:114" className="flex min-h-20 flex-col items-center justify-center rounded-xl border border-border px-2 text-center text-foreground hover:bg-muted">
+            <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
+            <span className="mt-1 text-xs font-bold">{t("emergency.ambulance")}</span>
+            <span className="font-display text-lg font-extrabold">114</span>
+          </a>
+          <a href="tel:115" className="flex min-h-20 flex-col items-center justify-center rounded-xl border border-border px-2 text-center text-foreground hover:bg-muted">
+            <Phone className="h-4 w-4 text-primary" aria-hidden="true" />
+            <span className="mt-1 text-xs font-bold">{t("emergency.fire")}</span>
+            <span className="font-display text-lg font-extrabold">115</span>
+          </a>
+        </div>
+        <p className="mt-3 text-[11px] text-muted-foreground">{t("emergency.verifyNote")}</p>
         <a
           href="https://maucors.govmu.org/maucors/?page_id=9"
           target="_blank"
           rel="noopener noreferrer"
-          className={appButtonVariants({ variant: "outline", size: "lg" })}
+          className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-primary"
         >
           <ShieldAlert className="h-4 w-4" aria-hidden="true" />
           {t("help.reportFraud")}

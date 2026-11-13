@@ -20,6 +20,13 @@ export interface JourneyRow {
   guest_expires_at: number;
   guest_revoked_at: number | null;
   contact_info: string;
+  journey_kind: "standard" | "child";
+  location_enabled: number;
+  location_consent_at: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  location_accuracy: number | null;
+  location_updated_at: number | null;
 }
 
 let db: Database.Database | null = null;
@@ -50,12 +57,35 @@ export function getDb(): Database.Database {
       guest_token TEXT NOT NULL UNIQUE,
       guest_expires_at INTEGER NOT NULL,
       guest_revoked_at INTEGER,
-      contact_info TEXT NOT NULL DEFAULT ''
+      contact_info TEXT NOT NULL DEFAULT '',
+      journey_kind TEXT NOT NULL DEFAULT 'standard',
+      location_enabled INTEGER NOT NULL DEFAULT 0,
+      location_consent_at INTEGER,
+      latitude REAL,
+      longitude REAL,
+      location_accuracy REAL,
+      location_updated_at INTEGER
     );
 
     CREATE INDEX IF NOT EXISTS idx_journeys_owner ON journeys (owner_secret_hash);
     CREATE INDEX IF NOT EXISTS idx_journeys_guest ON journeys (guest_token);
   `);
+
+  const columns = db.prepare("PRAGMA table_info(journeys)").all() as { name: string }[];
+  const additions: Record<string, string> = {
+    journey_kind: "TEXT NOT NULL DEFAULT 'standard'",
+    location_enabled: "INTEGER NOT NULL DEFAULT 0",
+    location_consent_at: "INTEGER",
+    latitude: "REAL",
+    longitude: "REAL",
+    location_accuracy: "REAL",
+    location_updated_at: "INTEGER",
+  };
+  for (const [name, definition] of Object.entries(additions)) {
+    if (!columns.some((column) => column.name === name)) {
+      db.exec(`ALTER TABLE journeys ADD COLUMN ${name} ${definition}`);
+    }
+  }
 
   return db;
 }

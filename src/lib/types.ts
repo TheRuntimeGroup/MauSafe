@@ -1,5 +1,13 @@
 export type Preset = "going_home" | "taking_the_bus" | "meeting_someone";
+export type JourneyKind = "standard" | "child";
 export type JourneyStatus = "on_the_way" | "arrived" | "overdue" | "cancelled";
+
+export interface SharedLocation {
+  latitude: number;
+  longitude: number;
+  accuracy: number | null;
+  updatedAt: string | null;
+}
 
 export interface GuestJourney {
   status: JourneyStatus;
@@ -12,6 +20,9 @@ export interface GuestJourney {
   isDemo: boolean;
   expiresAt: string;
   revoked: boolean;
+  journeyKind: JourneyKind;
+  locationEnabled: boolean;
+  location: SharedLocation | null;
 }
 
 export interface OwnerJourney extends GuestJourney {

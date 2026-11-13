@@ -6,6 +6,7 @@ import {
   createJourney,
   toOwnerView,
   type Preset,
+  type JourneyKind,
 } from "../../lib/journey";
 import { getBearer, getClientIp, isRateLimited, newToken, sha256 } from "../../lib/security";
 
@@ -34,6 +35,8 @@ export default defineHandler(async (event) => {
   const senderName = String(body.senderName ?? "").slice(0, 60).trim() || "Someone";
   const contact = String(body.contact ?? "").slice(0, 100).trim();
   const isDemo = body.isDemo === true;
+  const journeyKind: JourneyKind = body.journeyKind === "child" ? "child" : "standard";
+  const locationEnabled = body.locationEnabled === true;
 
   const provided = getBearer(event);
   const ownerSecret = provided ?? newToken();
@@ -49,6 +52,8 @@ export default defineHandler(async (event) => {
     guestToken: newToken(),
     guestExpiresAt: now + GUEST_LINK_TTL_MS,
     contact,
+    journeyKind,
+    locationEnabled,
   });
 
   return {

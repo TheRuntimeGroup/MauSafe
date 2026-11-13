@@ -1,4 +1,4 @@
-import type { GuestJourney, OwnerJourney, Preset } from "./types";
+import type { GuestJourney, JourneyKind, OwnerJourney, Preset, SharedLocation } from "./types";
 import { ensureOwnerSecret } from "./storage";
 
 export class ApiError extends Error {
@@ -46,6 +46,8 @@ export interface CreateJourneyInput {
   senderName: string;
   contact: string;
   isDemo: boolean;
+  journeyKind?: JourneyKind;
+  locationEnabled?: boolean;
 }
 
 export interface CreateJourneyResponse {
@@ -93,4 +95,22 @@ export function extendJourney(
 
 export function getGuestJourney(token: string): Promise<{ journey: GuestJourney }> {
   return request(`/api/guest/${token}`);
+}
+
+export function updateJourneyLocation(
+  id: string,
+  location: Omit<SharedLocation, "updatedAt">,
+): Promise<{ journey: OwnerJourney }> {
+  return request(`/api/journeys/${id}/location`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(location),
+  });
+}
+
+export function disableJourneyLocation(id: string): Promise<{ journey: OwnerJourney }> {
+  return request(`/api/journeys/${id}/location`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
 }

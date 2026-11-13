@@ -5,6 +5,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { getGuestJourney, ApiError } from "@/lib/api";
 import { formatClock, formatDateTime } from "@/lib/format";
 import { Logo } from "@/components/Logo";
+import { SharedLocationMap } from "@/components/SharedLocationMap";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { StatusPill } from "@/components/StatusPill";
 import { useNow } from "@/hooks/useNow";
@@ -23,11 +24,15 @@ const GuestView = () => {
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
-    getGuestJourney(token)
-      .then(({ journey }) => {
-        if (!cancelled) setJourney(journey);
-      })
-      .catch((err: unknown) => {
+
+    async function refresh() {
+      try {
+        const { journey } = await getGuestJourney(token!);
+        if (!cancelled) {
+          setJourney(journey);
+          setError(null);
+        }
+      } catch (err: unknown) {
         if (cancelled) return;
         if (err instanceof ApiError) {
           if (err.code === "link_not_found") setError("not_found");
@@ -37,12 +42,16 @@ const GuestView = () => {
         } else {
           setError("error");
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    }
+
+    void refresh();
+    const interval = window.setInterval(() => void refresh(), 15_000);
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
     };
   }, [token]);
 
@@ -170,6 +179,8 @@ function GuestJourneyCard({ journey }: { journey: GuestJourney }) {
           </div>
         )}
       </section>
+
+      {journey.location && <SharedLocationMap location={journey.location} />}
 
       <section className="rounded-2xl border border-border bg-card p-5">
         <p className="text-xs text-muted-foreground">{t("guest.noAlerts")}</p>

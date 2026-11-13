@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   ArrowUpRight,
+  Baby,
   BookOpen,
+  CloudSun,
   Heart,
   LifeBuoy,
   ListChecks,
   LockKeyhole,
   Navigation,
-  PhoneCall,
   ShieldAlert,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
@@ -45,13 +46,14 @@ const Index = () => {
 
   const tools = [
     { icon: ShieldAlert, label: t("nav.scam"), to: "/scam-check" },
-    { icon: PhoneCall, label: t("nav.callcheck"), to: "/call-checker" },
     { icon: LifeBuoy, label: t("nav.gethelp"), to: "/get-help" },
-    { icon: Heart, label: t("nav.contacts"), to: "/contacts" },
+    { icon: Baby, label: t("nav.child"), to: "/child-safety" },
+    { icon: CloudSun, label: t("nav.disaster"), to: "/disaster-safety" },
   ];
 
   const moreTools = [
     { icon: ListChecks, label: t("nav.checkins"), body: t("home.feature1Body"), to: "/check-ins" },
+    { icon: Heart, label: t("nav.contacts"), body: t("contacts.subtitle"), to: "/contacts" },
     { icon: BookOpen, label: t("nav.tips"), body: t("tips.subtitle"), to: "/safety-tips" },
   ];
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bus, Home, Loader2, MapPinOff, Users } from "lucide-react";
+import { Bus, Home, Loader2, MapPin, Users } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { createJourney } from "@/lib/api";
 import { getOwnerContact, getOwnerName, setOwnerContact, setOwnerName } from "@/lib/storage";
@@ -29,6 +29,7 @@ const StartCheckIn = () => {
   const [name, setName] = useState(() => getOwnerName());
   const [contact, setContact] = useState(() => getOwnerContact());
   const [isDemo, setIsDemo] = useState(false);
+  const [locationEnabled, setLocationEnabled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
@@ -43,6 +44,7 @@ const StartCheckIn = () => {
         senderName: name.trim() || "Someone",
         contact: contact.trim(),
         isDemo,
+        locationEnabled,
       });
       setOwnerName(name.trim());
       setOwnerContact(contact.trim());
@@ -181,16 +183,22 @@ const StartCheckIn = () => {
           </div>
         </div>
 
-        {/* Location (disabled) */}
+        {/* Optional live location */}
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <MapPinOff className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+            <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
             <div>
               <p className="text-sm font-semibold text-foreground">{t("form.locationLabel")}</p>
-              <p className="text-xs text-muted-foreground">{t("form.locationOff")}</p>
+              <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+                {locationEnabled ? t("form.locationConsent") : t("form.locationOff")}
+              </p>
             </div>
           </div>
-          <Switch checked={false} disabled aria-label={t("form.locationLabel")} />
+          <Switch
+            checked={locationEnabled}
+            onCheckedChange={setLocationEnabled}
+            aria-label={t("form.locationLabel")}
+          />
         </div>
 
         {/* Demo */}

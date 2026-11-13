@@ -14,7 +14,9 @@ export interface ScamResult {
 
 const URL_RE = /\bhttps?:\/\/[^\s)>\]}]+/gi;
 const SHORTENER_RE =
-  /\b(?:bit\.ly|tinyurl\.com|t\.co|goo\.gl|is\.gd|cutt\.ly|ow\.ly|rb\.gy|shorturl\.at|rebrand\.ly)\/[^\s)>\]}]+/gi;
+  /\b(?:bit\.ly|tinyurl\.com|t\.co|goo\.gl|is\.gd|cutt\.ly|ow\.ly|rb\.gy|shorturl\.at|rebrand\.ly|tiny\.one|cutt\.us)\/[^\s)>\]}]+/gi;
+const SUSPICIOUS_URL_RE =
+  /\bhttps?:\/\/(?:(?:\d{1,3}\.){3}\d{1,3}|[^\s/?#]*@|xn--)[^\s)>\]}]*/gi;
 
 const RULES: { id: ScamRuleId; patterns: RegExp[] }[] = [
   {
@@ -46,6 +48,7 @@ const RULES: { id: ScamRuleId; patterns: RegExp[] }[] = [
     patterns: [
       URL_RE,
       SHORTENER_RE,
+      SUSPICIOUS_URL_RE,
       /\bclick( here)?\b/gi,
       /\bcliquez?( ici)?\b/gi,
       /\bklik( la)?\b/gi,

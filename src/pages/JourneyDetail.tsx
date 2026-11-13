@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, Loader2, ShieldOff } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { extendJourney, getJourney, journeyAction } from "@/lib/api";
 import { JourneyStatusCard } from "@/components/JourneyStatusCard";
+import { LocationSharingCard } from "@/components/LocationSharingCard";
 import { SharePanel } from "@/components/SharePanel";
 import { AppButton } from "@/components/ui/app-button";
 import { showError } from "@/utils/toast";
@@ -93,6 +94,10 @@ const JourneyDetail = () => {
       </Link>
 
       <JourneyStatusCard journey={journey.recipientSees} />
+
+      {isActive && (journey.locationEnabled || journey.location) && (
+        <LocationSharingCard journey={journey} onUpdate={setJourney} />
+      )}
 
       {/* Actions */}
       {isActive && (

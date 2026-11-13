@@ -5,7 +5,6 @@ import {
   LifeBuoy,
   ListChecks,
   Phone,
-  PhoneCall,
   ShieldAlert,
   Siren,
 } from "lucide-react";
@@ -17,12 +16,11 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
   { to: "/check-ins", labelKey: "nav.checkins", shortLabelKey: "nav.checkinsShort", icon: ListChecks, end: false },
-  { to: "/call-checker", labelKey: "nav.callcheck", shortLabelKey: "nav.callcheckShort", icon: PhoneCall, end: false },
   { to: "/scam-check", labelKey: "nav.scam", shortLabelKey: "nav.scamShort", icon: ShieldAlert, end: false },
   { to: "/get-help", labelKey: "nav.gethelp", shortLabelKey: "nav.gethelpShort", icon: LifeBuoy, end: false },
 ];
 
-const MOBILE_ITEMS = [NAV_ITEMS[0], NAV_ITEMS[1], NAV_ITEMS[3], NAV_ITEMS[4]];
+const MOBILE_ITEMS = NAV_ITEMS;
 
 export function AppShell() {
   const { t } = useI18n();
