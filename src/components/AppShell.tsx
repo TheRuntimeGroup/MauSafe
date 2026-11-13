@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import {
-  Heart,
+  HeartHandshake,
   Home,
   LayoutGrid,
   LifeBuoy,
@@ -115,7 +115,7 @@ export function AppShell() {
             to="/contacts"
             className="flex items-center gap-2.5 px-1 text-xs font-semibold text-muted-foreground transition-colors hover:text-primary"
           >
-            <Heart className="h-4 w-4" aria-hidden="true" />
+            <HeartHandshake className="h-4 w-4" aria-hidden="true" />
             {t("nav.contacts")}
           </NavLink>
           {isAdmin && (
@@ -148,7 +148,7 @@ export function AppShell() {
               className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/[0.08] bg-white text-foreground shadow-sm transition-colors hover:text-primary"
               aria-label={t("nav.contacts")}
             >
-              <Heart className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+              <HeartHandshake className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
             </NavLink>
             <AccountMenu variant="header" />
           </div>
