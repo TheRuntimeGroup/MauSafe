@@ -47,11 +47,6 @@ export function AppLoadingScreen({ onComplete }: { onComplete: () => void }) {
         <span />
       </div>
 
-      <header className="launch-chrome relative z-10 mx-auto flex w-full max-w-5xl items-center justify-center gap-2.5 text-center text-[10px] font-extrabold uppercase tracking-[0.22em] text-white/65">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_16px_rgba(110,231,183,0.65)]" aria-hidden="true" />
-        <span>{t("app.badge")}</span>
-      </header>
-
       <main className="launch-scene relative z-10 flex flex-1 flex-col items-center justify-center py-8 text-center">
         <div className="launch-stage relative flex w-[min(24rem,calc(100vw-2rem))] items-center justify-center px-7 py-14">
           <svg className="launch-frame absolute inset-0 h-full w-full" viewBox="0 0 400 260" fill="none" aria-hidden="true">
