@@ -11,6 +11,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "app.name": "MauSafe",
     "app.tagline": "A calm safety companion for Mauritius",
     "app.badge": "Powered to Protect · Mauritius",
+    "app.loading": "Preparing your safety tools…",
     "app.heroTitle": "Get home safe, together",
     "app.heroSubtitle":
       "Share a check-in with someone you trust, find official help, and check suspicious messages — all in one place.",
@@ -320,6 +321,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "app.name": "MauSafe",
     "app.tagline": "Un compagnon de sécurité apaisant pour Maurice",
     "app.badge": "Powered to Protect · Maurice",
+    "app.loading": "Préparation de vos outils de sécurité…",
     "app.heroTitle": "Rentrez en sécurité, ensemble",
     "app.heroSubtitle":
       "Partagez un check-in avec une personne de confiance, trouvez une aide officielle et vérifiez les messages suspects — au même endroit.",
@@ -629,6 +631,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "app.name": "MauSafe",
     "app.tagline": "Enn konpagnon sekirite kalm pou Moris",
     "app.badge": "Powered to Protect · Moris",
+    "app.loading": "Pe prepar ou bann zouti sekirite…",
     "app.heroTitle": "Ariv lakaz an sekirite, ansam",
     "app.heroSubtitle":
       "Partaz enn check-in ek enn dimoun ou fer konfians, trouv led ofisiel, ek verif mesaz sispè — tou dan enn plas.",

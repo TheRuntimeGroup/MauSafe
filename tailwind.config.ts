@@ -91,12 +91,17 @@ export default {
           from: { opacity: "0", transform: "translateY(10px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "app-loading": {
+          from: { transform: "translateX(-110%)" },
+          to: { transform: "translateX(310%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.4s ease-out both",
         "fade-in-up": "fade-in-up 0.5s ease-out both",
+        "app-loading": "app-loading 1s ease-in-out infinite",
       },
     },
   },

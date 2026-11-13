@@ -78,7 +78,7 @@ export function AppShell() {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-md lg:hidden">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur-md lg:hidden">
         <div className="flex items-center justify-between gap-2 px-4 py-3">
           <NavLink to="/" className="flex min-w-0 items-center gap-2.5">
             <Logo className="h-8 w-8 shrink-0" />
@@ -118,10 +118,10 @@ export function AppShell() {
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
-        aria-label="Primary"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(25,21,46,0.08)] lg:hidden"
+        aria-label={t("nav.menu")}
       >
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-5 px-1 pt-1.5">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -129,16 +129,22 @@ export function AppShell() {
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  "relative flex flex-col items-center gap-1 px-1 pb-2.5 pt-3 text-[11px] font-semibold transition-colors",
+                  "flex min-h-[3.75rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
                   isActive ? "text-primary" : "text-muted-foreground",
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  {isActive && <span className="absolute top-0 h-0.5 w-8 bg-primary" aria-hidden="true" />}
-                  <item.icon className="h-5 w-5" aria-hidden="true" />
-                  <span className="max-w-full truncate text-center leading-tight">
+                  <span
+                    className={cn(
+                      "flex h-8 w-12 items-center justify-center rounded-full transition-colors",
+                      isActive ? "bg-primary text-white" : "text-muted-foreground",
+                    )}
+                  >
+                    <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.4 : 2} aria-hidden="true" />
+                  </span>
+                  <span className={cn("max-w-full truncate text-center leading-tight", isActive && "font-bold")}>
                     {t(item.shortLabelKey)}
                   </span>
                 </>
