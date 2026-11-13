@@ -13,7 +13,6 @@ import {
 import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { AppButton } from "@/components/ui/app-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -155,122 +154,59 @@ const AuthPage = () => {
     );
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-background lg:flex-row">
-      {/* Brand panel (desktop) */}
-      <aside className="relative isolate hidden w-[46%] max-w-2xl shrink-0 flex-col justify-between overflow-hidden bg-[#0D2B45] p-12 text-white lg:flex xl:p-16">
-        <svg
-          className="pointer-events-none absolute inset-0 h-full w-full text-white/[0.05]"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern id="auth-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M40 0H0V40" stroke="currentColor" strokeWidth="0.6" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#auth-grid)" />
-        </svg>
-        <svg
-          className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 text-sky-300/10"
-          viewBox="0 0 220 220"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="110" cy="110" r="82" stroke="currentColor" />
-          <circle cx="110" cy="110" r="54" stroke="currentColor" />
-          <path d="M16 150C60 130 76 76 126 86C168 94 178 48 222 42" stroke="currentColor" />
-        </svg>
-        <svg
-          className="pointer-events-none absolute -bottom-28 -left-28 h-80 w-80 text-emerald-300/[0.08]"
-          viewBox="0 0 220 220"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="110" cy="110" r="82" stroke="currentColor" />
-          <circle cx="110" cy="110" r="54" stroke="currentColor" />
-        </svg>
-
-        <Link to="/" className="relative z-10 flex w-fit items-center gap-4">
-          <Logo variant="inverse" className="h-14 w-14" />
-          <div>
-            <p className="font-display text-3xl font-extrabold leading-none tracking-tight">
-              {t("app.name")}
-            </p>
-            <p className="mt-1.5 text-xs font-medium text-sky-200">{t("app.badge")}</p>
-          </div>
-        </Link>
-
-        <div className="relative z-10">
-          <div className="mb-6 flex h-1.5 w-20 overflow-hidden rounded-full" aria-hidden="true">
-            <span className="flex-1 bg-[#EA3B3B]" />
-            <span className="flex-1 bg-[#1D3B8C]" />
-            <span className="flex-1 bg-[#F7C600]" />
-            <span className="flex-1 bg-[#0E7A4D]" />
-          </div>
-          <h2 className="max-w-md font-display text-4xl font-extrabold leading-[1.08] tracking-[-0.04em] xl:text-5xl">
-            {t("app.heroTitle")}
-          </h2>
-          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-slate-300">
-            {t("app.heroSubtitle")}
-          </p>
-        </div>
-
-        <div className="relative z-10 space-y-6">
-          <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3.5 backdrop-blur-sm">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
-              <ShieldCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
-            </span>
-            <p className="text-xs leading-relaxed text-slate-200">{t("home.trustBody")}</p>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-sky-300/70">
-              {t("app.name")}
-            </span>
-            <LanguageSwitcher compact />
-          </div>
-        </div>
-      </aside>
-
-      {/* Form panel */}
-      <div className="relative flex min-h-screen flex-1 flex-col">
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute inset-0 bg-dots opacity-30" />
-        </div>
-
-        <header className="relative z-10 flex items-center justify-between gap-3 bg-[#0D2B45] px-5 py-4 text-white lg:hidden">
-          <Link to="/" className="flex items-center gap-2.5">
-            <Logo variant="inverse" className="h-10 w-10" />
-            <div>
-              <p className="font-display text-lg font-extrabold leading-none tracking-tight">
-                {t("app.name")}
-              </p>
-              <p className="mt-0.5 text-[10px] font-medium text-sky-200">{t("app.badge")}</p>
-            </div>
-          </Link>
-          <LanguageSwitcher compact />
-        </header>
-
-        <main className="relative z-10 flex flex-1 items-center justify-center px-5 py-10 sm:px-10 sm:py-12">
-          <div className="w-full max-w-lg">
-            <Link
-              to="/"
-              className="mb-7 inline-flex h-11 w-11 items-center justify-center rounded-full border border-foreground/10 bg-white text-muted-foreground shadow-sm transition-colors hover:border-primary/30 hover:text-primary"
-              aria-label={t("auth.back")}
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 py-10 sm:px-6">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute inset-0 bg-dots opacity-30" />
+      </div>
+      <div className="relative z-10 mx-auto w-full max-w-4xl space-y-6">
+      <div className="overflow-hidden rounded-[2rem] border border-[#DDE6ED] bg-white shadow-premium motion-safe:animate-fade-in-up">
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
+          <aside className="relative isolate hidden overflow-hidden bg-[#0D2B45] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+            <svg
+              className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 text-sky-300/10"
+              viewBox="0 0 220 220"
+              fill="none"
+              aria-hidden="true"
             >
-              <ArrowLeft className="h-5 w-5" aria-hidden="true" />
-            </Link>
+              <circle cx="110" cy="110" r="82" stroke="currentColor" />
+              <circle cx="110" cy="110" r="54" stroke="currentColor" />
+              <path d="M16 150C60 130 76 76 126 86C168 94 178 48 222 42" stroke="currentColor" />
+            </svg>
 
-            <div className="motion-safe:animate-fade-in-up">
-              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-                {`${t("app.name")} · ${new Date().getFullYear()}`}
-              </p>
-              <h1 className="mt-3 font-display text-[1.9rem] font-extrabold leading-[1.1] tracking-[-0.04em] text-foreground sm:text-[2.35rem]">
-                {mode === "sign_in" ? t("auth.title") : t("auth.signUp")}
-              </h1>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-                {t("auth.subtitle")}
-              </p>
+            <div className="relative flex items-center gap-3">
+              <Logo className="h-11 w-11" />
+              <div>
+                <p className="font-display text-xl font-extrabold tracking-tight">{t("app.name")}</p>
+                <p className="text-[11px] font-medium text-sky-200">{t("app.badge")}</p>
+              </div>
+            </div>
 
-              <div className="mt-7 grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1.5">
+            <div className="relative">
+              <h2 className="max-w-sm font-display text-[2rem] font-extrabold leading-[1.12] tracking-[-0.04em]">
+                {t("app.heroTitle")}
+              </h2>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">{t("app.heroSubtitle")}</p>
+            </div>
+
+            <div className="relative flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3.5 backdrop-blur-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                <ShieldCheck className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
+              </span>
+              <p className="text-xs leading-relaxed text-slate-200">{t("home.trustBody")}</p>
+            </div>
+          </aside>
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-3 bg-[#0D2B45] px-6 py-5 text-white lg:hidden">
+              <Logo className="h-9 w-9" />
+              <div>
+                <p className="font-display text-lg font-extrabold tracking-tight">{t("app.name")}</p>
+                <p className="text-[11px] font-medium text-sky-200">{t("app.tagline")}</p>
+              </div>
+            </div>
+
+            <div className="px-6 py-7 sm:px-9 sm:py-9">
+              <div className="grid grid-cols-2 gap-1 rounded-2xl bg-muted p-1.5">
                 <button
                   type="button"
                   onClick={() => switchMode("sign_in")}
@@ -289,7 +225,14 @@ const AuthPage = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+              <div className="mb-6 mt-7">
+                <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground">
+                  {mode === "sign_in" ? t("auth.title") : t("auth.signUp")}
+                </h1>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t("auth.subtitle")}</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="font-semibold text-foreground">
                     {t("auth.emailLabel")}
@@ -303,7 +246,7 @@ const AuthPage = () => {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="you@example.com"
-                    className="h-14 rounded-2xl border-input bg-white text-foreground shadow-sm focus-visible:border-primary"
+                    className="h-12 rounded-[14px] border-[#DDE6ED] bg-white text-foreground focus-visible:border-primary"
                     required
                   />
                 </div>
@@ -332,7 +275,7 @@ const AuthPage = () => {
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       placeholder="••••••••"
-                      className="h-14 rounded-2xl border-input bg-white pr-12 text-foreground shadow-sm focus-visible:border-primary"
+                      className="h-12 rounded-[14px] border-[#DDE6ED] bg-white pr-12 text-foreground focus-visible:border-primary"
                       required
                     />
                     <button
@@ -362,8 +305,7 @@ const AuthPage = () => {
                         autoComplete="new-password"
                         value={confirmation}
                         onChange={(event) => setConfirmation(event.target.value)}
-                        placeholder="••••••••"
-                        className="h-14 rounded-2xl border-input bg-white pr-12 text-foreground shadow-sm focus-visible:border-primary"
+                        className="h-12 rounded-[14px] border-[#DDE6ED] bg-white pr-12 text-foreground focus-visible:border-primary"
                         required
                       />
                       <button
@@ -414,25 +356,18 @@ const AuthPage = () => {
                   )}
                 </AppButton>
               </form>
-
-              <p className="mt-6 text-center text-sm font-medium text-muted-foreground">
-                {mode === "sign_in" ? t("auth.noAccount") : t("auth.haveAccount")}{" "}
-                <button
-                  type="button"
-                  onClick={() => switchMode(mode === "sign_in" ? "sign_up" : "sign_in")}
-                  className="font-bold text-primary hover:underline"
-                >
-                  {mode === "sign_in" ? t("auth.signUp") : t("auth.signIn")}
-                </button>
-              </p>
-
-              <p className="mt-8 flex items-center justify-center gap-2 text-center text-xs leading-relaxed text-muted-foreground">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-success" aria-hidden="true" />
-                {t("onboarding.privacy")}
-              </p>
             </div>
           </div>
-        </main>
+        </div>
+      </div>
+
+      <Link
+        to="/"
+        className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        {t("auth.back")}
+      </Link>
       </div>
     </div>
   );
