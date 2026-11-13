@@ -5,6 +5,7 @@ import {
   CloudRain,
   Droplets,
   ExternalLink,
+  Globe2,
   Loader2,
   RefreshCw,
   Sun,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { AppButton } from "@/components/ui/app-button";
+import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type WeatherData = {
@@ -36,6 +38,16 @@ type WeatherData = {
   };
 };
 
+type GdacsAlert = {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  publishedAt: string | null;
+  eventType: string;
+  alertLevel: "GREEN" | "ORANGE" | "RED" | "UNKNOWN";
+};
+
 const REGIONS = [
   { id: "port-louis", name: "Port Louis" },
   { id: "curepipe", name: "Curepipe" },
@@ -57,6 +69,9 @@ const DisasterSafety = () => {
   const [data, setData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [alerts, setAlerts] = useState<GdacsAlert[]>([]);
+  const [alertsLoading, setAlertsLoading] = useState(true);
+  const [alertsError, setAlertsError] = useState(false);
 
   const loadWeather = useCallback(async () => {
     setLoading(true);
@@ -75,6 +90,27 @@ const DisasterSafety = () => {
   useEffect(() => {
     void loadWeather();
   }, [loadWeather]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/disaster-alerts")
+      .then((response) => {
+        if (!response.ok) throw new Error("Alerts unavailable");
+        return response.json() as Promise<{ alerts: GdacsAlert[] }>;
+      })
+      .then((result) => {
+        if (!cancelled) setAlerts(result.alerts);
+      })
+      .catch(() => {
+        if (!cancelled) setAlertsError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setAlertsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const current = data?.weather.current;
   const daily = data?.weather.daily;
@@ -163,6 +199,64 @@ const DisasterSafety = () => {
           </section>
         </>
       )}
+
+      <section className="space-y-3">
+        <div className="flex items-start gap-3 px-1">
+          <Globe2 className="mt-1 h-5 w-5 text-primary" aria-hidden="true" />
+          <div>
+            <h2 className="font-display text-lg font-bold text-foreground">{t("alerts.title")}</h2>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("alerts.subtitle")}</p>
+          </div>
+        </div>
+
+        {alertsLoading ? (
+          <div className="flex justify-center rounded-2xl border border-border bg-card py-8">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" aria-label={t("alerts.title")} />
+          </div>
+        ) : alertsError ? (
+          <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
+            {t("alerts.unavailable")}
+          </p>
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-border bg-card px-5">
+            {alerts.map((alert) => (
+              <a
+                key={alert.id}
+                href={alert.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block border-b border-border py-4 last:border-b-0"
+              >
+                <div className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "mt-1 h-2.5 w-2.5 shrink-0 rounded-full",
+                      alert.alertLevel === "RED"
+                        ? "bg-danger"
+                        : alert.alertLevel === "ORANGE"
+                          ? "bg-amber-500"
+                          : alert.alertLevel === "GREEN"
+                            ? "bg-emerald-500"
+                            : "bg-muted-foreground",
+                    )}
+                    aria-label={alert.alertLevel}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="text-sm font-bold leading-snug text-foreground">{alert.title}</h3>
+                      <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary" aria-hidden="true" />
+                    </div>
+                    <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">
+                      GDACS · {alert.eventType}
+                      {alert.publishedAt ? ` · ${formatDateTime(alert.publishedAt, locale)}` : ""}
+                    </p>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
         <div className="flex items-start gap-3">

@@ -6,6 +6,7 @@ import {
   Baby,
   BookOpen,
   CloudSun,
+  FileWarning,
   Heart,
   LifeBuoy,
   ListChecks,
@@ -53,6 +54,7 @@ const Index = () => {
 
   const moreTools = [
     { icon: ListChecks, label: t("nav.checkins"), body: t("home.feature1Body"), to: "/check-ins" },
+    { icon: FileWarning, label: t("incident.title"), body: t("incident.subtitle"), to: "/incident-report" },
     { icon: Heart, label: t("nav.contacts"), body: t("contacts.subtitle"), to: "/contacts" },
     { icon: BookOpen, label: t("nav.tips"), body: t("tips.subtitle"), to: "/safety-tips" },
   ];

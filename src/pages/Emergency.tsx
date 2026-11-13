@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { HeartHandshake, LifeBuoy, Phone, ShieldAlert } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { EmergencyShareCard } from "@/components/EmergencyShareCard";
 import { appButtonVariants } from "@/components/ui/app-button";
 
 const Emergency = () => {
@@ -27,6 +28,8 @@ const Emergency = () => {
           999
         </a>
       </section>
+
+      <EmergencyShareCard />
 
       {/* Secondary numbers */}
       <section className="rounded-2xl border border-border bg-card p-5">
