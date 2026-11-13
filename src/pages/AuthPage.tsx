@@ -154,7 +154,11 @@ const AuthPage = () => {
     );
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 py-10 sm:px-6">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute inset-0 bg-dots opacity-30" />
+      </div>
+      <div className="relative z-10 mx-auto w-full max-w-4xl space-y-6">
       <div className="overflow-hidden rounded-[2rem] border border-[#DDE6ED] bg-white shadow-premium motion-safe:animate-fade-in-up">
         <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
           <aside className="relative isolate hidden overflow-hidden bg-[#0D2B45] p-10 text-white lg:flex lg:flex-col lg:justify-between">
@@ -364,6 +368,7 @@ const AuthPage = () => {
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         {t("auth.back")}
       </Link>
+      </div>
     </div>
   );
 };
