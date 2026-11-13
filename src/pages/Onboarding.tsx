@@ -114,19 +114,20 @@ const Onboarding = () => {
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [finish, setFinish] = useState<"none" | "done">("none");
+  const [isProfileMode] = useState(() => Boolean(user));
 
   const redirectedRef = useRef(false);
 
   const steps = useMemo<StepId[]>(() => {
     const list: StepId[] = [];
-    if (!user) list.push("welcome");
+    if (!isProfileMode) list.push("welcome");
     list.push("name");
-    if (!user) list.push("email", "verifyEmail");
+    if (!isProfileMode) list.push("email", "verifyEmail");
     list.push("accessibility");
-    if (!user) list.push("password");
+    if (!isProfileMode) list.push("password");
     list.push("review");
     return list;
-  }, [user]);
+  }, [isProfileMode]);
 
   // Jump straight to the review step when returning after email confirmation.
   useEffect(() => {
@@ -183,7 +184,6 @@ const Onboarding = () => {
   }, [otpExpiresAt]);
 
   const currentStep: StepId = steps[stepIndex] ?? steps[steps.length - 1];
-  const isProfileMode = Boolean(user);
   const otpTimeRemaining = `${Math.floor(otpSecondsLeft / 60)}:${String(otpSecondsLeft % 60).padStart(2, "0")}`;
 
   function toOtpError(code: string): string {
