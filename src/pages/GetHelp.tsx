@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ExternalLink, Mail, MapPin, Navigation, Phone, PhoneOff, Search, ShieldAlert, WifiOff } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { PhoneCallMenu } from "@/components/PhoneCallMenu";
 import {
   HELP_CATEGORIES,
   helpDivisions,
@@ -133,13 +134,10 @@ const GetHelp = () => {
                       <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                     </a>
                   ) : entry.phoneVerified && entry.phone ? (
-                    <a
-                      href={`tel:${entry.phone}`}
-                      className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground"
-                    >
-                      <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-                      {entry.phone}
-                    </a>
+                    <PhoneCallMenu
+                      serviceName={entry.serviceName}
+                      phones={entry.phoneOptions ?? [entry.phone]}
+                    />
                   ) : (
                     <span className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-muted px-3 text-sm font-semibold text-muted-foreground">
                       <PhoneOff className="h-3.5 w-3.5" aria-hidden="true" />

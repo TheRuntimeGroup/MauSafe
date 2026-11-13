@@ -20,6 +20,7 @@ export interface HelpEntry {
   email?: string | null;
   sourceLabel?: string | null;
   directionsQuery?: string | null;
+  phoneOptions?: string[];
 }
 
 export interface HelpDatasetMeta {
@@ -156,13 +157,42 @@ export const HELP_CATEGORIES: { id: HelpCategory | "all"; labelKey: string }[] =
   { id: "utility", labelKey: "help.category.utility" },
 ];
 
+function callableAlternate(value: string | null | undefined): string | null {
+  if (!value || !/^[+\d\s()-]+$/.test(value)) return null;
+  return primaryPhone(value);
+}
+
+function groupHelpEntries(entries: HelpEntry[]): HelpEntry[] {
+  const groups = new Map<string, HelpEntry>();
+  for (const entry of entries) {
+    const key = [entry.serviceName, entry.category, entry.locality, entry.division ?? ""].join("|");
+    const phones = [entry.phone, callableAlternate(entry.alternatePhone)].filter(
+      (phone): phone is string => !!phone,
+    );
+    const existing = groups.get(key);
+    if (!existing) {
+      groups.set(key, { ...entry, phoneOptions: Array.from(new Set(phones)) });
+      continue;
+    }
+    existing.phoneOptions = Array.from(new Set([...(existing.phoneOptions ?? []), ...phones]));
+    existing.phoneVerified = existing.phoneVerified || entry.phoneVerified;
+    if (entry.address && !(existing.address ?? "").includes(entry.address)) {
+      existing.address = [existing.address, entry.address].filter(Boolean).join(" · ");
+    }
+    if (entry.sourceLabel && entry.sourceLabel !== existing.sourceLabel) {
+      existing.sourceLabel = [existing.sourceLabel, entry.sourceLabel].filter(Boolean).join(" · ");
+    }
+  }
+  return Array.from(groups.values());
+}
+
 export function searchHelp(
   query: string,
   category: HelpCategory | "all",
   division: string,
 ): HelpEntry[] {
   const q = query.trim().toLowerCase();
-  return HELP_ENTRIES.filter((entry) => {
+  const filtered = HELP_ENTRIES.filter((entry) => {
     if (category !== "all" && entry.category !== category) return false;
     if (division !== "all" && (entry.division ?? "unknown") !== division) return false;
     if (!q) return true;
@@ -178,6 +208,7 @@ export function searchHelp(
       .toLowerCase();
     return haystack.includes(q);
   });
+  return groupHelpEntries(filtered);
 }
 
 export function helpDivisions(): string[] {
