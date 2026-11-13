@@ -10,8 +10,8 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY") ?? "";
-const ELEVENLABS_VOICE_EN = Deno.env.get("ELEVENLABS_VOICE_EN") ?? "cuTixVvCOWFxeH3oGE9m";
-const ELEVENLABS_VOICE_FR = Deno.env.get("ELEVENLABS_VOICE_FR") ?? "QynjFzqBt96iEuetB1Tq";
+const ELEVENLABS_VOICE_EN = Deno.env.get("ELEVENLABS_VOICE_EN") ?? "EXAVITQu4vr4xnSDxMaL";
+const ELEVENLABS_VOICE_FR = Deno.env.get("ELEVENLABS_VOICE_FR") ?? "EXAVITQu4vr4xnSDxMaL";
 const MAX_CHARACTERS = 800;
 const MAX_REQUESTS_PER_HOUR = 30;
 
