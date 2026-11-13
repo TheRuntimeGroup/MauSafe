@@ -8,6 +8,19 @@ A mobile-first safety companion for the **Powered to Protect** challenge in Maur
 
 The interface is a calm light design: deep ink text, violet primary action, green arrivals, amber overdue, and red reserved strictly for emergencies. Bottom navigation on mobile, a compact sidebar on desktop, and full i18n (EN / FR / KM).
 
+## The team
+
+Our project is based on the 1st Title given which is **POWERED TO PROTECT**.
+
+Group name: **DEAD SIGNAL**
+
+- SULAKSHNA DEVI CHINIAH — Team Leader
+- VENCATASEN VRISHNI
+- LALLBEEHARRY KAUSHAL
+- MANDHUB DIVESH
+
+Our aim is to change the way people stay safe in their daily lives — empowering individuals at risk with rapid emergency alerts, trusted-contact safety tools, and proactive fraud and crime prevention.
+
 ## Stack
 
 - **React 19 + TypeScript** (Vite)

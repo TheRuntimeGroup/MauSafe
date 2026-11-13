@@ -69,3 +69,49 @@ Any package used inside `server/` (database drivers like `@neondatabase/serverle
 - Importing server-only packages or referencing server-only env vars (`process.env.DATABASE_URL`, secrets) from `src/` → wrong. The Vite client bundle is public; this leaks them. Server code lives in `server/` only.
 
 <!-- nitro:end -->
+
+## AnouSecureMoris Project Guidelines
+
+### Project Overview
+AnouSecureMoris is a safety and protection web application designed for people living in Mauritius.
+
+The application aims to help users protect themselves against crime, fraud, scams, and emergency situations.
+
+### User Experience
+- Design a modern, premium, and responsive interface.
+- Use Tailwind CSS and shadcn/ui components.
+- Ensure the application works on mobile phones, tablets, and computers.
+- Provide simple navigation for users of all ages.
+- Support accessibility for elderly users and people with disabilities.
+- Plan multilingual support for English, French, and Mauritian Creole.
+
+### Planned Core Features
+- Emergency SOS with trusted contact notifications.
+- Crime and incident reporting.
+- Scam and suspicious link detection.
+- Safe journey tracking and voluntary location sharing.
+- Safety alerts and incident maps.
+- Trusted contact management.
+- Accessible elderly-friendly interface.
+- Administrative dashboard for managing reports.
+
+### Security and Privacy
+- Protect personal information and sensitive user data.
+- Require user consent before accessing location.
+- Use secure authentication and role-based permissions.
+- Validate user input on the frontend and backend.
+- Never expose API keys or passwords in frontend code.
+- Prevent unauthorised access to private incident reports.
+- Never claim emergency services were contacted unless confirmed.
+
+### Development Standards
+- Use React with TypeScript.
+- Keep application routes in src/App.tsx.
+- Store pages in src/pages/.
+- Store reusable components in src/components/.
+- Use Tailwind CSS for styling.
+- Use Lucide React for consistent icons.
+- Keep components reusable and well organised.
+- Handle loading, errors, and empty states properly.
+- Connect features to real backend APIs when implemented.
+- Do not present mock data as real incidents or alerts.
