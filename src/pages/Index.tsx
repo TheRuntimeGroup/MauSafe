@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listJourneys } from "@/lib/api";
 import { JourneyStatusCard } from "@/components/JourneyStatusCard";
@@ -82,19 +82,9 @@ const Index = () => {
             <JourneyStatusCard journey={active.recipientSees} className="shadow-premium transition-transform hover:-translate-y-0.5" />
           </Link>
         </section>
-      )}
-
-      <aside className="flex items-start gap-4 rounded-[1.35rem] border border-[#DDE6ED] bg-white/80 p-5 shadow-[0_12px_35px_-28px_rgba(13,43,69,0.55)]">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary ring-1 ring-primary/10">
-          <LockKeyhole className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
-        </span>
-        <div>
-          <h2 className="text-sm font-extrabold tracking-tight text-foreground">{t("home.trustTitle")}</h2>
-          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{t("home.trustBody")}</p>
-        </div>
-      </aside>
-    </div>
-  );
-};
+        )}
+      </div>
+    );
+  };
 
 export default Index;
