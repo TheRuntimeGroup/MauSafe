@@ -87,10 +87,20 @@ export function AppLoadingScreen({ onComplete }: { onComplete: () => void }) {
         <span className="launch-copy-rule mt-4 block h-px w-9 bg-emerald-300/70" aria-hidden="true" />
       </main>
 
-      <footer className="launch-chrome relative z-10 mx-auto flex w-full max-w-64 flex-col items-center">
-        <p className="text-xs font-semibold text-white/65">{t("app.loading")}</p>
-        <div className="launch-progress mt-4 h-px w-full overflow-visible bg-white/10" aria-hidden="true">
-          <span className="launch-progress-fill relative block h-full w-1/3 bg-sky-300 shadow-[0_0_12px_rgba(125,211,252,0.55)]" />
+      <footer className="launch-chrome relative z-10 mx-auto w-full max-w-72">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3.5 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.6)] backdrop-blur-md">
+          <div className="flex items-center justify-center gap-3">
+            <span className="launch-equalizer flex h-4 items-center gap-[3px]" aria-hidden="true">
+              <span className="h-[5px] w-[2px] rounded-full bg-sky-300" />
+              <span className="h-[9px] w-[2px] rounded-full bg-sky-300 [animation-delay:120ms]" />
+              <span className="h-[13px] w-[2px] rounded-full bg-emerald-300 [animation-delay:240ms]" />
+              <span className="h-[7px] w-[2px] rounded-full bg-sky-300 [animation-delay:360ms]" />
+            </span>
+            <p className="text-xs font-semibold tracking-[0.01em] text-slate-200">{t("app.loading")}</p>
+          </div>
+          <div className="launch-progress mt-3.5 h-[3px] w-full overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+            <span className="launch-progress-fill relative block h-full w-1/3 rounded-full bg-sky-300 shadow-[0_0_12px_rgba(125,211,252,0.55)]" />
+          </div>
         </div>
       </footer>
     </div>

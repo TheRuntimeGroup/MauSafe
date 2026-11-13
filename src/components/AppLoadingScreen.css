@@ -123,6 +123,11 @@
   animation: launch-chrome-in 750ms ease-out 900ms both;
 }
 
+.launch-equalizer span {
+  transform-origin: center;
+  animation: launch-loading-bars 1.15s ease-in-out infinite alternate;
+}
+
 .launch-progress-fill {
   animation: launch-progress 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
@@ -210,6 +215,17 @@
   }
 }
 
+@keyframes launch-loading-bars {
+  from {
+    opacity: 0.4;
+    transform: scaleY(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
 @keyframes launch-progress {
   0% {
     opacity: 0;
@@ -283,6 +299,7 @@
   .launch-copy,
   .launch-copy-rule,
   .launch-chrome,
+  .launch-equalizer span,
   .launch-progress-fill {
     animation: none !important;
   }
