@@ -387,13 +387,17 @@ const Onboarding = () => {
       </div>
 
       <header className="relative z-10 flex items-center justify-between gap-3 px-5 pt-[max(1rem,env(safe-area-inset-top))] sm:px-8">
-        <Link
-          to={user ? "/" : "/auth"}
-          className="inline-flex items-center gap-2 rounded-xl text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          {user ? t("auth.back") : t("auth.backToSignIn")}
-        </Link>
+        {user ? (
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-xl text-sm font-bold text-muted-foreground transition-colors hover:text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            {t("auth.back")}
+          </Link>
+        ) : (
+          <span aria-hidden="true" />
+        )}
         <LanguageSwitcher compact />
       </header>
 
