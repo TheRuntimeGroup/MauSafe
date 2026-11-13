@@ -9,9 +9,12 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MauSafe <onboarding@resend.dev>";
+const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MauSafe <no-reply@anousecuremoris.site>";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RESEND_COOLDOWN_SECONDS = 60;
+const MAX_EMAIL_CODES_PER_HOUR = 5;
+const MAX_NETWORK_CODES_PER_HOUR = 10;
 
 function json(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -77,40 +80,105 @@ serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    await supabase
-      .from("verification_codes")
-      .delete()
-      .eq("email", email)
-      .eq("purpose", "signup");
+    const requestIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || req.headers.get("x-real-ip")
+      || "unknown";
+    const requestIpHash = await sha256Hex(`otp-request:${SUPABASE_SERVICE_ROLE_KEY}:${requestIp}`);
+    const now = Date.now();
 
-    const { error: insertError } = await supabase.from("verification_codes").insert({
-      email,
-      code_hash: codeHash,
-      purpose: "signup",
-      expires_at: expiresAt,
-    });
+    const { data: latestCodes, error: latestError } = await supabase
+      .from("verification_codes")
+      .select("created_at")
+      .eq("email", email)
+      .eq("purpose", "signup")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (latestError) {
+      console.error("[send-otp] failed to check resend timer", latestError);
+      return json({ error: "UNKNOWN" });
+    }
+
+    const latest = latestCodes?.[0];
+    if (latest) {
+      const elapsedSeconds = (now - new Date(latest.created_at).getTime()) / 1000;
+      if (elapsedSeconds < RESEND_COOLDOWN_SECONDS) {
+        return json({
+          error: "RATE_LIMITED",
+          retryAfter: Math.max(1, Math.ceil(RESEND_COOLDOWN_SECONDS - elapsedSeconds)),
+        });
+      }
+    }
+
+    const oneHourAgo = new Date(now - 60 * 60 * 1000).toISOString();
+    const [emailUsage, networkUsage] = await Promise.all([
+      supabase
+        .from("verification_codes")
+        .select("id", { count: "exact", head: true })
+        .eq("email", email)
+        .eq("purpose", "signup")
+        .gte("created_at", oneHourAgo),
+      supabase
+        .from("verification_codes")
+        .select("id", { count: "exact", head: true })
+        .eq("request_ip_hash", requestIpHash)
+        .eq("purpose", "signup")
+        .gte("created_at", oneHourAgo),
+    ]);
+
+    if (emailUsage.error || networkUsage.error) {
+      console.error("[send-otp] failed to check hourly limits", emailUsage.error ?? networkUsage.error);
+      return json({ error: "UNKNOWN" });
+    }
+
+    if ((emailUsage.count ?? 0) >= MAX_EMAIL_CODES_PER_HOUR) {
+      return json({ error: "RATE_LIMITED", retryAfter: 3600 });
+    }
+    if ((networkUsage.count ?? 0) >= MAX_NETWORK_CODES_PER_HOUR) {
+      return json({ error: "RATE_LIMITED", retryAfter: 3600 });
+    }
+
+    const { data: storedCode, error: insertError } = await supabase
+      .from("verification_codes")
+      .insert({
+        email,
+        code_hash: codeHash,
+        purpose: "signup",
+        expires_at: expiresAt,
+        request_ip_hash: requestIpHash,
+      })
+      .select("id")
+      .single();
 
     if (insertError) {
       console.error("[send-otp] failed to store verification code", insertError);
       return json({ error: "UNKNOWN" });
     }
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: RESEND_FROM,
-        to: [email],
-        subject: "Your MauSafe verification code",
-        html: emailHtml(code),
-      }),
-    });
+    let res: Response;
+    try {
+      res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: RESEND_FROM,
+          to: [email],
+          subject: "Your MauSafe verification code",
+          html: emailHtml(code),
+        }),
+      });
+    } catch (error) {
+      await supabase.from("verification_codes").delete().eq("id", storedCode.id);
+      console.error("[send-otp] Resend request could not be completed", error);
+      return json({ error: "EMAIL_NOT_CONFIGURED" });
+    }
 
     if (!res.ok) {
       const detail = await res.text();
+      await supabase.from("verification_codes").delete().eq("id", storedCode.id);
       console.error("[send-otp] Resend request failed", res.status, detail);
       return json({ error: "EMAIL_NOT_CONFIGURED" });
     }

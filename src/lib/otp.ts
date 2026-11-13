@@ -6,6 +6,7 @@ export type OtpErrorCode =
   | "EXPIRED_CODE"
   | "PASSWORD_TOO_SHORT"
   | "EMAIL_TAKEN"
+  | "RATE_LIMITED"
   | "EMAIL_NOT_CONFIGURED"
   | "UNKNOWN";
 

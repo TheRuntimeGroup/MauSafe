@@ -36,7 +36,7 @@ import { OtpVerificationPanel } from "@/components/OtpVerificationPanel";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
 
-const RESEND_SECONDS = 30;
+const RESEND_SECONDS = 60;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DRAFT_KEY = "mausafe.onboarding.draft";
@@ -184,6 +184,8 @@ const Onboarding = () => {
         return t("auth.passwordTooShort");
       case "INVALID_EMAIL":
         return t("auth.emailInvalid");
+      case "RATE_LIMITED":
+        return t("otp.rateLimited");
       case "EMAIL_NOT_CONFIGURED":
         return t("otp.notConfigured");
       default:
