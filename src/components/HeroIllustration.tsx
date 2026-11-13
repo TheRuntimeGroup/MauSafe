@@ -1,99 +1,88 @@
+import { Check, MapPin, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 import { cn } from "@/lib/utils";
 
 export function HeroIllustration({ className }: { className?: string }) {
+  const { t } = useI18n();
+
   return (
-    <svg
-      viewBox="0 0 520 400"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("h-auto w-full", className)}
-      role="img"
-      aria-label="A journey check-in card with a protective shield, a map pin and a 999 emergency button"
-    >
-      {/* backdrop */}
-      <rect x="16" y="16" width="488" height="368" rx="34" fill="#F6F1FF" />
-      <circle cx="448" cy="76" r="42" fill="#FDE68A" />
-      <circle cx="448" cy="76" r="56" fill="none" stroke="#FDE68A" strokeWidth="2" opacity="0.55" />
+    <div className={cn("relative mx-auto w-full max-w-[420px] py-5", className)}>
+      <div className="relative">
+        <div className="absolute -right-3 top-2 h-24 w-24 rounded-full bg-amber-300" />
+        <div className="absolute -left-5 bottom-20 h-16 w-16 rounded-2xl border-2 border-dashed border-white/30" />
 
-      {/* decorative dots */}
-      <circle cx="80" cy="120" r="6" fill="#C4B5FD" opacity="0.6" />
-      <circle cx="402" cy="298" r="5" fill="#FBCFE8" />
-      <circle cx="500" cy="216" r="6" fill="#A7F3D0" opacity="0.7" />
-      <circle cx="60" cy="252" r="4" fill="#FDE68A" />
+        <div className="relative aspect-[1/1.04] overflow-hidden rounded-[2rem] border border-white/30 bg-[#EDE9FE] shadow-2xl">
+          <svg
+            className="absolute inset-0 h-full w-full text-violet-300/70"
+            viewBox="0 0 400 400"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M-30 115C75 55 127 168 215 119C301 71 328 116 438 52" stroke="currentColor" strokeWidth="18" opacity="0.45" />
+            <path d="M37 436C49 317 123 329 151 252C182 167 228 188 262 112C282 67 342 55 397 74" stroke="currentColor" strokeWidth="10" opacity="0.5" />
+            <path d="M-24 304C81 264 155 345 236 296C316 248 342 284 425 262" stroke="currentColor" strokeWidth="8" opacity="0.5" />
+            <path d="M55 95L335 337M-10 202L250 17M161 415L391 173" stroke="white" strokeWidth="3" opacity="0.8" />
+          </svg>
 
-      {/* 999 emergency pill */}
-      <rect x="46" y="150" width="80" height="36" rx="18" fill="#EF4444" />
-      <text
-        x="86"
-        y="174"
-        textAnchor="middle"
-        fill="#FFFFFF"
-        fontSize="17"
-        fontWeight="700"
-        fontFamily="Inter, system-ui, sans-serif"
-      >
-        999
-      </text>
+          <div className="absolute left-1/2 top-1/2 flex w-[78%] -translate-x-1/2 -translate-y-1/2 flex-col rounded-[1.65rem] border border-violet-100 bg-white p-5 text-foreground shadow-[0_24px_60px_-20px_rgba(46,16,101,0.4)]">
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-white">
+                <ShieldCheck className="h-6 w-6" />
+              </span>
+              <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-[11px] font-bold text-emerald-800">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                {t("status.on_the_way")}
+              </span>
+            </div>
 
-      {/* map pin + route */}
-      <path
-        d="M96 316 c-14 0 -24 9 -24 20 c0 15 24 32 24 32 s24 -17 24 -32 c0 -11 -10 -20 -24 -20Z"
-        fill="#7C3AED"
-      />
-      <circle cx="96" cy="336" r="8" fill="#FFFFFF" />
-      <path
-        d="M118 318 C 150 300, 148 268, 168 252"
-        stroke="#C4B5FD"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeDasharray="0.5 14"
-      />
+            <p className="mt-5 font-display text-xl font-extrabold tracking-tight">
+              {t("preset.going_home")}
+            </p>
 
-      {/* card shadow + card */}
-      <rect x="140" y="104" width="256" height="180" rx="24" fill="#EDE7FE" opacity="0.55" />
-      <rect x="134" y="98" width="256" height="180" rx="24" fill="#FFFFFF" stroke="#E9E2FB" strokeWidth="1.5" />
+            <div className="mt-5 flex items-center gap-3">
+              <div className="flex flex-col items-center">
+                <span className="h-3 w-3 rounded-full border-[3px] border-primary bg-white" />
+                <span className="h-8 w-0.5 bg-violet-200" />
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 space-y-3">
+                <span className="block h-2 w-20 rounded-full bg-slate-200" />
+                <span className="block h-2 w-28 rounded-full bg-violet-100" />
+              </div>
+            </div>
 
-      {/* card header */}
-      <rect x="154" y="120" width="36" height="36" rx="12" fill="#EDE9FE" />
-      <path
-        d="M164 138 l6 6 12 -12"
-        stroke="#7C3AED"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <rect x="204" y="126" width="110" height="10" rx="5" fill="#E5E7EB" />
-      <rect x="204" y="144" width="76" height="10" rx="5" fill="#EFEFF4" />
+            <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+              <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-primary">
+                  <UserRound className="h-3.5 w-3.5" />
+                </span>
+                {t("form.contactLabel")}
+              </span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                <Check className="h-4 w-4" strokeWidth={3} />
+              </span>
+            </div>
+          </div>
+        </div>
 
-      {/* status pill */}
-      <rect x="318" y="118" width="58" height="24" rx="12" fill="#D1FAE5" />
-      <path d="M329 131 l5 5 9 -10" stroke="#047857" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <div className="absolute -left-2 bottom-0 flex items-center gap-3 rounded-2xl bg-white p-3 pr-5 text-foreground shadow-xl sm:-left-6">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+            <Check className="h-5 w-5" strokeWidth={3} />
+          </span>
+          <span className="max-w-[150px] font-display text-xs font-extrabold leading-tight">
+            {t("home.how3Title")}
+          </span>
+        </div>
 
-      {/* progress route */}
-      <path d="M158 182 L356 182" stroke="#C4B5FD" strokeWidth="5" strokeLinecap="round" strokeDasharray="0.5 14" />
-      <circle cx="158" cy="182" r="7" fill="#7C3AED" />
-      <circle cx="158" cy="182" r="2.5" fill="#FFFFFF" />
-      <circle cx="356" cy="182" r="7" fill="#10B981" />
-      <path d="M352.5 182 l2.5 2.5 4.5 -5" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-
-      {/* ETA row */}
-      <circle cx="176" cy="226" r="14" fill="#EDE9FE" />
-      <path
-        d="M176 219 v7 l5 3"
-        stroke="#7C3AED"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <rect x="204" y="218" width="58" height="8" rx="4" fill="#E5E7EB" />
-      <rect x="204" y="232" width="36" height="8" rx="4" fill="#EFEFF4" />
-
-      {/* shield badge */}
-      <path
-        d="M338 216 l12 5.5 v9 c0 7 -5.5 12 -12 14.5 c-6.5 -2.5 -12 -7.5 -12 -14.5 v-9 l12 -5.5Z"
-        fill="#6D28D9"
-      />
-      <path d="M333 229 l4 4 7.5 -7.5" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+        <a
+          href="tel:999"
+          className="absolute -right-1 top-14 flex items-center gap-2 rounded-2xl bg-danger px-4 py-3 text-sm font-extrabold text-white shadow-xl transition-transform hover:scale-105 focus-visible:ring-white sm:-right-4"
+          aria-label={t("help.call999")}
+        >
+          <Phone className="h-4 w-4" />
+          999
+        </a>
+      </div>
+    </div>
   );
 }
