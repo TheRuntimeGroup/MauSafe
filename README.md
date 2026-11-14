@@ -1,36 +1,31 @@
 # MauSafe
 
-A mobile-first safety companion for the **Powered to Protect** challenge in Mauritius. It brings together three calm, privacy-first tools:
+A calm, privacy-first safety companion for people living in and visiting Mauritius. MauSafe brings emergency help, journey tracking, scam detection, trusted contacts and community safety alerts into one accessible, multilingual app.
 
-1. **Journey check-in** — start a check-in, share an expiring, read-only guest link with someone you trust, and let them see server-clock status: *On the way*, *Arrived safely*, *Overdue*, or *Cancelled*.
-2. **Get Help** — a searchable directory built from cleaned, official Mauritius Police data (Family Protection Unit, stations, 999, MAUCORS+). Works offline from the bundled dataset.
-3. **Scam check** — an on-device checker with explainable rules in English and French. Pasted content never leaves the device.
-4. **Emergency** — a calm, reassuring SOS screen with the verified 999 number, secondary emergency numbers, and step-by-step guidance.
-5. **Trusted contacts** — save the people you trust locally and send a check-in to them in one tap via WhatsApp, SMS or email.
-6. **Safety tips** — practical, localized guidance for journeys, transit, meeting someone new and online safety.
+Built for the **Powered to Protect** challenge.
 
-The interface is a calm light design: deep ink text, violet primary action, green arrivals, amber overdue, and red reserved strictly for emergencies. Bottom navigation on mobile, a compact sidebar on desktop, and full i18n (EN / FR).
+## Features
 
-## The team
+- **Emergency SOS & Safety Alarm** — a reassuring SOS screen with the verified **999** number, secondary emergency numbers, a panic alarm and step-by-step guidance. Includes an SOS map for nearby help.
+- **Safe journey tracking** — start a check-in, share an expiring read-only guest link with someone you trust, and track server-clock status: *On the way*, *Arrived safely*, *Overdue* or *Cancelled*. Voluntary live-location sharing is available and can be stopped at any time.
+- **Scam & suspicious-link check** — AI-assisted scoring (via a Supabase Edge Function using DeepSeek) with an on-device explainable-rules fallback, in English and French.
+- **Crime & incident reporting** — submit and review community reports with role-based access.
+- **Community safety alerts** — district-based alerts, incident map and a searchable help directory of official services.
+- **Trusted contacts** — save the people you trust and send a check-in or SOS in one tap.
+- **Child & guardian accounts** — OTP-verified child accounts with a dedicated kids zone and guardian journey monitoring.
+- **Disaster & safety tips** — practical, localized guidance for journeys, transit, natural disasters and online safety.
+- **Accessibility-first** — elderly-friendly controls, high-contrast and monochrome modes, adjustable text, and full EN/FR support.
+- **PWA** — installable and works offline via a service worker.
 
-Our project is based on the 1st Title given which is **POWERED TO PROTECT**.
-
-Group name: **DEAD SIGNAL**
-
-- SULAKSHNA DEVI CHINIAH — Team Leader
-- VENCATASEN VRISHNI
-- LALLBEEHARRY KAUSHAL
-- MANDHUB DIVESH
-
-Our aim is to change the way people stay safe in their daily lives — empowering individuals at risk with rapid emergency alerts, trusted-contact safety tools, and proactive fraud and crime prevention.
-
-## Stack
+## Tech stack
 
 - **React 19 + TypeScript** (Vite)
-- **React Router** — routes live in `src/App.tsx`
+- **React Router** — all routes live in `src/App.tsx`
 - **Tailwind CSS** + shadcn/ui primitives
-- **Nitro** server layer (`server/`) with **better-sqlite3** for local persistence
-- **PWA** manifest + service worker for offline support
+- **Supabase** — authentication, Postgres database and Edge Functions
+- **Nitro** server layer (`server/`) with **better-sqlite3** for local journey persistence
+- **PWA** — manifest + service worker for install & offline support
+- **i18n** — English / French dictionaries via `src/i18n/`
 
 ## Getting started
 
@@ -39,55 +34,69 @@ npm install
 npm run dev
 ```
 
-The app runs on the Vite dev server (port 8080 by default). Journey data is stored in a local SQLite file at `.data/anou.db` (gitignored), so no external database or secrets are required for local development.
+The Vite dev server runs on port **8080** by default. The Nitro API server runs alongside Vite through the `nitro/vite` plugin, so no separate process is required.
 
-## Architecture
+Supabase credentials are configured in `src/integrations/supabase/client.ts`. Edge Functions are deployed to Supabase automatically and receive their secrets (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, etc.) from the project's Edge Function secrets.
+
+## Project structure
 
 ```
-server/
-  lib/
-    db.ts         SQLite schema + connection (journeys table)
-    security.ts   SHA-256, token generation, in-memory rate limiter
-    journey.ts    journey CRUD + server-clock status computation
-    guard.ts      owner authorization helper
-  routes/api/
-    journeys.post.ts            create journey
-    journeys.get.ts             list my journeys
-    journeys/[id].get.ts        get my journey
-    journeys/[id]/arrive.post.ts
-    journeys/[id]/extend.post.ts
-    journeys/[id]/cancel.post.ts
-    journeys/[id]/revoke.post.ts
-    guest/[token].get.ts        public guest view
-
 src/
-  pages/         Index, CheckIns, StartCheckIn, JourneyDetail, GuestView, Emergency, Contacts, SafetyTips, ScamCheck, GetHelp, NotFound
-  components/    AppShell, JourneyStatusCard, SharePanel, StatusPill, Logo, LanguageSwitcher
-  lib/           api client, scam rules engine, storage, formatting, types
-  i18n/          EN / FR dictionaries + provider
-  data/          bundled help-directory.json + search helpers
+  App.tsx            app routes
+  pages/             feature pages (Emergency, SafeWalk, ScamCheck, Community, …)
+  components/        shared UI (AppShell, Logo, AccountMenu, JourneyStatusCard, …)
+  lib/               API clients, scam rules, storage, formatting, types
+  i18n/              EN / FR dictionaries + provider
+  integrations/      Supabase client
+
+server/
+  lib/               SQLite schema, journey logic, security, guards
+  routes/api/        journeys, guest links, quick shares, reputation, weather, alerts
+
+supabase/
+  functions/         ai-scam-check, verify-signup, verify-login, send-otp,
+                     create-child-account, verify-child-account, upload-community-media, …
 ```
+
+## Server API
+
+The Nitro server exposes the journey and helper endpoints used by the app, including:
+
+- `POST /api/journeys`, `GET /api/journeys` — create / list journeys
+- `GET /api/journeys/:id` — journey detail with server-clock status
+- `POST /api/journeys/:id/arrive|cancel|extend|revoke|notify|location` — journey actions
+- `GET /api/guest/:token` — public guest view (expiring, revocable)
+- `GET /api/weather`, `GET /api/reputation`, `GET /api/disaster-alerts` — safety data helpers
+
+Journey records are stored in a local SQLite file at `.data/anou.db` (gitignored), so no external database or secrets are required for local development of the journey flow.
+
+## Supabase
+
+Authentication, profiles, community reports, announcements and Edge Functions run on Supabase. All database tables have Row Level Security enabled, and client-side grants follow the principle of least privilege.
+
+Edge Functions include:
+
+- `ai-scam-check` — AI scam risk scoring
+- `verify-signup` / `verify-login` — OTP and account verification
+- `send-otp` — OTP delivery
+- `create-child-account` / `verify-child-account` — child account setup
+- `upload-community-media` — authenticated community media uploads
+- `validate-name` — name validation helper
+- `speak-text` — speech synthesis helper
 
 ## Security & privacy model
 
-- **Device-bound owner identity.** The client generates a high-entropy secret on first use (`localStorage` key `anou.ownerSecret`), sends it as `Authorization: Bearer`, and the server stores only its SHA-256 hash. Journeys are listed and fetched by secret hash.
-- **Guest links.** High-entropy `base64url` tokens, 48-hour TTL, revocable. The guest endpoint returns only agreed fields and is rate-limited in memory.
-- **Server-clock status.** `arrived_at` / `cancelled_at` are stored, and *overdue* is computed server-side (`now > expected_arrival_at`). The client never sends absolute arrival times — only a duration in minutes.
-- **Voluntary location sharing.** A check-in can optionally share live location; the owner must enable it and grant browser permission first, and can stop sharing at any time.
-- **Scam check runs on-device.** Pasted content is never sent or stored; suspicious links are rendered as plain text and are never clickable.
+- **Authentication-first.** Most features require a signed-in user; admin features are role-gated.
+- **Device-bound owner identity for journeys.** The client generates a high-entropy secret on first use, sends it as `Authorization: Bearer`, and the server stores only its SHA-256 hash.
+- **Guest links.** High-entropy tokens with a 48-hour TTL, revocable, and rate-limited. Guest endpoints return only agreed fields.
+- **Voluntary location sharing.** Live location requires explicit consent and browser permission, and can be stopped at any time.
+- **Scam check.** When AI ranking is used, the pasted text/link is sent to the `ai-scam-check` Edge Function for scoring; the local fallback runs entirely on-device and pasted content is never stored.
+- **Row Level Security** on all Supabase tables ensures users can only access their own data.
 
-## Help directory data
+## Deployment
 
-The directory ships as a versioned dataset at `src/data/help-directory.json` so it works offline. It is a cleaned seed dataset from public Mauritius Police Force pages. Phone numbers are marked `phoneVerified: false` (and tap-to-call stays disabled) except for the national emergency number 999, until the team confirms each number against a current official source. Always confirm against official sources before relying on it.
+The app builds as a static Vite SPA. `vercel.json` provides SPA fallback rewrites, and the PWA manifest/service worker are served from `public/`.
 
-## Demo timer
-
-For presentations, **Check-ins** has a *Start demo check-in* button that creates a 1-minute journey with `isDemo: true`. Demo records are clearly labelled and kept separate from real records, and no live alerts are sent.
-
-## Language note
-
-English and French are wired throughout via `t()`.
-
-## AI tooling disclosure
-
-The scam checker uses transparent, explainable pattern rules (not a black-box model): urgency/pressure, one-time-code requests, unexpected payment/prize, and suspicious links. Rules are human-readable in `src/lib/scamCheck.ts` and the matched words are highlighted for the user.
+```bash
+npm run build
+```
