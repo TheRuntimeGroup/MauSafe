@@ -1,4 +1,4 @@
-const CACHE = "anou-secure-v1";
+const CACHE = "anou-secure-v2";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
