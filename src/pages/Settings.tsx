@@ -10,6 +10,7 @@ import { AppButton } from "@/components/ui/app-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ChildAccountSetup } from "@/components/ChildAccountSetup";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LOCATION_KEY = "mausafe.permissions.location";
@@ -40,6 +41,7 @@ export default function SettingsPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [accountType, setAccountType] = useState<"guardian" | "child">("guardian");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [personalSaving, setPersonalSaving] = useState(false);
@@ -56,6 +58,7 @@ export default function SettingsPage() {
   useEffect(() => {
     setName(profile?.full_name ?? user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? "");
     setEmail(user?.email ?? "");
+    setAccountType(profile?.account_type ?? "guardian");
   }, [profile, user]);
 
   useEffect(() => {
@@ -108,6 +111,13 @@ export default function SettingsPage() {
       }
 
       const emailChanged = nextEmail !== (user.email ?? "").toLowerCase();
+      if (accountType !== profile?.account_type) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ account_type: accountType, updated_at: new Date().toISOString() })
+          .eq("id", user.id);
+        if (error) throw error;
+      }
       if (emailChanged) {
         const { error } = await supabase.auth.updateUser(
           { email: nextEmail },
@@ -217,6 +227,24 @@ export default function SettingsPage() {
             <Label htmlFor="settings-name">{t("onboarding.review.name")}</Label>
             <Input id="settings-name" autoComplete="name" maxLength={60} value={name} onChange={(event) => setName(event.target.value)} className="h-12 rounded-xl bg-white" required />
           </div>
+          <fieldset>
+            <legend className="text-sm font-semibold text-foreground">{t("settings.account.type")}</legend>
+            <div className="mt-2 grid grid-cols-2 gap-2 rounded-xl border border-border bg-muted/50 p-1">
+              {(["guardian", "child"] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  aria-pressed={accountType === type}
+                  onClick={() => setAccountType(type)}
+                  className={`flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-bold transition-colors ${accountType === type ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {t(`settings.account.${type}`)}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("settings.account.hint")}</p>
+          </fieldset>
+
           <div className="space-y-2">
             <Label htmlFor="settings-email">{t("auth.emailLabel")}</Label>
             <Input id="settings-email" type="email" inputMode="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="h-12 rounded-xl bg-white" required />
@@ -291,6 +319,7 @@ export default function SettingsPage() {
         </AppButton>
         {locationNotice && <p role="status" className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">{locationNotice}</p>}
       </section>
+      {profile?.account_type !== "child" && <ChildAccountSetup />}
     </div>
   );
 }

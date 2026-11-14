@@ -9,6 +9,7 @@ export interface Profile {
   phone: string | null;
   accessibility_needs: AccessibilityNeed[];
   voice_guide: boolean;
+  account_type: "guardian" | "child";
   onboarding_completed: boolean;
   created_at: string;
   updated_at: string;

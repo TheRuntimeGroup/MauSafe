@@ -287,6 +287,10 @@ const AuthPage = () => {
                     </AppButton>
                   </form>
 
+                  <Link to="/pair-child" className="mt-4 flex min-h-11 items-center justify-center rounded-2xl border border-primary/15 bg-secondary/55 px-4 text-sm font-extrabold text-primary transition-colors hover:bg-secondary">
+                    {t("child.pairButton")}
+                  </Link>
+
                   <p className="mt-6 text-center text-sm font-medium text-muted-foreground">
                     {t("auth.noAccount")}{" "}
                     <Link

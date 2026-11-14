@@ -14,6 +14,7 @@ import AuthPage from "./pages/AuthPage";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
+import PairChild from "./pages/PairChild";
 import Index from "./pages/Index";
 import SafeWalk from "./pages/SafeWalk";
 import ScamCheck from "./pages/ScamCheck";
@@ -75,6 +76,7 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/welcome" element={<Onboarding />} />
+                  <Route path="/pair-child" element={<PairChild />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
@@ -94,6 +96,7 @@ const App = () => {
                       <Route path="/community" element={<Community />} />
                       <Route path="/safety-tips" element={<Community />} />
                       <Route path="/child-safety" element={<KidZone />} />
+                      <Route path="/kids" element={<KidZone />} />
                       <Route path="/disaster-safety" element={<DisasterSafety />} />
                       <Route path="/incident-report" element={<IncidentReports />} />
                       <Route path="/safety-alarm" element={<SafetyAlarm />} />

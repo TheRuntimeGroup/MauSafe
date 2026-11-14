@@ -34,7 +34,7 @@ export default function StartCheckIn() {
     const previous = getOwnerContact();
     return listContacts().find((contact) => contact.contact === previous)?.id ?? "";
   });
-  const [locationEnabled, setLocationEnabled] = useState(false);
+  const [locationEnabled, setLocationEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const registeredName = (profile?.full_name
