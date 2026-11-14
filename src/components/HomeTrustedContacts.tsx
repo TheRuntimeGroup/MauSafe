@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Heart, UserPlus } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { listContacts, type TrustedContact } from "@/lib/contacts";
+import { QuickShareDialog } from "@/components/QuickShareDialog";
+import type { OwnerJourney } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const AVATAR_TONES = [
@@ -28,9 +30,10 @@ function toneFor(name: string): string {
   return AVATAR_TONES[hash];
 }
 
-export function HomeTrustedContacts() {
+export function HomeTrustedContacts({ journey }: { journey: OwnerJourney | null }) {
   const { t } = useI18n();
   const [contacts] = useState<TrustedContact[]>(() => listContacts());
+  const [selectedContact, setSelectedContact] = useState<TrustedContact | null>(null);
 
   return (
     <section className="space-y-4">
@@ -76,10 +79,10 @@ export function HomeTrustedContacts() {
         <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
           {contacts.map((contact) => (
             <li key={contact.id} className="w-[4.75rem] shrink-0">
-              <div className="flex flex-col items-center gap-2 text-center">
+              <button type="button" onClick={() => setSelectedContact(contact)} aria-label={t("quickShare.shareWith", { name: contact.name })} className="group flex w-full flex-col items-center gap-2 rounded-2xl text-center focus-visible:outline-primary">
                 <span
                   className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-full text-base font-extrabold shadow-sm ring-2 ring-white",
+                    "flex h-14 w-14 items-center justify-center rounded-full text-base font-extrabold shadow-sm ring-2 ring-white transition-transform group-hover:-translate-y-0.5",
                     toneFor(contact.name),
                   )}
                 >
@@ -88,7 +91,7 @@ export function HomeTrustedContacts() {
                 <span className="max-w-full truncate text-xs font-semibold text-foreground">
                   {contact.name}
                 </span>
-              </div>
+              </button>
             </li>
           ))}
           <li className="w-[4.75rem] shrink-0">
@@ -103,6 +106,7 @@ export function HomeTrustedContacts() {
           </li>
         </ul>
       )}
+      {selectedContact && <QuickShareDialog recipient={selectedContact} journey={journey} onClose={() => setSelectedContact(null)} />}
     </section>
   );
 }

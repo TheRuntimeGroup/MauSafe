@@ -64,10 +64,14 @@ export function createJourney(input: CreateJourneyInput): Promise<CreateJourneyR
   });
 }
 
-export function emailJourney(id: string): Promise<{ ok: boolean; delivery: string }> {
+export function emailJourney(
+  id: string,
+  options: { mode?: "location"; recipientEmail?: string } = {},
+): Promise<{ ok: boolean; delivery: string }> {
   return request(`/api/journeys/${id}/notify`, {
     method: "POST",
     headers: authHeaders(),
+    body: JSON.stringify(options),
   });
 }
 

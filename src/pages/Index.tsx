@@ -147,7 +147,7 @@ export default function Index() {
         </section>
       ) : null)}
 
-      {homeView === "overview" ? <HomeTrustedContacts /> : <HomeQuickAccess />}
+      {homeView === "overview" ? <HomeTrustedContacts journey={active} /> : <HomeQuickAccess />}
     </div>
   );
 }
