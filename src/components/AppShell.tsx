@@ -56,7 +56,6 @@ export function AppShell() {
     >
       {({ isActive }) => (
         <>
-          {isActive && <span className="absolute top-2 h-1 w-1 rounded-full bg-danger" aria-hidden="true" />}
           <span className={cn(
             "flex h-8 w-8 items-center justify-center rounded-xl",
             isActive && "bg-danger text-white shadow-sm",
