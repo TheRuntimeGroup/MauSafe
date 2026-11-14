@@ -25,11 +25,11 @@ const NAV_ITEMS = [
 ];
 
 const MOBILE_ITEMS = [
-  { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true, urgent: false },
-  { to: "/sos-map", labelKey: "nav.sosMap", shortLabelKey: "nav.sosMap", icon: MapPinned, end: false, urgent: true },
-  { to: "/check-ins", labelKey: "nav.safeWalk", shortLabelKey: "nav.safeWalk", icon: Footprints, end: false, urgent: false },
-  { to: "/contacts", labelKey: "nav.community", shortLabelKey: "nav.community", icon: HeartHandshake, end: false, urgent: false },
-  { to: "/child-safety", labelKey: "nav.kidZone", shortLabelKey: "nav.kidZone", icon: Baby, end: false, urgent: false },
+  { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
+  { to: "/sos-map", labelKey: "nav.sosMap", shortLabelKey: "nav.sosMap", icon: MapPinned, end: false },
+  { to: "/check-ins", labelKey: "nav.safeWalk", shortLabelKey: "nav.safeWalk", icon: Footprints, end: false },
+  { to: "/contacts", labelKey: "nav.community", shortLabelKey: "nav.community", icon: HeartHandshake, end: false },
+  { to: "/child-safety", labelKey: "nav.kidZone", shortLabelKey: "nav.kidZone", icon: Baby, end: false },
 ];
 
 export function AppShell() {
@@ -44,9 +44,7 @@ export function AppShell() {
       className={({ isActive }) =>
         cn(
           "relative flex min-h-[4.5rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
-          isActive
-            ? "text-danger"
-            : item.urgent ? "text-danger" : "text-muted-foreground hover:text-foreground",
+          isActive ? "text-danger" : "text-muted-foreground hover:text-foreground",
         )
       }
     >
@@ -55,8 +53,7 @@ export function AppShell() {
           {isActive && <span className="absolute top-2 h-1 w-1 rounded-full bg-danger" aria-hidden="true" />}
           <span className={cn(
             "flex h-8 w-8 items-center justify-center rounded-xl",
-            item.urgent && "bg-danger text-white shadow-sm",
-            isActive && !item.urgent && "bg-danger/[0.08]",
+            isActive && "bg-danger text-white shadow-sm",
           )}>
             <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.35 : 1.8} aria-hidden="true" />
           </span>
