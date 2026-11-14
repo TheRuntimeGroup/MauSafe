@@ -46,11 +46,11 @@ export function QuickShareDialog({
         });
       });
       await updateJourneyLocation(journey.id, {
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        accuracy: Number.isFinite(coordinates.accuracy) ? coordinates.accuracy : null,
+        latitude: coordinates.coords.latitude,
+        longitude: coordinates.coords.longitude,
+        accuracy: Number.isFinite(coordinates.coords.accuracy) ? coordinates.coords.accuracy : null,
       });
-      const mapUrl = `https://www.openstreetmap.org/?mlat=${coordinates.latitude.toFixed(6)}&mlon=${coordinates.longitude.toFixed(6)}#map=16/${coordinates.latitude.toFixed(6)}/${coordinates.longitude.toFixed(6)}`;
+      const mapUrl = `https://www.openstreetmap.org/?mlat=${coordinates.coords.latitude.toFixed(6)}&mlon=${coordinates.coords.longitude.toFixed(6)}#map=16/${coordinates.coords.latitude.toFixed(6)}/${coordinates.coords.longitude.toFixed(6)}`;
 
       if (method === "email") {
         await emailJourney(journey.id, { mode: "location", recipientEmail: recipient.contact });
