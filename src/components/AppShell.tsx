@@ -43,18 +43,20 @@ export function AppShell() {
       end={item.end}
       className={({ isActive }) =>
         cn(
-          "relative mx-0.5 my-1 flex min-h-[4rem] flex-col items-center justify-center gap-1 rounded-xl px-0.5 text-[10px] font-semibold transition-colors",
+          "relative flex min-h-[4.5rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
           isActive
-            ? "bg-danger text-white shadow-sm"
+            ? "text-danger"
             : item.urgent ? "text-danger" : "text-muted-foreground hover:text-foreground",
         )
       }
     >
       {({ isActive }) => (
         <>
+          {isActive && <span className="absolute top-2 h-1 w-1 rounded-full bg-danger" aria-hidden="true" />}
           <span className={cn(
             "flex h-8 w-8 items-center justify-center rounded-xl",
-            item.urgent && !isActive && "bg-danger text-white shadow-sm",
+            item.urgent && "bg-danger text-white shadow-sm",
+            isActive && !item.urgent && "bg-danger/[0.08]",
           )}>
             <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.35 : 1.8} aria-hidden="true" />
           </span>
