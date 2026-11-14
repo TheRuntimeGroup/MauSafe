@@ -13,7 +13,7 @@ type ChildRecord = { id: string; name: string; email: string; linkedAt: string }
 
 export function GuardianChildren() {
   const { t, locale } = useI18n();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [children, setChildren] = useState<ChildRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [journey, setJourney] = useState<OwnerJourney | null>(null);
@@ -25,16 +25,27 @@ export function GuardianChildren() {
     let active = true;
     async function loadChildren() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error("unauthorized");
-        const response = await fetch("/api/guardian/children", {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-        if (!response.ok) throw new Error("unavailable");
-        const data = await response.json() as { children: ChildRecord[] };
+        if (!user?.id) {
+          if (active) setLoading(false);
+          return;
+        }
+        const { data, error } = await supabase
+          .from("child_accounts")
+          .select("child_auth_id,child_name,child_email,consumed_at")
+          .eq("guardian_user_id", user.id)
+          .not("consumed_at", "is", null)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
         if (!active) return;
-        setChildren(data.children);
-        setSelectedId(data.children[0]?.id ?? null);
+
+        const records: ChildRecord[] = (data ?? []).map((child) => ({
+          id: child.child_auth_id,
+          name: child.child_name,
+          email: child.child_email,
+          linkedAt: child.consumed_at,
+        }));
+        setChildren(records);
+        setSelectedId(records[0]?.id ?? null);
       } catch {
         if (active) setError(t("guardian.authError"));
       } finally {
@@ -43,7 +54,7 @@ export function GuardianChildren() {
     }
     void loadChildren();
     return () => { active = false; };
-  }, [t]);
+  }, [t, user]);
 
   const loadJourney = useCallback(async (childId: string, showLoading = true) => {
     if (showLoading) setJourneyLoading(true);
