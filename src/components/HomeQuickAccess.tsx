@@ -10,7 +10,6 @@ import {
   IdCard,
   LifeBuoy,
   ListChecks,
-  MapPinned,
   Plus,
   Settings2,
   ShieldAlert,
@@ -35,7 +34,6 @@ type QuickTool = { id: string; to: string; labelKey: string; icon: LucideIcon };
 const TOOLS: QuickTool[] = [
   { id: "scam", to: "/scam-check", labelKey: "quick.scam", icon: ShieldAlert },
   { id: "help", to: "/get-help", labelKey: "quick.help", icon: LifeBuoy },
-  { id: "places", to: "/safe-places", labelKey: "quick.places", icon: MapPinned },
   { id: "child", to: "/child-safety", labelKey: "quick.child", icon: Baby },
   { id: "alarm", to: "/safety-alarm", labelKey: "quick.alarm", icon: Siren },
   { id: "incident", to: "/incident-report", labelKey: "quick.incident", icon: FileWarning },

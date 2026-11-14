@@ -29,7 +29,6 @@ import DisasterSafety from "./pages/DisasterSafety";
 import IncidentReports from "./pages/IncidentReports";
 import SafetyAlarm from "./pages/SafetyAlarm";
 import EmergencyId from "./pages/EmergencyId";
-import SafePlaces from "./pages/SafePlaces";
 import Settings from "./pages/Settings";
 import More from "./pages/More";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
@@ -106,7 +105,6 @@ const App = () => {
                       <Route path="/incident-report" element={<IncidentReports />} />
                       <Route path="/safety-alarm" element={<SafetyAlarm />} />
                       <Route path="/emergency-id" element={<EmergencyId />} />
-                      <Route path="/safe-places" element={<SafePlaces />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/more" element={<More />} />
                       <Route path="/admin/announcements" element={<AdminAnnouncements />} />

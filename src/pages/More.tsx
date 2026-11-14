@@ -9,7 +9,6 @@ import {
   IdCard,
   LifeBuoy,
   ListChecks,
-  MapPinned,
   Settings,
   ShieldAlert,
   Siren,
@@ -28,7 +27,6 @@ export default function More() {
       tools: [
         { to: "/scam-check", labelKey: "nav.scam", icon: ShieldAlert },
         { to: "/safety-alarm", labelKey: "alarm.title", icon: Siren },
-        { to: "/safe-places", labelKey: "places.title", icon: MapPinned },
         { to: "/incident-report", labelKey: "incident.title", icon: FileWarning },
       ],
     },
