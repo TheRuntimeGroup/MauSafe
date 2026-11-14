@@ -5,7 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
+const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY") ?? "";
+const DEEPSEEK_BASE_URL = Deno.env.get("DEEPSEEK_BASE_URL") ?? "https://api.deepseek.com/v1";
+const DEEPSEEK_MODEL = Deno.env.get("DEEPSEEK_MODEL") ?? "deepseek-chat";
 const NAME_PATTERN = /^[\p{L}\p{M}]+(?:[ .'’\-][\p{L}\p{M}]+)*$/u;
 const BLOCKED_WORDS = new Set([
   "admin",
@@ -44,17 +46,17 @@ function hasLocalIssue(name: string): boolean {
 }
 
 async function moderateWithAi(name: string): Promise<boolean | null> {
-  if (!OPENAI_API_KEY) return null;
+  if (!DEEPSEEK_API_KEY) return null;
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch(`${DEEPSEEK_BASE_URL.replace(/\/$/, "")}/chat/completions`, {
     method: "POST",
     signal: AbortSignal.timeout(8000),
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: DEEPSEEK_MODEL,
       temperature: 0,
       max_tokens: 30,
       response_format: { type: "json_object" },
@@ -77,7 +79,7 @@ async function moderateWithAi(name: string): Promise<boolean | null> {
   const payload = await response.json();
   const content = payload?.choices?.[0]?.message?.content;
   if (typeof content !== "string") return null;
-  const verdict = JSON.parse(content);
+  const verdict = JSON.parse(content.replace(/^```(?:json)?\s*|\s*```$/g, ""));
   return typeof verdict.allowed === "boolean" ? verdict.allowed : null;
 }
 

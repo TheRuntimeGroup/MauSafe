@@ -10,7 +10,8 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY") ?? "";
-const DEEPSEEK_BASE_URL = Deno.env.get("DEEPSEEK_BASE_URL") ?? "https://api.deepseek.com";
+const DEEPSEEK_BASE_URL = Deno.env.get("DEEPSEEK_BASE_URL") ?? "https://api.deepseek.com/v1";
+const DEEPSEEK_MODEL = Deno.env.get("DEEPSEEK_MODEL") ?? "deepseek-chat";
 const MAX_CHARACTERS = 8000;
 const MAX_REQUESTS_PER_HOUR = 20;
 const VERDICTS = new Set(["likely_scam", "suspicious", "uncertain", "no_obvious_scam"]);
@@ -96,7 +97,7 @@ serve(async (req) => {
         Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: DEEPSEEK_MODEL,
         temperature: 0.2,
         max_tokens: 900,
         response_format: { type: "json_object" },
@@ -133,7 +134,7 @@ serve(async (req) => {
         summary: cleanText(assessment.summary, 900) || cleanText(assessment.analysis, 900),
         reasons: cleanList(assessment.reasons, 5),
         actions: cleanList(assessment.actions, 4),
-        model: "deepseek-chat",
+        model: DEEPSEEK_MODEL,
       },
     });
   } catch (error) {
