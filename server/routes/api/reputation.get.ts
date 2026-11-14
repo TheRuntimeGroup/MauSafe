@@ -19,6 +19,8 @@ interface ReputationSource {
   reportCount: number | null;
 }
 
+const USER_AGENT = "MauSafe/1.0 (link reputation check; contact: no-reply@anousecuremoris.site)";
+
 const SUSPICIOUS_TLDS = new Set([
   "tk", "ml", "ga", "cf", "gq", "xyz", "top", "icu", "buzz", "club", "online",
   "site", "click", "link", "work", "loan", "win", "men", "stream", "rest",
@@ -78,7 +80,7 @@ type RdapResult = "not_found" | { created: string | null };
 async function rdapLookup(domain: string): Promise<RdapResult> {
   const response = await fetch(`https://rdap.org/domain/${domain}`, {
     signal: AbortSignal.timeout(6000),
-    headers: { Accept: "application/rdap+json, application/json" },
+    headers: { Accept: "application/rdap+json, application/json", "User-Agent": USER_AGENT },
   });
   if (response.status === 404) return "not_found";
   if (!response.ok) throw new Error("rdap failed");
@@ -87,48 +89,75 @@ async function rdapLookup(domain: string): Promise<RdapResult> {
   return { created };
 }
 
-async function dnsResolves(hostname: string): Promise<boolean> {
-  const url = new URL("https://cloudflare-dns.com/dns-query");
-  url.searchParams.set("name", hostname);
-  url.searchParams.set("type", "A");
-  const response = await fetch(url, {
-    signal: AbortSignal.timeout(6000),
-    headers: { Accept: "application/dns-json" },
-  });
-  if (!response.ok) throw new Error("dns failed");
-  const data = (await response.json()) as { Status?: number };
-  return data.Status === 0;
+type DnsStatus = "reachable" | "not_reachable";
+
+async function dnsLookup(hostname: string): Promise<DnsStatus> {
+  let hasAnswer = false;
+  for (const type of ["A", "AAAA"]) {
+    const url = new URL("https://dns.google/resolve");
+    url.searchParams.set("name", hostname);
+    url.searchParams.set("type", type);
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(6000),
+      headers: { Accept: "application/json", "User-Agent": USER_AGENT },
+    });
+    if (!response.ok) throw new Error("dns failed");
+    const data = (await response.json()) as { Status?: number; Answer?: unknown[] };
+    if (data.Status === 3) return "not_reachable";
+    if (Array.isArray(data.Answer) && data.Answer.length > 0) hasAnswer = true;
+  }
+  return hasAnswer ? "reachable" : "not_reachable";
 }
 
-async function urlhausLookup(hostname: string): Promise<number> {
+async function urlhausLookup(host: string): Promise<number> {
   const response = await fetch("https://urlhaus-api.abuse.ch/v1/host/", {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ host: hostname }),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": USER_AGENT,
+    },
+    body: new URLSearchParams({ host }),
     signal: AbortSignal.timeout(9000),
   });
   if (!response.ok) throw new Error("urlhaus failed");
   const data = (await response.json()) as { query_status?: string; url_count?: number };
   if (data.query_status === "ok" && typeof data.url_count === "number") return data.url_count;
-  return 0;
+  if (data.query_status === "no_results" || data.query_status === "invalid_host") return 0;
+  throw new Error("urlhaus failed");
 }
 
-async function trustpilotLookup(domain: string): Promise<{ rating: number | null; reviewCount: number | null }> {
+interface TrustpilotResult {
+  rating: number | null;
+  reviewCount: number | null;
+  listed: boolean;
+}
+
+async function trustpilotLookup(domain: string): Promise<TrustpilotResult> {
   const response = await fetch(`https://www.trustpilot.com/review/${encodeURIComponent(domain)}`, {
-    signal: AbortSignal.timeout(9000),
+    signal: AbortSignal.timeout(10000),
     headers: {
-      Accept: "text/html,application/xhtml+xml",
-      "User-Agent": "MauSafe/1.0 (link reputation check)",
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
     },
   });
+  if (response.status === 404) return { rating: null, reviewCount: null, listed: false };
   if (!response.ok) throw new Error("trustpilot unavailable");
   const html = await response.text();
-  const scripts = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi) ?? [];
+  if (/Just a moment|cf-challenge|cf-browser-verification|Access denied/i.test(html.slice(0, 3000))) {
+    throw new Error("trustpilot unavailable");
+  }
+
+  const scripts =
+    html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi) ?? [];
   for (const script of scripts) {
     const jsonText = script.replace(/^<script[^>]*>/i, "").replace(/<\/script>$/i, "").trim();
     if (!jsonText) continue;
     try {
-      const parsed = JSON.parse(jsonText) as { aggregateRating?: { ratingValue?: unknown; reviewCount?: unknown } };
+      const parsed = JSON.parse(jsonText) as {
+        aggregateRating?: { ratingValue?: unknown; reviewCount?: unknown };
+      };
       const aggregate = parsed.aggregateRating;
       if (aggregate && (aggregate.ratingValue != null || aggregate.reviewCount != null)) {
         const rating = Number(aggregate.ratingValue);
@@ -136,13 +165,14 @@ async function trustpilotLookup(domain: string): Promise<{ rating: number | null
         return {
           rating: Number.isFinite(rating) ? rating : null,
           reviewCount: Number.isFinite(reviewCount) ? reviewCount : null,
+          listed: true,
         };
       }
     } catch {
       // ignore malformed JSON-LD blocks
     }
   }
-  return { rating: null, reviewCount: null };
+  return { rating: null, reviewCount: null, listed: false };
 }
 
 const cache = new Map<string, { expiresAt: number; payload: unknown }>();
@@ -165,9 +195,10 @@ export default defineHandler(async (event) => {
 
   const signals: ReputationSignal[] = [];
   const sources: ReputationSource[] = [];
+  const ipLiteral = isIpHost(hostname);
 
   // Heuristic signals that don't need a network round-trip.
-  if (isIpHost(hostname)) {
+  if (ipLiteral) {
     signals.push({ id: "ip_literal", level: "info", detail: hostname });
   }
   if (hostname.startsWith("xn--")) {
@@ -181,15 +212,22 @@ export default defineHandler(async (event) => {
     signals.push({ id: "shortener", level: "info", detail: hostname });
   }
 
-  // Domain registry (RDAP) — registration age.
-  let rdapStatus: SourceStatus = "unavailable";
+  // Domain registry (RDAP) — registration age. Missing records are neutral,
+  // not a danger signal, because RDAP coverage is incomplete for many TLDs.
+  let rdapStatus: SourceStatus = "empty";
   let rdapDomain = domain;
-  if (!isIpHost(hostname)) {
+  if (!ipLiteral) {
+    let notFound = false;
+    let found = false;
     for (const candidate of domainCandidates(hostname)) {
       try {
         const result = await rdapLookup(candidate);
-        if (result === "not_found") continue;
+        if (result === "not_found") {
+          notFound = true;
+          continue;
+        }
         rdapDomain = candidate;
+        found = true;
         if (result.created) {
           const createdMs = Date.parse(result.created);
           if (Number.isFinite(createdMs)) {
@@ -205,19 +243,19 @@ export default defineHandler(async (event) => {
         } else {
           signals.push({ id: "domain_age", level: "info", detail: null });
         }
-        rdapStatus = "ok";
         break;
       } catch {
         break;
       }
     }
-    if (rdapStatus === "unavailable") {
-      // No registry record found for any candidate — a strong sign for a fake or brand-new domain.
-      signals.push({ id: "domain_age", level: "danger", detail: null });
+    if (found) {
+      rdapStatus = "ok";
+    } else if (notFound) {
       rdapStatus = "empty";
+      signals.push({ id: "domain_age", level: "info", detail: null });
+    } else {
+      rdapStatus = "unavailable";
     }
-  } else {
-    rdapStatus = "empty";
   }
   sources.push({
     id: "rdap",
@@ -228,32 +266,40 @@ export default defineHandler(async (event) => {
     reportCount: null,
   });
 
-  // DNS reachability via DNS-over-HTTPS.
+  // DNS reachability via Google DNS-over-HTTPS.
   let dnsStatus: SourceStatus = "unavailable";
-  try {
-    const resolves = await dnsResolves(hostname);
-    signals.push({ id: "dns", level: resolves ? "info" : "danger", detail: null });
-    dnsStatus = "ok";
-  } catch {
-    dnsStatus = "unavailable";
+  if (!ipLiteral) {
+    try {
+      const reachable = await dnsLookup(hostname);
+      signals.push({ id: "dns", level: reachable === "reachable" ? "info" : "danger", detail: null });
+      dnsStatus = "ok";
+    } catch {
+      dnsStatus = "unavailable";
+    }
+  } else {
+    dnsStatus = "empty";
   }
   sources.push({ id: "dns", status: dnsStatus, url: null, rating: null, reviewCount: null, reportCount: null });
 
-  // URLhaus — known malware/phishing reports for the host.
+  // URLhaus — known malware/phishing reports for the registrable domain.
   let urlhausStatus: SourceStatus = "unavailable";
   let reportCount: number | null = null;
-  try {
-    const count = await urlhausLookup(hostname);
-    reportCount = count;
-    signals.push({ id: "urlhaus", level: count > 0 ? "danger" : "info", detail: String(count) });
-    urlhausStatus = "ok";
-  } catch {
-    urlhausStatus = "unavailable";
+  if (!ipLiteral) {
+    try {
+      const count = await urlhausLookup(domain);
+      reportCount = count;
+      signals.push({ id: "urlhaus", level: count > 0 ? "danger" : "info", detail: String(count) });
+      urlhausStatus = "ok";
+    } catch {
+      urlhausStatus = "unavailable";
+    }
+  } else {
+    urlhausStatus = "empty";
   }
   sources.push({
     id: "urlhaus",
     status: urlhausStatus,
-    url: `https://urlhaus.abuse.ch/host/${hostname}/`,
+    url: `https://urlhaus.abuse.ch/host/${domain}/`,
     rating: null,
     reviewCount: null,
     reportCount,
@@ -263,22 +309,26 @@ export default defineHandler(async (event) => {
   let trustpilotStatus: SourceStatus = "unavailable";
   let rating: number | null = null;
   let reviewCount: number | null = null;
-  try {
-    const trustpilot = await trustpilotLookup(domain);
-    rating = trustpilot.rating;
-    reviewCount = trustpilot.reviewCount;
-    if (rating != null) {
-      signals.push({
-        id: "trustpilot",
-        level: rating >= 4 ? "info" : rating >= 3 ? "warning" : "danger",
-        detail: String(rating),
-      });
-    } else {
-      signals.push({ id: "trustpilot", level: "info", detail: null });
+  if (!ipLiteral) {
+    try {
+      const trustpilot = await trustpilotLookup(domain);
+      rating = trustpilot.rating;
+      reviewCount = trustpilot.reviewCount;
+      if (rating != null) {
+        signals.push({
+          id: "trustpilot",
+          level: rating >= 4 ? "info" : rating >= 3 ? "warning" : "danger",
+          detail: String(rating),
+        });
+      } else {
+        signals.push({ id: "trustpilot", level: "info", detail: null });
+      }
+      trustpilotStatus = trustpilot.listed || rating != null ? "ok" : "empty";
+    } catch {
+      trustpilotStatus = "unavailable";
     }
-    trustpilotStatus = "ok";
-  } catch {
-    trustpilotStatus = "unavailable";
+  } else {
+    trustpilotStatus = "empty";
   }
   sources.push({
     id: "trustpilot",
