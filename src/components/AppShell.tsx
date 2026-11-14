@@ -191,9 +191,6 @@ export function AppShell() {
             </NavLink>
           )}
           <AccountMenu variant="sidebar" />
-          <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-            {t("footer.tagline")}
-          </p>
         </div>
       </aside>
 
@@ -221,12 +218,6 @@ export function AppShell() {
       <main className="relative z-10 flex-1">
         <div className="mx-auto w-full max-w-3xl px-5 pb-40 pt-6 sm:px-6 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
           <Outlet />
-          <footer className="mt-14 border-t border-foreground/[0.07] pt-6 text-center">
-            <p className="text-xs text-muted-foreground">{t("footer.tagline")}</p>
-            <p className="mx-auto mt-1 max-w-md text-[11px] leading-relaxed text-muted-foreground/80">
-              {t("footer.dataNote")}
-            </p>
-          </footer>
         </div>
       </main>
 

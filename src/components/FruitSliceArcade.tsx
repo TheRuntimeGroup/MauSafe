@@ -37,6 +37,7 @@ import {
 } from "./fruitArcadeEngine";
 import { cn } from "@/lib/utils";
 import { LevelPicker } from "@/components/LevelPicker";
+import { CoinReward, GameLeaderboard } from "@/components/GameLeaderboard";
 import { recordKidGameActivity, type ActivityInput, type GameLevel } from "@/lib/kidProgress";
 import "./FruitSliceArcade.css";
 
@@ -118,6 +119,8 @@ export function FruitSliceArcade({ initiallyOpen = false, onProgressChange }: { 
   const [newBest, setNewBest] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [totalPoints, setTotalPoints] = useState(0);
+  const [totalCoins, setTotalCoins] = useState(0);
+  const [coinsEarned, setCoinsEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const [soundOn, setSoundOn] = useState(true);
   const shellRef = useRef<HTMLDivElement>(null);
@@ -281,6 +284,8 @@ export function FruitSliceArcade({ initiallyOpen = false, onProgressChange }: { 
       const saved = await recordKidGameActivity(result);
       if (resultRef.current?.activityId !== result.activityId) return;
       setTotalPoints(saved.score);
+      setTotalCoins(saved.coins);
+      setCoinsEarned(saved.coinsEarned);
       setNewAchievements(saved.newAchievements);
       setSaveStatus("saved");
       onProgressChange?.();
@@ -581,6 +586,7 @@ export function FruitSliceArcade({ initiallyOpen = false, onProgressChange }: { 
                   ))}
                 </div>
                 <div className="mt-5"><LevelPicker value={level} onChange={setLevel} /></div>
+                <div className="mt-5"><GameLeaderboard gameId="fruit" mode={mode} level={level} refreshKey={totalCoins} dark compact /></div>
                 <button type="button" onClick={startGame} className="mt-5 flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl bg-[#F9C74F] px-5 py-4 font-display text-base font-black text-[#302203] shadow-[0_5px_0_#A9690B] transition-all hover:-translate-y-0.5 hover:bg-[#FFDA70] active:translate-y-1 active:shadow-none"><Play className="h-5 w-5 fill-current" />{t("arcade.startMode", { mode: selectedMode.title })}</button>
                 <div className="mt-5 flex items-center justify-between gap-3 px-1">
                   <p className="text-[10px] font-semibold text-[#AFCBC5]">{t("arcade.mouseTouch")}</p>
@@ -623,8 +629,10 @@ export function FruitSliceArcade({ initiallyOpen = false, onProgressChange }: { 
               <div className="mt-5 flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-[#123B3C] px-4 py-3"><Trophy className="h-4 w-4 text-[#F9C74F]" /><span className="text-sm font-bold text-[#C5DDD8]">{t("arcade.best")}</span><strong className="font-display text-lg font-black tabular-nums text-white">{finalBest}</strong></div>
               {saveStatus === "saving" && <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-[#C5DDD8]"><Sparkles className="h-4 w-4 animate-pulse text-[#F9C74F]" />{t("progress.saving")}</p>}
               {saveStatus === "saved" && <div className="mt-4 rounded-xl bg-[#123F38] p-3 text-xs font-bold text-[#B7F4D7]"><p className="flex items-center justify-center gap-2"><Check className="h-4 w-4" />{t("progress.saved")}</p><p className="mt-1 text-[#C5DDD8]">{t("kids.allTimeTotal", { score: totalPoints })}</p></div>}
+              {saveStatus === "saved" && <CoinReward earned={coinsEarned} total={totalCoins} dark />}
               {saveStatus === "error" && <div className="mt-4 rounded-xl bg-[#522D32] p-3 text-xs font-bold text-rose-100"><p>{t("progress.error")}</p><button type="button" onClick={() => void saveResult()} className="mt-2 min-h-9 rounded-lg bg-rose-100 px-3 text-rose-900">{t("common.retry")}</button></div>}
               {newAchievements.length > 0 && <p className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[#3A4712] p-3 text-xs font-extrabold text-[#FDE68A]"><Sparkles className="h-4 w-4" />{t("achievement.unlockedMessage", { name: t(`achievement.${newAchievements[0]}.title`) })}</p>}
+              <div className="mt-4 text-left"><GameLeaderboard gameId="fruit" mode={mode} level={level} refreshKey={totalCoins} dark compact /></div>
               <button type="button" onClick={startGame} className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#F9C74F] px-5 py-4 font-black text-[#302203] shadow-[0_5px_0_#A9690B] hover:bg-[#FFDA70]"><RotateCcw className="h-5 w-5" />{t("arcade.playAgain")}</button>
               <button type="button" onClick={returnToModes} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 text-sm font-bold text-white hover:bg-white/10"><ArrowLeft className="h-4 w-4" />{t("arcade.modes")}</button>
               <button type="button" onClick={closeArcade} className="mt-4 min-h-10 text-xs font-bold text-[#C5DDD8] underline decoration-white/30 underline-offset-4 hover:text-white">{t("arcade.exit")}</button>

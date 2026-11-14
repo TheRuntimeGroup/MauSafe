@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { LevelPicker } from "@/components/LevelPicker";
+import { CoinReward, GameLeaderboard } from "@/components/GameLeaderboard";
 import { recordKidGameActivity, type ActivityInput, type GameLevel } from "@/lib/kidProgress";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,8 @@ export function ScamDetectiveGame({ onBack }: { onBack: () => void }) {
   const [completed, setCompleted] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [totalPoints, setTotalPoints] = useState(0);
+  const [totalCoins, setTotalCoins] = useState(0);
+  const [coinsEarned, setCoinsEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const startedAtRef = useRef(0);
   const activityIdRef = useRef<string | null>(null);
@@ -86,6 +89,8 @@ export function ScamDetectiveGame({ onBack }: { onBack: () => void }) {
       const saved = await recordKidGameActivity(result);
       if (resultRef.current?.activityId !== result.activityId) return;
       setTotalPoints(saved.score);
+      setTotalCoins(saved.coins);
+      setCoinsEarned(saved.coinsEarned);
       setNewAchievements(saved.newAchievements);
       setSaveStatus("saved");
     } catch {
@@ -183,8 +188,10 @@ export function ScamDetectiveGame({ onBack }: { onBack: () => void }) {
             <p className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">{t("kids.learningPoints")}</p>
             {saveStatus === "saving" && <p className="mt-5 flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground" role="status"><LoaderCircle className="h-4 w-4 animate-spin text-emerald-700" />{t("progress.saving")}</p>}
             {saveStatus === "saved" && <div className="mt-5 rounded-2xl bg-emerald-50 p-4 text-sm font-bold text-emerald-900" role="status"><p className="flex items-center justify-center gap-2"><Check className="h-4 w-4" />{t("progress.saved")}</p><p className="mt-1 text-xs font-semibold text-emerald-800">{t("kids.allTimeTotal", { score: totalPoints })}</p></div>}
+            {saveStatus === "saved" && <CoinReward earned={coinsEarned} total={totalCoins} />}
             {saveStatus === "error" && <div className="mt-5 rounded-2xl bg-rose-50 p-4" role="alert"><p className="text-sm font-bold text-rose-900">{t("progress.error")}</p><button type="button" onClick={() => void saveResult()} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-rose-700 px-4 text-xs font-bold text-white"><RefreshCw className="h-4 w-4" />{t("common.retry")}</button></div>}
             {newAchievements.length > 0 && <p className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-amber-50 p-3 text-xs font-extrabold text-amber-900"><Sparkles className="h-4 w-4" />{t("achievement.unlockedMessage", { name: t(`achievement.${newAchievements[0]}.title`) })}</p>}
+            <div className="mt-5 text-left"><GameLeaderboard gameId="detective" mode="challenge" level={level} refreshKey={totalCoins} compact /></div>
             <div className="mt-6 grid gap-3 sm:grid-cols-2"><button type="button" onClick={startGame} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#0E7A63] px-4 text-sm font-extrabold text-white"><RefreshCw className="h-4 w-4" />{t("detective.playAgain")}</button><button type="button" onClick={onBack} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#C5DAD3] px-4 text-sm font-extrabold text-foreground">{t("arcade.backToArcade")}<ChevronRight className="h-4 w-4" /></button></div>
           </div>
         ) : (
@@ -193,6 +200,7 @@ export function ScamDetectiveGame({ onBack }: { onBack: () => void }) {
             <div className="mt-6 rounded-2xl bg-[#0D343C] p-4"><LevelPicker value={level} onChange={setLevel} /></div>
             <div className="mt-5 flex items-start gap-3 rounded-2xl bg-[#F0F7F4] p-4"><BookOpenCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" /><p className="text-xs leading-relaxed text-[#355E51]">{t("detective.levelExplanation", { count: LEVEL_QUESTIONS[level], points: LEVEL_POINTS[level] })}</p></div>
             <button type="button" onClick={startGame} className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#0E7A63] px-5 font-display text-base font-extrabold text-white shadow-[0_4px_0_#07503F] hover:bg-[#09604E]"><ShieldCheck className="h-5 w-5" />{t("detective.start")}<ArrowRight className="h-5 w-5" /></button>
+            <div className="mt-5"><GameLeaderboard gameId="detective" mode="challenge" level={level} refreshKey={totalCoins} compact /></div>
             <p className="mt-4 flex items-center justify-center gap-2 text-center text-[11px] leading-relaxed text-muted-foreground"><CircleAlert className="h-3.5 w-3.5 shrink-0" />{t("detective.trainingNote")}</p>
           </>
         )}

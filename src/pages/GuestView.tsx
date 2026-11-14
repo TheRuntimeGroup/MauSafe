@@ -76,10 +76,6 @@ const GuestView = () => {
           <GuestJourneyCard journey={journey} />
         ) : null}
       </main>
-
-      <footer className="pb-10 text-center text-xs text-muted-foreground">
-        {t("footer.tagline")}
-      </footer>
     </div>
   );
 };

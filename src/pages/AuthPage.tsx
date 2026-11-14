@@ -172,10 +172,7 @@ const AuthPage = () => {
 
                 <div className="relative flex items-center gap-3">
                   <Logo className="h-11 w-11" />
-                  <div>
-                    <p className="font-display text-xl font-extrabold tracking-tight">{t("app.name")}</p>
-                    <p className="text-[11px] font-medium text-sky-200">{t("app.badge")}</p>
-                  </div>
+                  <p className="font-display text-xl font-extrabold tracking-tight">{t("app.name")}</p>
                 </div>
 
                 <div className="relative">

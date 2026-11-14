@@ -6,9 +6,9 @@ import {
   ChevronRight,
   Clock3,
   Crown,
+  Coins,
   Gamepad2,
   GraduationCap,
-  Lightbulb,
   LoaderCircle,
   LockKeyhole,
   Medal,
@@ -39,6 +39,7 @@ import "./KidsDashboard.css";
 const ACHIEVEMENT_ICONS: Record<AchievementId, LucideIcon> = {
   first_activity: Sparkles,
   fruit_fan: Zap,
+  fraud_buster: ShieldCheck,
   scam_spotter: ShieldCheck,
   quick_learner: BookOpenCheck,
   wise_detective: Target,
@@ -146,6 +147,11 @@ export default function KidsDashboard() {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F9C74F] text-[#3D2D06]"><Crown className="h-5 w-5" /></span>
             <div className="mt-3"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#BCE0D4]">{t("kids.globalRank")}</p><p className="mt-1 font-display text-xl font-black text-white">{rankLabel}</p></div>
           </div>
+        </div>
+        <div className="mt-3 flex items-center gap-2.5 rounded-2xl border border-[#F9C74F]/25 bg-[#2F432B] px-4 py-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F9C74F] text-[#3D2D06]"><Coins className="h-5 w-5" /></span>
+          <span className="text-xs font-bold text-[#FDE6AB]">{t("coins.safetyCoins")}</span>
+          <strong className="ml-auto font-display text-xl font-black tabular-nums text-[#F9C74F]">{progress.score?.coins ?? 0}</strong>
         </div>
         <div className="mt-3 flex items-center justify-between rounded-xl bg-[#08282E] px-3.5 py-2.5 text-[11px] font-semibold text-[#C5DDD8]">
           <span>{t("kids.activitiesCount", { count: activities })}</span>

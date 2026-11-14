@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import { CoinReward } from "@/components/GameLeaderboard";
 import { recordKidGameActivity, type ActivityInput, type KidActivity } from "@/lib/kidProgress";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +46,8 @@ export function LearningHub({
   const [selectedLesson, setSelectedLesson] = useState<LessonId | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [totalCoins, setTotalCoins] = useState(0);
+  const [coinsEarned, setCoinsEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const [localCompleted, setLocalCompleted] = useState<Set<string>>(new Set());
   const startedAtRef = useRef(0);
@@ -82,6 +85,8 @@ export function LearningHub({
       const saved = await recordKidGameActivity(result);
       if (resultRef.current?.activityId !== result.activityId) return;
       setLocalCompleted((current) => new Set(current).add(selectedLesson));
+      setTotalCoins(saved.coins);
+      setCoinsEarned(saved.coinsEarned);
       setNewAchievements(saved.newAchievements);
       setSaveStatus("saved");
       await onRecorded();
@@ -138,6 +143,7 @@ export function LearningHub({
             {completed ? (
               <div className="mt-6">
                 <p className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 p-4 text-sm font-extrabold text-emerald-900"><CheckCircle2 className="h-5 w-5" />{t("learning.completedPoints")}</p>
+                {saveStatus === "saved" && <CoinReward earned={coinsEarned} total={totalCoins} />}
                 <button type="button" onClick={() => setSelectedLesson(null)} className="mt-4 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-[#0E7A63] px-5 text-sm font-extrabold text-white">{t("learning.nextLesson")}<ArrowRight className="h-4 w-4" /></button>
               </div>
             ) : (

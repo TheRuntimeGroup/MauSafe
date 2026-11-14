@@ -19,6 +19,7 @@ import {
 import { useI18n } from "@/i18n/I18nContext";
 import { HamsterIcon, ScammerIcon } from "@/components/WhackCharacters";
 import { LevelPicker } from "@/components/LevelPicker";
+import { CoinReward, GameLeaderboard } from "@/components/GameLeaderboard";
 import { recordKidGameActivity, type ActivityInput, type GameLevel } from "@/lib/kidProgress";
 import { cn } from "@/lib/utils";
 import "./WhackGame.css";
@@ -49,6 +50,8 @@ export function WhackGame({ onBack, onProgressChange }: { onBack: () => void; on
   const [feedback, setFeedback] = useState<{ id: number; text: string; good: boolean } | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [totalPoints, setTotalPoints] = useState(0);
+  const [totalCoins, setTotalCoins] = useState(0);
+  const [coinsEarned, setCoinsEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const molesRef = useRef<(Mole | null)[]>(Array(9).fill(null));
   const phaseRef = useRef<Phase>(phase);
@@ -119,6 +122,8 @@ export function WhackGame({ onBack, onProgressChange }: { onBack: () => void; on
       const saved = await recordKidGameActivity(result);
       if (resultRef.current?.activityId !== result.activityId) return;
       setTotalPoints(saved.score);
+      setTotalCoins(saved.coins);
+      setCoinsEarned(saved.coinsEarned);
       setNewAchievements(saved.newAchievements);
       setSaveStatus("saved");
       onProgressChange?.();
@@ -285,8 +290,10 @@ export function WhackGame({ onBack, onProgressChange }: { onBack: () => void; on
           {hamstersHit > 0 && <p className="mt-3 text-xs font-semibold text-[#826B3D]">{t("whack.forgiveHamsters", { count: hamstersHit })}</p>}
           {saveStatus === "saving" && <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-[#76667F]" role="status"><LoaderCircle className="h-4 w-4 animate-spin" />{t("progress.saving")}</p>}
           {saveStatus === "saved" && <div className="mt-4 rounded-2xl bg-emerald-50 p-3 text-sm font-extrabold text-emerald-900" role="status"><p className="flex items-center justify-center gap-2"><Check className="h-4 w-4" />{t("progress.saved")}</p><p className="mt-1 text-xs font-semibold">{t("kids.allTimeTotal", { score: totalPoints })}</p></div>}
+          {saveStatus === "saved" && <CoinReward earned={coinsEarned} total={totalCoins} />}
           {saveStatus === "error" && <div className="mt-4 rounded-2xl bg-rose-50 p-3" role="alert"><p className="text-sm font-bold text-rose-900">{t("progress.error")}</p><button type="button" onClick={() => void saveResult()} className="mt-2 rounded-lg bg-rose-700 px-4 py-2 text-xs font-bold text-white">{t("common.retry")}</button></div>}
           {newAchievements.length > 0 && <p className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-amber-50 p-3 text-xs font-extrabold text-amber-900"><Sparkles className="h-4 w-4" />{t("achievement.unlockedMessage", { name: t(`achievement.${newAchievements[0]}.title`) })}</p>}
+          <div className="mt-4 text-left"><GameLeaderboard gameId="whack" mode="whack" level={level} refreshKey={totalCoins} compact /></div>
           <div className="mt-6 grid gap-3 sm:grid-cols-2"><button type="button" onClick={startGame} className="flex min-h-13 items-center justify-center gap-2 rounded-2xl bg-[#6F458C] px-4 text-sm font-extrabold text-white"><RefreshCw className="h-4 w-4" />{t("whack.playAgain")}</button><button type="button" onClick={onBack} className="flex min-h-13 items-center justify-center gap-2 rounded-2xl border border-[#CFC1D8] px-4 text-sm font-extrabold text-[#533763]">{t("arcade.backToArcade")}<ArrowRight className="h-4 w-4" /></button></div>
         </div>
       )}
@@ -302,6 +309,7 @@ export function WhackGame({ onBack, onProgressChange }: { onBack: () => void; on
           <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-[#EEE7F4] p-4"><CircleHelp className="mt-0.5 h-5 w-5 shrink-0 text-[#8A5EAD]" /><p className="text-xs leading-relaxed text-[#675571]">{t("whack.rules")}</p></div>
           <button type="button" onClick={startGame} className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#6F458C] px-5 font-display text-base font-extrabold text-white shadow-[0_5px_0_#432653] hover:bg-[#5C3776]"><MousePointerClick className="h-5 w-5" />{t("whack.start")}<ArrowRight className="h-5 w-5" /></button>
           <p className="mt-4 flex items-center justify-center gap-2 text-center text-[11px] font-semibold text-[#786A80]"><Target className="h-3.5 w-3.5" />{t("whack.levelPoints", { points: LEVEL_POINTS[level] })}</p>
+          <div className="mt-5"><GameLeaderboard gameId="whack" mode="whack" level={level} refreshKey={totalCoins} compact /></div>
         </div>
       )}
     </section>

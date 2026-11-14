@@ -5,6 +5,7 @@ import {
   Check,
   ChevronRight,
   Crown,
+  Coins,
   Gamepad2,
   GraduationCap,
   KeyRound,
@@ -82,6 +83,13 @@ export function ArcadeHub() {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#173F40] p-3.5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F9C74F] text-[#3D2D06]"><Crown className="h-5 w-5" /></span><div><p className="text-[9px] font-extrabold uppercase tracking-wider text-[#BCE0D4]">{t("kids.allTimeScore")}</p><p className="font-display text-xl font-black tabular-nums">{totalScore} <span className="text-xs text-[#C5DDD8]">{t("kids.points")}</span></p></div></div>
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#173F40] p-3.5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#CBEEE0] text-emerald-800"><Check className="h-5 w-5" /></span><div><p className="text-[9px] font-extrabold uppercase tracking-wider text-[#BCE0D4]">{t("arcade.completedLabel")}</p><p className="font-display text-xl font-black tabular-nums">{completedActivities}</p></div></div>
+          </div>
+        )}
+        {!loading && !error && (
+          <div className="mt-3 flex items-center gap-2.5 rounded-2xl border border-[#F9C74F]/25 bg-[#2F432B] px-4 py-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F9C74F] text-[#3D2D06]"><Coins className="h-5 w-5" /></span>
+            <span className="text-xs font-bold text-[#FDE6AB]">{t("coins.safetyCoins")}</span>
+            <strong className="ml-auto font-display text-xl font-black tabular-nums text-[#F9C74F]">{progress?.score?.coins ?? 0}</strong>
           </div>
         )}
         {loading && <p className="mt-5 flex items-center gap-2 text-xs font-bold text-[#C5DDD8]" role="status"><LoaderCircle className="h-4 w-4 animate-spin" />{t("common.loading")}</p>}
