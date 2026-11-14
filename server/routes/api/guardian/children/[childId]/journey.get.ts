@@ -1,8 +1,8 @@
 import { defineHandler } from "nitro";
 import { getRouterParam } from "nitro/h3";
-import { getDb, type JourneyRow } from "../../../lib/db";
-import { toOwnerView } from "../../../lib/journey";
-import { requireSupabaseUser, requireChildLink } from "../../../lib/guardianAuth";
+import { getDb, type JourneyRow } from "../../../../../lib/db";
+import { toOwnerView } from "../../../../../lib/journey";
+import { requireSupabaseUser, requireChildLink } from "../../../../../lib/guardianAuth";
 
 export function latestJourneyByChild(childAuthId: string): JourneyRow | null {
   return getDb()
