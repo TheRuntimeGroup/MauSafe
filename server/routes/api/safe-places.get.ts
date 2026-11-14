@@ -25,6 +25,12 @@ type SafePlace = {
 
 const MAURITIUS = { minLat: -20.6, maxLat: -19.55, minLon: 57.25, maxLon: 63.6 };
 
+const OVERPASS_ENDPOINTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+];
+
 function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   const radius = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -51,6 +57,29 @@ function placeKind(tags: Record<string, string | undefined>): string {
   return "community";
 }
 
+async function queryOverpass(overpassQuery: string): Promise<{ elements?: OverpassElement[] }> {
+  let lastError: unknown = null;
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: "application/json",
+          "User-Agent": "MauSafe/1.0 safe-places-finder",
+        },
+        body: new URLSearchParams({ data: overpassQuery }),
+        signal: AbortSignal.timeout(25000),
+      });
+      if (!response.ok) throw new Error(`Overpass unavailable (${response.status})`);
+      return (await response.json()) as { elements?: OverpassElement[] };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Overpass unavailable");
+}
+
 export default defineHandler(async (event) => {
   const query = getQuery(event);
   const latitude = Number(query.lat);
@@ -71,14 +100,7 @@ export default defineHandler(async (event) => {
   );out center tags 50;`;
 
   try {
-    const response = await fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
-      body: new URLSearchParams({ data: overpassQuery }),
-      signal: AbortSignal.timeout(25000),
-    });
-    if (!response.ok) throw new Error("Overpass unavailable");
-    const data = (await response.json()) as { elements?: OverpassElement[] };
+    const data = await queryOverpass(overpassQuery);
 
     const places = (data.elements ?? [])
       .map((element): SafePlace | null => {

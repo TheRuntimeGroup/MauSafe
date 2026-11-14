@@ -55,6 +55,8 @@ const SafePlaces = () => {
       if (typeof error === "object" && error !== null && "code" in error && (error as GeolocationPositionError).code === 1) {
         setErrorKey("places.permissionError");
       } else {
+        setPosition(null);
+        setPlaces([]);
         setErrorKey("places.error");
       }
     } finally {
