@@ -138,7 +138,7 @@ export default function Index() {
           </span>
           <div className="min-w-0">
             <p className="text-sm font-extrabold text-white">{status.title}</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-slate-300">{status.body}</p>
+            {status.body && <p className="mt-0.5 text-xs leading-relaxed text-slate-300">{status.body}</p>}
           </div>
         </div>
         <AnnouncementBanner variant="dashboard" />
