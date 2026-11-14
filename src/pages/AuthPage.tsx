@@ -232,6 +232,7 @@ const AuthPage = () => {
                           void verifyOtpCode();
                         }} disabled={loading} hasError={Boolean(error)} />
                       </div>
+                    )}
 
                     {error && (
                       <div
