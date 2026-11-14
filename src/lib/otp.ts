@@ -7,6 +7,7 @@ export type OtpErrorCode =
   | "PASSWORD_TOO_SHORT"
   | "EMAIL_NOT_VERIFIED"
   | "EMAIL_TAKEN"
+  | "ACCOUNT_NOT_FOUND"
   | "USERNAME_TAKEN"
   | "INVALID_USERNAME"
   | "RATE_LIMITED"
@@ -30,6 +31,14 @@ async function invoke<T>(name: string, body: Record<string, unknown>): Promise<T
 
 export function sendOtp(email: string) {
   return invoke<{ ok: true; expiresAt: string }>("send-otp", { email });
+}
+
+export function sendLoginOtp(email: string) {
+  return invoke<{ ok: true; expiresAt: string }>("send-otp", { email, purpose: "login" });
+}
+
+export function verifyLoginOtp(input: { email: string; code: string }) {
+  return invoke<{ ok: true; email: string; tempPassword: string }>("verify-login", input);
 }
 
 export function verifyEmailCode(input: { email: string; code: string }) {

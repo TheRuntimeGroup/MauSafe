@@ -16,6 +16,8 @@ const RESEND_COOLDOWN_SECONDS = 30;
 const MAX_EMAIL_CODES_PER_HOUR = 5;
 const MAX_NETWORK_CODES_PER_HOUR = 10;
 
+type Purpose = "signup" | "login";
+
 function json(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -31,25 +33,37 @@ async function sha256Hex(input: string): Promise<string> {
     .join("");
 }
 
-function emailHtml(code: string): string {
-  return `
+function emailHtml(code: string, purpose: Purpose): { subject: string; html: string } {
+  const isLogin = purpose === "login";
+  const heading = isLogin ? "Your sign-in code" : "Your verification code";
+  const body = isLogin
+    ? "To sign in to MauSafe, enter this code in the app:"
+    : "To finish creating your MauSafe account, enter this code in the app:";
+  const subject = isLogin
+    ? "Your MauSafe sign-in code"
+    : "Your MauSafe verification code";
+
+  return {
+    subject,
+    html: `
     <!doctype html>
     <html lang="en">
       <body style="margin:0;padding:0;background:#FCFAF5;font-family:Arial,Helvetica,sans-serif;">
         <div style="max-width:520px;margin:0 auto;padding:40px 20px;">
           <div style="background:#0D2B45;border-radius:24px 24px 0 0;padding:28px 32px;">
             <div style="display:inline-block;background:#0D2B45;color:#ffffff;font-weight:800;font-size:20px;">MauSafe</div>
-            <div style="font-size:11px;color:#b9d4ea;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;">Your verification code</div>
+            <div style="font-size:11px;color:#b9d4ea;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;">${heading}</div>
           </div>
           <div style="background:#ffffff;border:1px solid #E8E4DA;border-top:0;border-radius:0 0 24px 24px;padding:36px 32px;">
-            <p style="margin:0 0 12px;color:#26354A;font-size:16px;line-height:1.5;">To finish creating your MauSafe account, enter this code in the app:</p>
+            <p style="margin:0 0 12px;color:#26354A;font-size:16px;line-height:1.5;">${body}</p>
             <div style="font-size:40px;font-weight:800;letter-spacing:0.35em;color:#0D2B45;padding:20px 0;text-align:center;">${code}</div>
             <p style="margin:0;color:#7A8496;font-size:13px;line-height:1.5;">This code expires in 10 minutes. If you didn't request it, you can safely ignore this email.</p>
           </div>
         </div>
       </body>
     </html>
-  `;
+  `,
+  };
 }
 
 serve(async (req) => {
@@ -60,6 +74,8 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const email = String(body?.email ?? "").trim().toLowerCase();
+    const rawPurpose = String(body?.purpose ?? "signup");
+    const purpose: Purpose = rawPurpose === "login" ? "login" : "signup";
 
     if (!EMAIL_PATTERN.test(email)) {
       return json({ error: "INVALID_EMAIL" });
@@ -69,12 +85,6 @@ serve(async (req) => {
       console.error("[send-otp] RESEND_API_KEY is not configured");
       return json({ error: "EMAIL_NOT_CONFIGURED" });
     }
-
-    const array = new Uint32Array(1);
-    crypto.getRandomValues(array);
-    const code = String(array[0] % 1000000).padStart(6, "0");
-    const codeHash = await sha256Hex(code);
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -88,9 +98,19 @@ serve(async (req) => {
       return json({ error: "UNKNOWN" });
     }
 
-    if (emailTaken === true) {
+    if (purpose === "login") {
+      if (emailTaken !== true) {
+        return json({ error: "ACCOUNT_NOT_FOUND" });
+      }
+    } else if (emailTaken === true) {
       return json({ error: "EMAIL_TAKEN" });
     }
+
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    const code = String(array[0] % 1000000).padStart(6, "0");
+    const codeHash = await sha256Hex(code);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     const requestIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || req.headers.get("x-real-ip")
@@ -102,7 +122,7 @@ serve(async (req) => {
       .from("verification_codes")
       .select("created_at")
       .eq("email", email)
-      .eq("purpose", "signup")
+      .eq("purpose", purpose)
       .order("created_at", { ascending: false })
       .limit(1);
 
@@ -128,13 +148,13 @@ serve(async (req) => {
         .from("verification_codes")
         .select("id", { count: "exact", head: true })
         .eq("email", email)
-        .eq("purpose", "signup")
+        .eq("purpose", purpose)
         .gte("created_at", oneHourAgo),
       supabase
         .from("verification_codes")
         .select("id", { count: "exact", head: true })
         .eq("request_ip_hash", requestIpHash)
-        .eq("purpose", "signup")
+        .eq("purpose", purpose)
         .gte("created_at", oneHourAgo),
     ]);
 
@@ -155,7 +175,7 @@ serve(async (req) => {
       .insert({
         email,
         code_hash: codeHash,
-        purpose: "signup",
+        purpose,
         expires_at: expiresAt,
         request_ip_hash: requestIpHash,
       })
@@ -166,6 +186,8 @@ serve(async (req) => {
       console.error("[send-otp] failed to store verification code", insertError);
       return json({ error: "UNKNOWN" });
     }
+
+    const emailContent = emailHtml(code, purpose);
 
     let res: Response;
     try {
@@ -178,8 +200,8 @@ serve(async (req) => {
         body: JSON.stringify({
           from: RESEND_FROM,
           to: [email],
-          subject: "Your MauSafe verification code",
-          html: emailHtml(code),
+          subject: emailContent.subject,
+          html: emailContent.html,
         }),
       });
     } catch (error) {

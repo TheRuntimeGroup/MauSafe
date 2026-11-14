@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
+import { sendLoginOtp, verifyLoginOtp } from "@/lib/otp";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { AccessibilityQuickSettings } from "@/components/AccessibilityQuickSettings";
@@ -41,12 +42,21 @@ const AuthPage = () => {
     return () => window.clearTimeout(timer);
   }, [cooldown]);
 
-  function toMessage(message: string): string {
-    if (/user not found|not registered/i.test(message)) return t("auth.otpAccountNotFound");
-    if (/rate.?limit|too many requests/i.test(message)) return t("otp.rateLimited");
-    if (/invalid.*token|expired|invalid login/i.test(message)) return t("auth.otpInvalid");
-    if (/smptp|smtp|mail|email.*send/i.test(message)) return t("auth.otpSendFailed");
-    return t("auth.genericError");
+  function toAuthError(code: string): string {
+    switch (code) {
+      case "ACCOUNT_NOT_FOUND":
+        return t("auth.otpAccountNotFound");
+      case "EXPIRED_CODE":
+        return t("otp.expired");
+      case "INVALID_CODE":
+        return t("auth.otpInvalid");
+      case "RATE_LIMITED":
+        return t("otp.rateLimited");
+      case "EMAIL_NOT_CONFIGURED":
+        return t("auth.otpSendFailed");
+      default:
+        return t("auth.genericError");
+    }
   }
 
   async function requestOtp() {
@@ -63,27 +73,21 @@ const AuthPage = () => {
     setError(null);
     setNotice(null);
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: trimmedEmail,
-      options: {
-        shouldCreateUser: false,
-        emailRedirectTo: new URL("/auth/callback", window.location.origin).href,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      setError(toMessage(error.message));
-      return;
+    try {
+      await sendLoginOtp(trimmedEmail);
+      setCodeSent(true);
+      setOtpCode("");
+      setCooldown(60);
+      setNotice(t("auth.otpSent", { email: trimmedEmail }));
+    } catch (error) {
+      setError(error instanceof Error ? toAuthError(error.message) : t("auth.genericError"));
+    } finally {
+      setLoading(false);
     }
-
-    setCodeSent(true);
-    setOtpCode("");
-    setCooldown(60);
-    setNotice(t("auth.otpSent", { email: trimmedEmail }));
   }
 
-  async function verifyOtpCode() {
-    if (otpCode.length !== 6) {
+  async function verifyOtpCode(submittedCode = otpCode) {
+    if (submittedCode.length !== 6) {
       setError(t("auth.otpRequired"));
       return;
     }
@@ -91,17 +95,28 @@ const AuthPage = () => {
     setNotice(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim().toLowerCase(),
-      token: otpCode,
-      type: "email",
-    });
-    setLoading(false);
-    if (error) {
-      setError(toMessage(error.message));
-      return;
+    try {
+      const { email: verifiedEmail, tempPassword } = await verifyLoginOtp({
+        email: email.trim().toLowerCase(),
+        code: submittedCode,
+      });
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: verifiedEmail,
+        password: tempPassword,
+      });
+
+      if (signInError) {
+        setError(t("auth.genericError"));
+        return;
+      }
+
+      navigate("/", { replace: true });
+    } catch (error) {
+      setError(error instanceof Error ? toAuthError(error.message) : t("auth.genericError"));
+    } finally {
+      setLoading(false);
     }
-    navigate("/", { replace: true });
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -229,7 +244,7 @@ const AuthPage = () => {
                         <p className="text-sm font-semibold text-foreground">{t("auth.otpLabel")}</p>
                         <EmailOtpInput value={otpCode} onChange={setOtpCode} onComplete={(code) => {
                           setOtpCode(code);
-                          void verifyOtpCode();
+                          void verifyOtpCode(code);
                         }} disabled={loading} hasError={Boolean(error)} />
                       </div>
                     )}
