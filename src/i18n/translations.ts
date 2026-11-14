@@ -964,6 +964,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "contacts.whatsapp": "WhatsApp",
     "contacts.sms": "SMS",
     "contacts.email": "Email",
+    "contacts.sent": "Sent",
 
     "tips.title": "Safety tips",
     "tips.subtitle": "Practical, calming guidance for everyday journeys and online life.",
@@ -1995,6 +1996,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "contacts.whatsapp": "WhatsApp",
     "contacts.sms": "SMS",
     "contacts.email": "E-mail",
+    "contacts.sent": "Envoyé",
 
     "tips.title": "Conseils sécurité",
     "tips.subtitle": "Des conseils pratiques et apaisants pour vos trajets et votre vie en ligne.",

@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Check, Copy, Mail, MessageCircle, Share2, Smartphone } from "lucide-react";
+import { Check, Copy, LoaderCircle, Mail, MessageCircle, Share2, Smartphone } from "lucide-react";
 import { AppButton } from "@/components/ui/app-button";
 import { JourneyStatusCard } from "@/components/JourneyStatusCard";
 import { useI18n } from "@/i18n/I18nContext";
 import { formatDateTime } from "@/lib/format";
 import { listContacts } from "@/lib/contacts";
+import { emailJourney } from "@/lib/api";
+import { showError, showSuccess } from "@/utils/toast";
 import type { OwnerJourney } from "@/lib/types";
 
 function isEmail(value: string): boolean {
@@ -18,6 +20,8 @@ function phoneDigits(value: string): string {
 export function SharePanel({ journey }: { journey: OwnerJourney }) {
   const { t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
+  const [sendingId, setSendingId] = useState<string | null>(null);
+  const [sentId, setSentId] = useState<string | null>(null);
 
   const fullUrl =
     typeof window !== "undefined" ? `${window.location.origin}${journey.sharePath}` : journey.sharePath;
@@ -26,7 +30,6 @@ export function SharePanel({ journey }: { journey: OwnerJourney }) {
 
   const message = `${journey.senderName} — ${t(`preset.${journey.preset}`)}. ${fullUrl}`;
   const encoded = encodeURIComponent(message);
-  const encodedSubject = encodeURIComponent(t("share.title"));
 
   async function copy() {
     try {
@@ -47,6 +50,26 @@ export function SharePanel({ journey }: { journey: OwnerJourney }) {
       });
     } catch {
       // user cancelled or share unavailable
+    }
+  }
+
+  async function sendEmail(contactId: string, email: string) {
+    if (sendingId) return;
+    setSendingId(contactId);
+    try {
+      await emailJourney(journey.id, {
+        recipientEmail: email,
+        mode:
+          journey.location && (journey.status === "on_the_way" || journey.status === "overdue")
+            ? "location"
+            : undefined,
+      });
+      setSentId(contactId);
+      showSuccess(t("contacts.sent"));
+    } catch {
+      showError(t("notify.failed"));
+    } finally {
+      setSendingId(null);
     }
   }
 
@@ -81,13 +104,19 @@ export function SharePanel({ journey }: { journey: OwnerJourney }) {
                   {c.name}
                 </span>
                 {isEmail(c.contact) ? (
-                  <a
-                    href={`mailto:${c.contact}?subject=${encodedSubject}&body=${encoded}`}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground"
+                  <button
+                    type="button"
+                    onClick={() => void sendEmail(c.id, c.contact)}
+                    disabled={sendingId === c.id}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity disabled:opacity-60"
                   >
-                    <Mail className="h-3.5 w-3.5" aria-hidden="true" />
-                    {t("contacts.email")}
-                  </a>
+                    {sendingId === c.id ? (
+                      <LoaderCircle className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                    )}
+                    {sentId === c.id ? t("contacts.sent") : t("contacts.email")}
+                  </button>
                 ) : (
                   <>
                     <a
