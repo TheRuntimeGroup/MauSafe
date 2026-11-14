@@ -74,7 +74,7 @@ export function QuickShareDialog({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#071B33]/45 p-3 sm:items-center" role="presentation">
-      <section role="dialog" aria-modal="true" aria-labelledby="quick-share-title" className="w-full max-w-md rounded-[1.75rem] border border-[#DDE6ED] bg-white p-5 shadow-[0_24px_70px_-24px_rgba(13,43,69,0.5)] sm:p-6">
+      <div role="dialog" aria-modal="true" aria-labelledby="quick-share-title" className="w-full max-w-md rounded-[1.75rem] border border-[#DDE6ED] bg-white p-5 shadow-[0_24px_70px_-24px_rgba(13,43,69,0.5)] sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-primary">{t("quickShare.title")}</p>
@@ -140,7 +140,7 @@ export function QuickShareDialog({
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
           <span>{t("quickShare.privacy")}</span>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
