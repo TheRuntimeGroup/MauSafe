@@ -136,8 +136,8 @@ export default function Index() {
         </section>
       ) : null}
 
-      <HomeQuickAccess />
       <HomeTrustedContacts journey={active} />
+      <HomeQuickAccess />
     </div>
   );
 }
