@@ -920,6 +920,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "emergency.reassureTitle": "You are not alone",
     "emergency.reassureBody": "Trust your instincts. Reaching out for help is a strength.",
     "emergency.supportTitle": "Non-emergency support",
+    "emergency.supportContacts": "Non-emergency contacts",
 
     "notify.title": "Share a journey update",
     "notify.subtitle": "Your account name, {name}, will be used as the traveller name. You can also notify a trusted contact.",
@@ -1950,6 +1951,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "emergency.reassureTitle": "Vous n'êtes pas seul·e",
     "emergency.reassureBody": "Faites confiance à votre instinct. Demander de l'aide est une force.",
     "emergency.supportTitle": "Soutien non urgent",
+    "emergency.supportContacts": "Contacts non urgents",
 
     "notify.title": "Partager une mise à jour du trajet",
     "notify.subtitle": "Le nom de votre compte, {name}, sera utilisé comme nom du voyageur. Vous pouvez aussi informer un contact de confiance.",

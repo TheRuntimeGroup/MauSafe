@@ -89,7 +89,7 @@ const Emergency = () => {
         <div className="grid gap-3 sm:grid-cols-2">
           <Link to="/get-help" className={appButtonVariants({ variant: "outline", size: "lg" })}>
             <LifeBuoy className="h-4 w-4" aria-hidden="true" />
-            {t("nav.gethelp")}
+            {t("emergency.supportContacts")}
           </Link>
           <a
             href="https://maucors.govmu.org/maucors/?page_id=9"
