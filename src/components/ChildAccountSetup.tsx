@@ -42,7 +42,15 @@ export function ChildAccountSetup() {
     setBusy(false);
     if (error || data?.error) {
       const code = data?.error ?? error?.message ?? "SETUP_FAILED";
-      setError(code === "GUARDIAN_REQUIRED" ? t("child.guardianRequired") : code === "EMAIL_TAKEN" ? t("child.emailTaken") : t("child.setupError"));
+      setError(
+        code === "GUARDIAN_REQUIRED"
+          ? t("child.guardianRequired")
+          : code === "EMAIL_TAKEN"
+            ? t("child.emailTaken")
+            : code === "ALREADY_LINKED"
+              ? t("child.alreadyLinked")
+              : t("child.setupError"),
+      );
       return;
     }
 

@@ -24,54 +24,59 @@ serve(async (req) => {
 
   try {
     const authorization = req.headers.get("Authorization");
-    if (!authorization?.startsWith("Bearer ")) return json({ error: "UNAUTHORIZED" }, 401);
+    if (!authorization?.startsWith("Bearer ")) return json({ error: "UNAUTHORIZED" });
     const token = authorization.slice(7).trim();
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+
+    const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return json({ error: "UNAUTHORIZED" }, 401);
+    const { data: { user }, error: authError } = await authClient.auth.getUser(token);
+    if (authError || !user) return json({ error: "UNAUTHORIZED" });
+
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
 
     const body = await req.json();
     const childName = String(body.childName ?? "").trim().slice(0, 60);
     const pairCode = String(body.pairCode ?? "").replace(/\D/g, "");
-    if (!childName || pairCode.length !== 6) return json({ error: "INVALID_PAIR_DETAILS" }, 400);
+    if (!childName || pairCode.length !== 6) return json({ error: "INVALID_PAIR_DETAILS" });
 
-    const { data: setup, error: lookupError } = await supabase.from("child_accounts")
+    const { data: setup, error: lookupError } = await admin.from("child_accounts")
       .select("id,child_auth_id,pair_code_hash,expires_at,consumed_at,guardian_user_id")
       .eq("child_auth_id", user.id)
       .eq("child_email", user.email?.toLowerCase())
       .maybeSingle();
-    if (lookupError) return json({ error: "PAIR_NOT_FOUND" }, 400);
-    if (!setup) return json({ error: "PAIR_NOT_FOUND" }, 400);
-    if (setup.consumed_at) return json({ error: "ALREADY_LINKED" }, 400);
-    if (new Date(setup.expires_at).getTime() <= Date.now()) return json({ error: "EXPIRED_CODE" }, 400);
+    if (lookupError) return json({ error: "PAIR_NOT_FOUND" });
+    if (!setup) return json({ error: "PAIR_NOT_FOUND" });
+    if (setup.consumed_at) return json({ error: "ALREADY_LINKED" });
+    if (new Date(setup.expires_at).getTime() <= Date.now()) return json({ error: "EXPIRED_CODE" });
     if (setup.pair_code_hash !== await sha256Hex(`${pairCode}:${body.hashedToken}`)) {
-      return json({ error: "INVALID_CODE" }, 400);
+      return json({ error: "INVALID_CODE" });
     }
 
-    const { error: pairError } = await supabase.from("child_accounts")
+    const { error: pairError } = await admin.from("child_accounts")
       .update({ consumed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq("id", setup.id)
       .is("consumed_at", null);
     if (pairError) {
       console.error("[complete-child-pair] failed to store completed link", pairError);
-      return json({ error: "SETUP_FAILED" }, 500);
+      return json({ error: "SETUP_FAILED" });
     }
 
-    const { error: profileError } = await supabase.from("profiles").upsert({
+    const { error: profileError } = await admin.from("profiles").upsert({
       id: user.id,
       full_name: childName,
       account_type: "child",
       onboarding_completed: true,
       updated_at: new Date().toISOString(),
     });
-    if (profileError) return json({ error: "SETUP_FAILED" }, 500);
+    if (profileError) return json({ error: "SETUP_FAILED" });
 
-    await supabase.from("kid_game_results").upsert({ user_id: user.id, updated_at: new Date().toISOString() });
+    await admin.from("kid_game_results").upsert({ user_id: user.id, updated_at: new Date().toISOString() });
     return json({ ok: true, guardianId: setup.guardian_user_id });
   } catch (error) {
     console.error("[complete-child-pair] unexpected error", error);
-    return json({ error: "SETUP_FAILED" }, 500);
+    return json({ error: "SETUP_FAILED" });
   }
 });

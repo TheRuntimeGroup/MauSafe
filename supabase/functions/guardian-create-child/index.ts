@@ -30,72 +30,79 @@ serve(async (req) => {
 
   try {
     const authorization = req.headers.get("Authorization");
-    if (!authorization?.startsWith("Bearer ")) return json({ error: "UNAUTHORIZED" }, 401);
+    if (!authorization?.startsWith("Bearer ")) return json({ error: "UNAUTHORIZED" });
     const token = authorization.slice(7).trim();
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+
+    // Verify the caller with the anon key, then use the service role for
+    // admin auth operations and database writes (which RLS would block).
+    const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return json({ error: "UNAUTHORIZED" }, 401);
+    const { data: { user }, error: authError } = await authClient.auth.getUser(token);
+    if (authError || !user) return json({ error: "UNAUTHORIZED" });
+
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
 
     const body = await req.json();
     const childName = String(body.childName ?? "").trim().slice(0, 60);
     const childEmail = String(body.childEmail ?? "").trim().toLowerCase();
     if (!childName || !EMAIL_PATTERN.test(childEmail) || childEmail === user.email?.toLowerCase()) {
-      return json({ error: "INVALID_CHILD_DETAILS" }, 400);
+      return json({ error: "INVALID_CHILD_DETAILS" });
     }
 
-    const { data: guardian } = await supabase
+    const { data: guardian } = await admin
       .from("profiles")
       .select("full_name,account_type")
       .eq("id", user.id)
       .single();
-    if (guardian?.account_type === "child") return json({ error: "GUARDIAN_REQUIRED" }, 403);
+    if (guardian?.account_type === "child") return json({ error: "GUARDIAN_REQUIRED" });
 
-    const { data: existing } = await supabase.from("child_accounts")
+    const { data: existing } = await admin.from("child_accounts")
       .select("id,child_auth_id,consumed_at")
       .eq("guardian_user_id", user.id)
       .eq("child_email", childEmail)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (existing?.consumed_at) return json({ error: "ALREADY_LINKED" }, 400);
+    if (existing?.consumed_at) return json({ error: "ALREADY_LINKED" });
 
     let childAuthId = existing?.child_auth_id as string | undefined;
     let createdHere = false;
     const temporaryPassword = `${crypto.randomUUID()}${crypto.randomUUID()}`;
     if (!childAuthId) {
-      const { data: child, error: createError } = await supabase.auth.admin.createUser({
+      const { data: child, error: createError } = await admin.auth.admin.createUser({
         email: childEmail,
         password: temporaryPassword,
         email_confirm: true,
       });
       if (createError || !child.user) {
         console.error("[guardian-create-child] unable to create child auth user", createError);
-        return json({ error: "EMAIL_TAKEN" }, 400);
+        return json({ error: "EMAIL_TAKEN" });
       }
       childAuthId = child.user.id;
       createdHere = true;
     } else {
-      const { error: resetError } = await supabase.auth.admin.updateUserById(childAuthId, { password: temporaryPassword });
-      if (resetError) return json({ error: "SETUP_FAILED" }, 500);
+      const { error: resetError } = await admin.auth.admin.updateUserById(childAuthId, { password: temporaryPassword });
+      if (resetError) return json({ error: "SETUP_FAILED" });
     }
 
-    const { data: magic, error: linkError } = await supabase.auth.admin.generateLink({
+    const { data: magic, error: linkError } = await admin.auth.admin.generateLink({
       type: "magiclink",
       email: childEmail,
       password: temporaryPassword,
       options: {},
     });
     if (linkError || !magic.properties?.hashed_token) {
-      if (createdHere) await supabase.auth.admin.deleteUser(childAuthId);
+      if (createdHere) await admin.auth.admin.deleteUser(childAuthId);
       console.error("[guardian-create-child] unable to generate pairing link", linkError);
-      return json({ error: "SETUP_FAILED" }, 500);
+      return json({ error: "SETUP_FAILED" });
     }
 
     const pairCode = sixDigitCode();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-    const { error: insertError } = await supabase.from("child_accounts").insert({
+    const { error: insertError } = await admin.from("child_accounts").insert({
       guardian_user_id: user.id,
       guardian_name: guardian?.full_name || user.email || "Guardian",
       guardian_email: user.email,
@@ -106,9 +113,9 @@ serve(async (req) => {
       expires_at: expiresAt,
     });
     if (insertError) {
-      if (createdHere) await supabase.auth.admin.deleteUser(childAuthId);
+      if (createdHere) await admin.auth.admin.deleteUser(childAuthId);
       console.error("[guardian-create-child] unable to store pairing", insertError);
-      return json({ error: "SETUP_FAILED" }, 500);
+      return json({ error: "SETUP_FAILED" });
     }
 
     let emailSent = false;
@@ -141,6 +148,6 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("[guardian-create-child] unexpected error", error);
-    return json({ error: "SETUP_FAILED" }, 500);
+    return json({ error: "SETUP_FAILED" });
   }
 });

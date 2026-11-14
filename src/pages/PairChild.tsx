@@ -34,8 +34,7 @@ export default function PairChild() {
     setError(null);
 
     const { error: linkError } = await supabase.auth.verifyOtp({
-      email: email.trim().toLowerCase(),
-      token: setup.hashedToken,
+      token_hash: setup.hashedToken,
       type: "magiclink",
     });
     if (linkError) {
