@@ -1,14 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   AlertCircle,
   ArrowRight,
   Check,
-  Eye,
-  EyeOff,
+  KeyRound,
   LoaderCircle,
-  Lock,
   LogIn,
   Mail,
   ShieldCheck,
@@ -20,6 +18,7 @@ import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { AccessibilityQuickSettings } from "@/components/AccessibilityQuickSettings";
 import { AppButton } from "@/components/ui/app-button";
+import { EmailOtpInput } from "@/components/EmailOtpInput";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -29,27 +28,29 @@ const AuthPage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [cooldown, setCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const resetUrl = new URL("/reset-password", window.location.origin).href;
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setTimeout(() => setCooldown((current) => current - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
 
   function toMessage(message: string): string {
-    if (/invalid login credentials/i.test(message)) return t("auth.invalidCredentials");
-    if (/already registered/i.test(message)) return t("auth.alreadyRegistered");
-    if (/password should be at least/i.test(message)) return t("auth.passwordTooShort");
+    if (/user not found|not registered/i.test(message)) return t("auth.otpAccountNotFound");
+    if (/rate.?limit|too many requests/i.test(message)) return t("otp.rateLimited");
+    if (/invalid.*token|expired|invalid login/i.test(message)) return t("auth.otpInvalid");
+    if (/smptp|smtp|mail|email.*send/i.test(message)) return t("auth.otpSendFailed");
     return t("auth.genericError");
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setNotice(null);
-
-    const trimmedEmail = email.trim();
+  async function requestOtp() {
+    const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail) {
       setError(t("auth.emailRequired"));
       return;
@@ -58,46 +59,59 @@ const AuthPage = () => {
       setError(t("auth.emailInvalid"));
       return;
     }
-    if (!password) {
-      setError(t("auth.passwordRequired"));
+
+    setError(null);
+    setNotice(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email: trimmedEmail,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: new URL("/auth/callback", window.location.origin).href,
+      },
+    });
+    setLoading(false);
+    if (error) {
+      setError(toMessage(error.message));
       return;
     }
 
+    setCodeSent(true);
+    setOtpCode("");
+    setCooldown(60);
+    setNotice(t("auth.otpSent", { email: trimmedEmail }));
+  }
+
+  async function verifyOtpCode() {
+    if (otpCode.length !== 6) {
+      setError(t("auth.otpRequired"));
+      return;
+    }
+    setError(null);
+    setNotice(null);
     setLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: trimmedEmail,
-      password,
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim().toLowerCase(),
+      token: otpCode,
+      type: "email",
     });
-    if (signInError) {
-      setError(toMessage(signInError.message));
-      setLoading(false);
+    setLoading(false);
+    if (error) {
+      setError(toMessage(error.message));
       return;
     }
     navigate("/", { replace: true });
   }
 
-  async function handleForgot() {
-    const trimmedEmail = email.trim();
-    if (!EMAIL_PATTERN.test(trimmedEmail)) {
-      setError(t("auth.emailInvalid"));
-      return;
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (loading) return;
+    if (codeSent) {
+      void verifyOtpCode();
+    } else {
+      void requestOtp();
     }
-
-    setError(null);
-    setNotice(null);
-    setLoading(true);
-
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-      redirectTo: resetUrl,
-    });
-    setLoading(false);
-
-    if (resetError) {
-      setError(toMessage(resetError.message));
-      return;
-    }
-
-    setNotice(t("auth.checkEmail"));
   }
 
   return (
@@ -200,6 +214,7 @@ const AuthPage = () => {
                           inputMode="email"
                           autoComplete="email"
                           autoFocus
+                          readOnly={codeSent}
                           value={email}
                           onChange={(event) => setEmail(event.target.value)}
                           placeholder="you@example.com"
@@ -209,49 +224,14 @@ const AuthPage = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <Label htmlFor="password" className="font-semibold text-foreground">
-                          {t("auth.passwordLabel")}
-                        </Label>
-                        <button
-                          type="button"
-                          onClick={handleForgot}
-                          disabled={loading}
-                          className="text-xs font-bold text-primary transition-colors hover:underline disabled:opacity-50"
-                        >
-                          {t("auth.forgotPassword")}
-                        </button>
+                    {codeSent && (
+                      <div className="space-y-3">
+                        <p className="text-sm font-semibold text-foreground">{t("auth.otpLabel")}</p>
+                        <EmailOtpInput value={otpCode} onChange={setOtpCode} onComplete={(code) => {
+                          setOtpCode(code);
+                          void verifyOtpCode();
+                        }} disabled={loading} hasError={Boolean(error)} />
                       </div>
-                      <div className="relative">
-                        <Lock
-                          className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground"
-                          aria-hidden="true"
-                        />
-                        <Input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          autoComplete="current-password"
-                          value={password}
-                          onChange={(event) => setPassword(event.target.value)}
-                          placeholder="••••••••"
-                          className="h-12 rounded-[14px] border-[#DDE6ED] bg-white pl-11 pr-12 text-foreground focus-visible:border-primary"
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((value) => !value)}
-                          className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary"
-                          aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
-                          ) : (
-                            <Eye className="h-[18px] w-[18px]" strokeWidth={1.9} aria-hidden="true" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
 
                     {error && (
                       <div
@@ -272,7 +252,7 @@ const AuthPage = () => {
                       </div>
                     )}
 
-                    <AppButton type="submit" size="xl" disabled={loading} className="w-full">
+                    <AppButton type="submit" size="xl" disabled={loading || (codeSent && otpCode.length !== 6)} className="w-full">
                       {loading ? (
                         <>
                           <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -280,12 +260,38 @@ const AuthPage = () => {
                         </>
                       ) : (
                         <>
-                          {t("auth.signIn")}
+                          {codeSent ? t("auth.verifyCode") : t("auth.sendCode")}
                           <ArrowRight className="h-5 w-5" aria-hidden="true" />
                         </>
                       )}
                     </AppButton>
                   </form>
+
+                  {codeSent && (
+                    <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
+                      <button
+                        type="button"
+                        onClick={requestOtp}
+                        disabled={loading || cooldown > 0}
+                        className="rounded-lg px-2 py-1.5 font-bold text-primary transition-colors hover:underline disabled:text-muted-foreground disabled:no-underline"
+                      >
+                        {cooldown > 0 ? t("otp.resendIn", { seconds: cooldown }) : t("otp.resend")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCodeSent(false);
+                          setOtpCode("");
+                          setCooldown(0);
+                          setNotice(null);
+                          setError(null);
+                        }}
+                        className="rounded-lg px-2 py-1.5 font-semibold text-muted-foreground transition-colors hover:text-primary"
+                      >
+                        {t("otp.changeEmail")}
+                      </button>
+                    </div>
+                  )}
 
                   <Link to="/pair-child" className="mt-4 flex min-h-11 items-center justify-center rounded-2xl border border-primary/15 bg-secondary/55 px-4 text-sm font-extrabold text-primary transition-colors hover:bg-secondary">
                     {t("child.pairButton")}
