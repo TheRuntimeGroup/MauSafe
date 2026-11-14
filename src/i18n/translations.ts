@@ -3,6 +3,7 @@ export type Lang = "en" | "fr" | "km";
 export const LANGUAGES: { code: Lang; label: string; native: string }[] = [
   { code: "en", label: "English", native: "English" },
   { code: "fr", label: "French", native: "Français" },
+  { code: "km", label: "Mauritian Creole", native: "Kreol Morisien" },
 ];
 
 export const translations: Record<Lang, Record<string, string>> = {
@@ -524,6 +525,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "auth.invalidCredentials": "Incorrect email or password.",
     "auth.alreadyRegistered": "This email is already registered. Try signing in.",
     "auth.genericError": "Something went wrong. Please try again.",
+    "auth.accountCreatedSignInFailed": "Your account was created, but we couldn't sign you in automatically. Go back and sign in with your email and password.",
     "auth.showPassword": "Show password",
     "auth.hidePassword": "Hide password",
     "auth.privacyNote": "Your details stay private. No location is shared unless you choose to.",
@@ -1544,6 +1546,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "auth.invalidCredentials": "E-mail ou mot de passe incorrect.",
     "auth.alreadyRegistered": "Cet e-mail est déjà enregistré. Essayez de vous connecter.",
     "auth.genericError": "Une erreur est survenue. Réessayez.",
+    "auth.accountCreatedSignInFailed": "Votre compte a été créé, mais nous n'avons pas pu vous connecter automatiquement. Revenez en arrière et connectez-vous avec votre e-mail et votre mot de passe.",
     "auth.showPassword": "Afficher le mot de passe",
     "auth.hidePassword": "Masquer le mot de passe",
     "auth.privacyNote": "Vos informations restent privées. Aucune position n'est partagée sans votre choix.",
@@ -2523,6 +2526,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     "auth.invalidCredentials": "Email ouswa password inkorek.",
     "auth.alreadyRegistered": "Sa email la deza anrezistre. Esey konekte.",
     "auth.genericError": "Enn problem inn arive. Reesey.",
+    "auth.accountCreatedSignInFailed": "Ou kont finn kree, me nou pa finn kapav konekte ou otomatikman. Retourn en aryer ek konekte avek ou email ek password.",
     "auth.showPassword": "Montre password",
     "auth.hidePassword": "Kasiet password",
     "auth.privacyNote": "Ou detay res prive. Pena pozision ki partaze sof si ou swazir.",
@@ -2599,6 +2603,13 @@ export const translations: Record<Lang, Record<string, string>> = {
     "onboarding.review.title": "Eski tou korek?",
     "onboarding.review.subtitle": "Enn dernie koudey ek fini. Pa pou ena ti interrogation apre.",
     "onboarding.signInToContinue": "Fini prepar ou kont.",
+    "onboarding.username.eyebrow": "Ou nom itilizater",
+    "onboarding.username.title": "Swazir enn nom itilizater inik",
+    "onboarding.username.subtitle": "Servi 3 a 25 karakter miniskil. Koumans par enn let, apre let, sif ouswa tire-ba. Pena espas.",
+    "onboarding.username.placeholder": "ex. divesh23",
+    "onboarding.usernameInvalid": "Swazir 3 a 25 karakter miniskil, koumans par enn let. Servi zis let, sif ouswa tire-ba.",
+    "onboarding.usernameTaken": "Sa nom itilizater la deza itilize. Esey enn lot.",
+    "onboarding.review.username": "Nom itilizater",
     "onboarding.review.name": "Nom",
     "onboarding.review.email": "Email",
     "onboarding.review.needs": "Bezwen soutien",

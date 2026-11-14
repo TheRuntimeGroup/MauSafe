@@ -126,6 +126,25 @@ serve(async (req) => {
       return json({ ok: true });
     }
 
+    // Username lives on public.profiles, not auth.users, so admin.createUser
+    // does not validate it. Check before creating the account: the profile
+    // trigger swallows duplicate-username errors and would otherwise leave an
+    // account with no profile row.
+    const { data: existingProfile, error: usernameCheckError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", username)
+      .maybeSingle();
+
+    if (usernameCheckError) {
+      console.error("[verify-signup] failed to check username availability", usernameCheckError);
+      return json({ error: "UNKNOWN" });
+    }
+
+    if (existingProfile) {
+      return json({ error: "USERNAME_TAKEN" });
+    }
+
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
       email,
       password,

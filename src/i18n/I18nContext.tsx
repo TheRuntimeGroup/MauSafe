@@ -15,7 +15,7 @@ const I18nContext = createContext<I18nValue | null>(null);
 function getInitialLang(): Lang {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "en" || saved === "fr") return saved;
+    if (saved === "en" || saved === "fr" || saved === "km") return saved;
   } catch {
     // ignore storage errors
   }

@@ -95,7 +95,7 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const { user, profile, loading, profileLoading, refreshProfile } = useAuth();
 
-  const [draft] = useState<Draft | null>(() => (user ? loadDraft() : null));
+  const [draft] = useState<Draft | null>(() => loadDraft());
   const [hydrated, setHydrated] = useState(() => !draft);
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -121,7 +121,7 @@ const Onboarding = () => {
   const [error, setError] = useState<string | null>(null);
   const [emailTaken, setEmailTaken] = useState(false);
   const [finish, setFinish] = useState<"none" | "done">("none");
-  const [isProfileMode] = useState(() => Boolean(user));
+  const isProfileMode = Boolean(user);
 
   const redirectedRef = useRef(false);
   const creatingRef = useRef(false);
@@ -159,6 +159,29 @@ const Onboarding = () => {
       setName(registeredName);
     }
   }, [name, profile, user]);
+
+  useEffect(() => {
+    if (email.trim()) return;
+    const registeredEmail = user?.email;
+    if (typeof registeredEmail === "string" && registeredEmail.trim()) {
+      setEmail(registeredEmail);
+    }
+  }, [email, user]);
+
+  useEffect(() => {
+    if (username) return;
+    const registeredUsername = profile?.username ?? user?.user_metadata?.username;
+    if (typeof registeredUsername === "string" && registeredUsername.trim()) {
+      setUsername(registeredUsername);
+    }
+  }, [username, profile, user]);
+
+  useEffect(() => {
+    if (needs.length > 0) return;
+    const savedNeeds: string[] = profile?.accessibility_needs ?? [];
+    const validNeeds = savedNeeds.filter((need): need is AccessibilityNeed => need !== "hearing");
+    if (validNeeds.length > 0) setNeeds(validNeeds);
+  }, [needs, profile]);
 
   // Already onboarded users shouldn't stay on this page.
   useEffect(() => {
@@ -350,7 +373,7 @@ const Onboarding = () => {
       });
 
       if (signInError || !signInData.user) {
-        setError(t("auth.genericError"));
+        setError(t("auth.accountCreatedSignInFailed"));
         return;
       }
 
@@ -364,6 +387,10 @@ const Onboarding = () => {
         setError(t("otp.notVerified"));
         const verifyIndex = steps.indexOf("verifyEmail");
         if (verifyIndex >= 0) setStepIndex(verifyIndex);
+      } else if (code === "USERNAME_TAKEN") {
+        setError(t("onboarding.usernameTaken"));
+        const usernameIndex = steps.indexOf("username");
+        if (usernameIndex >= 0) setStepIndex(usernameIndex);
       } else {
         setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
       }
