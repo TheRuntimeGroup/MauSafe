@@ -13,7 +13,6 @@ export default function Contacts() {
   const [contacts, setContacts] = useState<TrustedContact[]>(() => listContacts());
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
-  const [channel, setChannel] = useState<"phone" | "email">("phone");
   const [relationship, setRelationship] = useState("family");
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,31 +27,20 @@ export default function Contacts() {
       setError(t("contacts.requiredFields"));
       return;
     }
-    if (channel === "email" && !EMAIL_PATTERN.test(trimmedContact)) {
+    if (!EMAIL_PATTERN.test(trimmedContact)) {
       setError(t("contacts.invalidEmail"));
-      return;
-    }
-    if (channel === "phone" && trimmedContact.replace(/\D/g, "").length < 7) {
-      setError(t("contacts.invalidPhone"));
       return;
     }
 
     setContacts(addContact({
       name: trimmedName,
-      contact: channel === "email" ? trimmedContact.toLowerCase() : trimmedContact,
+      contact: trimmedContact.toLowerCase(),
       relationship,
     }));
     setName("");
     setContact("");
-    setChannel("phone");
     setRelationship("family");
     setShowForm(false);
-  }
-
-  function changeChannel(next: "phone" | "email") {
-    setChannel(next);
-    setContact("");
-    setError(null);
   }
 
   return (
@@ -94,44 +82,21 @@ export default function Contacts() {
             />
           </div>
 
-          <fieldset>
-            <legend className="mb-2 text-sm font-semibold text-foreground">{t("contacts.channelLabel")}</legend>
-            <div className="grid grid-cols-2 gap-2 rounded-2xl border border-border bg-muted/60 p-1">
-              {(["phone", "email"] as const).map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  aria-pressed={channel === option}
-                  onClick={() => changeChannel(option)}
-                  className={cn(
-                    "flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold transition-colors",
-                    channel === option
-                      ? "bg-white text-primary shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {option === "phone" ? <MessageSquareText className="h-4 w-4" aria-hidden="true" /> : <Mail className="h-4 w-4" aria-hidden="true" />}
-                  {option === "phone" ? t("contacts.channelPhone") : t("contacts.channelEmail")}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-
           <div className="space-y-2">
             <label htmlFor="contact-value" className="text-sm font-semibold text-foreground">
-              {channel === "email" ? t("contacts.emailAddressLabel") : t("contacts.phoneLabel")}
+              {t("contacts.emailAddressLabel")}
             </label>
             <input
               id="contact-value"
-              type={channel === "email" ? "email" : "tel"}
-              inputMode={channel === "email" ? "email" : "tel"}
-              autoComplete={channel === "email" ? "email" : "tel"}
+              type="email"
+              inputMode="email"
+              autoComplete="email"
               value={contact}
               onChange={(event) => {
                 setContact(event.target.value);
                 setError(null);
               }}
-              placeholder={channel === "email" ? "name@example.com" : "+230 5XXX XXXX"}
+              placeholder="name@example.com"
               maxLength={100}
               required
               className="h-12 w-full rounded-xl border border-input bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

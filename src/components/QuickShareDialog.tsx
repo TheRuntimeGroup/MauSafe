@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { AlertCircle, Check, LoaderCircle, Mail, MailWarning, MapPin, MessageSquareText, ShieldCheck, X } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
-import type { OwnerJourney } from "@/lib/types";
 import type { TrustedContact } from "@/lib/contacts";
-import { disableJourneyLocation, emailJourney, updateJourneyLocation } from "@/lib/api";
+import { createJourney, emailJourney } from "@/lib/api";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,14 +13,14 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function QuickShareDialog({
   recipient,
-  journey,
   onClose,
 }: {
   recipient: TrustedContact;
-  journey: OwnerJourney | null;
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
   const [method, setMethod] = useState<"email" | "sms">("email");
   const [consented, setConsented] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -28,10 +29,10 @@ export function QuickShareDialog({
   const [shareUrl, setShareUrl] = useState("");
   const isEmailRecipient = EMAIL_PATTERN.test(recipient.contact);
   const phoneNumber = recipient.contact.replace(/[^\d+]/g, "");
-  const canShare = method === "email" ? isEmailRecipient && Boolean(journey) : phoneNumber.length >= 7 && Boolean(journey);
+  const canShare = method === "email" ? isEmailRecipient : phoneNumber.length >= 7;
 
   async function share() {
-    if (!journey || !canShare || !consented || busy) return;
+    if (!canShare || !consented || busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -45,23 +46,26 @@ export function QuickShareDialog({
           maximumAge: 0,
         });
       });
-      await updateJourneyLocation(journey.id, {
-        latitude: coordinates.coords.latitude,
-        longitude: coordinates.coords.longitude,
-        accuracy: Number.isFinite(coordinates.coords.accuracy) ? coordinates.coords.accuracy : null,
+      const { journey: createdJourney } = await createJourney({
+        preset: "going_home",
+        label: t("quickShare.liveLabel"),
+        durationMinutes: 60,
+        senderName: profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "MauSafe user",
+        contact: recipient.contact,
+        isDemo: false,
+        locationEnabled: true,
+        quickShare: true,
       });
-      const mapUrl = `https://www.openstreetmap.org/?mlat=${coordinates.coords.latitude.toFixed(6)}&mlon=${coordinates.coords.longitude.toFixed(6)}#map=16/${coordinates.coords.latitude.toFixed(6)}/${coordinates.coords.longitude.toFixed(6)}`;
+      const liveShareUrl = new URL(createdJourney.sharePath, window.location.origin).href;
 
       if (method === "email") {
-        await emailJourney(journey.id, { mode: "location", recipientEmail: recipient.contact });
+        await emailJourney(createdJourney.id, { mode: "location", recipientEmail: recipient.contact });
       } else {
         const separator = /iPhone|iPad|iPod/.test(navigator.userAgent) ? "&" : "?";
-        setShareUrl(`sms:${phoneNumber}${separator}body=${encodeURIComponent(t("quickShare.message", { name: recipient.name, url: mapUrl }))}`);
+        setShareUrl(`sms:${phoneNumber}${separator}body=${encodeURIComponent(t("quickShare.liveMessage", { name: recipient.name, url: liveShareUrl }))}`);
       }
-      if (!journey.location) void disableJourneyLocation(journey.id).catch(() => undefined);
       setSent(true);
-    } catch {
-      if (!journey.location) void disableJourneyLocation(journey.id).catch(() => undefined);
+      if (method === "email") navigate(createdJourney.sharePath, { replace: true });
       setError(t("quickShare.error"));
     } finally {
       setBusy(false);
@@ -81,13 +85,7 @@ export function QuickShareDialog({
           </button>
         </div>
 
-        {!journey ? (
-          <div className="mt-5 rounded-2xl bg-secondary/60 p-4 text-sm leading-relaxed text-foreground">
-            <p>{t("quickShare.needJourney")}</p>
-            <a href="/start" className="mt-3 inline-flex text-sm font-extrabold text-primary hover:underline">{t("quickShare.createJourney")}</a>
-          </div>
-        ) : (
-          <>
+        <>
             <div className="mt-4 flex items-start gap-3 rounded-2xl border border-primary/15 bg-secondary/45 p-3">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 p-0.5 text-primary" aria-hidden="true" />
               <p className="text-xs leading-relaxed text-foreground">{t("quickShare.consentHint", { method: method === "email" ? "email" : "SMS" })}</p>

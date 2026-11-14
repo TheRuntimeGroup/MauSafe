@@ -14,7 +14,7 @@ export function LocationSharingCard({
   onUpdate: (journey: OwnerJourney) => void;
 }) {
   const { t, locale } = useI18n();
-  const [sharing, setSharing] = useState(false);
+  const [sharing, setSharing] = useState(journey.locationEnabled);
   const [error, setError] = useState<string | null>(null);
   const [stopping, setStopping] = useState(false);
   const updateRef = useRef(onUpdate);

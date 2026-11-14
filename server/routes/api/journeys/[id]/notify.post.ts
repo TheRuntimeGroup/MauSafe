@@ -65,9 +65,7 @@ export default defineHandler(async (event) => {
     timeZone: "Indian/Mauritius",
     timeZoneName: "short",
   }).format(row.location_updated_at ? new Date(row.location_updated_at) : new Date());
-  const safeMapUrl = isLocationShare
-    ? `https://www.openstreetmap.org/?mlat=${Number(row.latitude).toFixed(6)}&mlon=${Number(row.longitude).toFixed(6)}#map=16/${Number(row.latitude).toFixed(6)}/${Number(row.longitude).toFixed(6)}`
-    : privateLink;
+  const safeMapUrl = isLocationShare ? privateLink : `https://www.openstreetmap.org/?mlat=${Number(row.latitude).toFixed(6)}&mlon=${Number(row.longitude).toFixed(6)}#map=16/${Number(row.latitude).toFixed(6)}/${Number(row.longitude).toFixed(6)}`;
   const safeShareUrl = escapeHtml(safeMapUrl);
   const subject = isLocationShare ? `Location shared by ${row.owner_name}` : `Safe journey update from ${row.owner_name}`;
   const emailText = isLocationShare

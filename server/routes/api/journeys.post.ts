@@ -67,7 +67,7 @@ export default defineHandler(async (event) => {
     expectedArrivalAt: now + Math.round(durationMinutes * 60_000),
     isDemo,
     guestToken: newToken(),
-    guestExpiresAt: now + GUEST_LINK_TTL_MS,
+    guestExpiresAt: body.quickShare ? now + 60 * 60 * 1000 : now + GUEST_LINK_TTL_MS,
     contact,
     journeyKind,
     childAuthId: linkedChildAuthId,

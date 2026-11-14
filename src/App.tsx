@@ -22,6 +22,7 @@ import Community from "./pages/Community";
 import KidZone from "./pages/KidZone";
 import JourneyDetail from "./pages/JourneyDetail";
 import GuestView from "./pages/GuestView";
+import ShareLocation from "./pages/ShareLocation";
 import Emergency from "./pages/Emergency";
 import SosMap from "./pages/SosMap";
 import DisasterSafety from "./pages/DisasterSafety";
@@ -82,6 +83,7 @@ const App = () => {
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/j/:token" element={<GuestView />} />
+                  <Route path="/share/:token" element={<ShareLocation />} />
 
                   <Route element={<RequireAuth />}>
                     <Route element={<AppShell />}>
@@ -97,6 +99,8 @@ const App = () => {
                       <Route path="/community" element={<Community />} />
                       <Route path="/safety-tips" element={<Community />} />
                       <Route path="/child-safety" element={<KidZone />} />
+                      <Route path="/child-account" element={<KidZone />} />
+                      <Route path="/guardian-children" element={<KidZone />} />
                       <Route path="/kids" element={<KidZone />} />
                       <Route path="/disaster-safety" element={<DisasterSafety />} />
                       <Route path="/incident-report" element={<IncidentReports />} />

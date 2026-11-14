@@ -10,8 +10,6 @@ import { AppButton } from "@/components/ui/app-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ChildAccountSetup } from "@/components/ChildAccountSetup";
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LOCATION_KEY = "mausafe.permissions.location";
 type LocationPermission = "granted" | "denied" | "prompt" | "unavailable";
@@ -73,6 +71,15 @@ export default function SettingsPage() {
     }).catch(() => setLocationPermission("prompt"));
   }, []);
 
+  if (profile?.account_type === "child") {
+    return (
+      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-900">
+        <h1 className="font-display text-xl font-extrabold">{t("settings.childLockedTitle")}</h1>
+        <p className="mt-2">{t("settings.childLockedBody")}</p>
+        <Link to="/kids" className="mt-4 inline-flex rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground">{t("kids.backGames")}</Link>
+      </section>
+    );
+  }
   if (loading || !user) {
     return (
       <div className="flex min-h-72 items-center justify-center">
@@ -292,7 +299,6 @@ export default function SettingsPage() {
         </AppButton>
         {locationNotice && <p role="status" className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">{locationNotice}</p>}
       </section>
-      {profile?.account_type !== "child" && <ChildAccountSetup />}
     </div>
   );
 }

@@ -48,6 +48,7 @@ export interface CreateJourneyInput {
   isDemo: boolean;
   journeyKind?: JourneyKind;
   locationEnabled?: boolean;
+  quickShare?: boolean;
 }
 
 export interface CreateJourneyResponse {
