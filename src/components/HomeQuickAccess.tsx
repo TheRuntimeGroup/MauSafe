@@ -5,8 +5,6 @@ import {
   ArrowUp,
   ArrowUpRight,
   Baby,
-  BookOpen,
-  CloudSun,
   FileWarning,
   Heart,
   IdCard,
@@ -39,24 +37,22 @@ const TOOLS: QuickTool[] = [
   { id: "help", to: "/get-help", labelKey: "quick.help", icon: LifeBuoy },
   { id: "places", to: "/safe-places", labelKey: "quick.places", icon: MapPinned },
   { id: "child", to: "/child-safety", labelKey: "quick.child", icon: Baby },
-  { id: "weather", to: "/disaster-safety", labelKey: "quick.weather", icon: CloudSun },
   { id: "alarm", to: "/safety-alarm", labelKey: "quick.alarm", icon: Siren },
   { id: "incident", to: "/incident-report", labelKey: "quick.incident", icon: FileWarning },
   { id: "identity", to: "/emergency-id", labelKey: "quick.identity", icon: IdCard },
   { id: "contacts", to: "/contacts", labelKey: "quick.contacts", icon: Heart },
   { id: "journeys", to: "/check-ins", labelKey: "quick.journeys", icon: ListChecks },
-  { id: "tips", to: "/safety-tips", labelKey: "quick.tips", icon: BookOpen },
 ];
 
 const STORAGE_KEY = "mausafe.quickAccess";
-const DEFAULT_IDS = ["scam", "help", "places", "alarm"];
+const DEFAULT_IDS = TOOLS.map((tool) => tool.id);
 
 function loadSelection() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
     if (Array.isArray(parsed)) {
       const valid = parsed.filter((id): id is string => typeof id === "string" && TOOLS.some((tool) => tool.id === id));
-      if (valid.length > 0) return Array.from(new Set(valid)).slice(0, 4);
+      if (valid.length > 0) return Array.from(new Set(valid));
     }
   } catch {
     // Use the default layout.
@@ -76,7 +72,7 @@ export function HomeQuickAccess() {
   function toggleDraft(id: string) {
     setDraftIds((current) => {
       if (current.includes(id)) return current.length === 1 ? current : current.filter((item) => item !== id);
-      return current.length < 4 ? [...current, id] : current;
+      return current.includes(id) ? current : [...current, id];
     });
   }
 
@@ -133,7 +129,7 @@ export function HomeQuickAccess() {
               {TOOLS.map((tool) => {
                 const selected = draftIds.includes(tool.id);
                 const index = draftIds.indexOf(tool.id);
-                const addDisabled = !selected && draftIds.length >= 4;
+                const addDisabled = !selected && draftIds.length >= TOOLS.length;
                 return (
                   <li key={tool.id} className={cn("flex items-center gap-2 rounded-xl border p-2.5", selected ? "border-primary/25 bg-secondary" : "border-border bg-white")}>
                     <button
