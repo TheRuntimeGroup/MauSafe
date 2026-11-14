@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Baby,
   Footprints,
@@ -35,6 +36,11 @@ const MOBILE_ITEMS = [
 export function AppShell() {
   const { t } = useI18n();
   const { isAdmin } = useIsAdmin();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   const mobileTab = (item: (typeof MOBILE_ITEMS)[number]) => (
     <NavLink
