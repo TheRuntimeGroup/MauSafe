@@ -85,8 +85,6 @@ export default defineHandler(async (event) => {
     body: JSON.stringify({
       from: resendFrom,
       to: [recipient],
-      from: resendFrom,
-      to: [recipient],
       subject,
       text: emailText,
       html: emailMarkup,

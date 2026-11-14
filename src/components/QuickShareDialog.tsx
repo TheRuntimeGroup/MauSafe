@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AlertCircle, Check, LoaderCircle, Mail, MailWarning, MapPin, MessageSquareText, ShieldCheck, X } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import type { TrustedContact } from "@/lib/contacts";
-import { createJourney, emailJourney } from "@/lib/api";
+import { createJourney, emailJourney, updateJourneyLocation } from "@/lib/api";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,7 +43,7 @@ export function QuickShareDialog({
         setError(t("location.unsupported"));
         return;
       }
-      await new Promise<GeolocationPosition>((resolve, reject) => {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: false,
           timeout: 15_000,
@@ -61,6 +61,12 @@ export function QuickShareDialog({
         quickShare: true,
       });
       const liveShareUrl = new URL(createdJourney.sharePath, window.location.origin).href;
+
+      await updateJourneyLocation(createdJourney.id, {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy ?? null,
+      });
 
       if (method === "email") {
         await emailJourney(createdJourney.id, { mode: "location", recipientEmail: recipient.contact });
