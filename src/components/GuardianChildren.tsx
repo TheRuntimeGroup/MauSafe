@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, ChevronRight, LoaderCircle, MapPin, RefreshCw, Users } from "lucide-react";
+import { Check, ChevronRight, LoaderCircle, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
-import type { OwnerJourney, SharedLocation } from "@/lib/types";
+import type { SharedLocation } from "@/lib/types";
 import { SharedLocationMap } from "@/components/SharedLocationMap";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -16,10 +16,8 @@ export function GuardianChildren() {
   const { user, profile } = useAuth();
   const [children, setChildren] = useState<ChildRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [journey, setJourney] = useState<OwnerJourney | null>(null);
   const [liveLocation, setLiveLocation] = useState<SharedLocation | null>(null);
   const [loading, setLoading] = useState(true);
-  const [journeyLoading, setJourneyLoading] = useState(false);
   const [liveLoading, setLiveLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,25 +56,6 @@ export function GuardianChildren() {
     return () => { active = false; };
   }, [t, user]);
 
-  const loadJourney = useCallback(async (childId: string, showLoading = true) => {
-    if (showLoading) setJourneyLoading(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("unauthorized");
-      const response = await fetch(`/api/guardian/children/${encodeURIComponent(childId)}/journey`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      if (!response.ok) throw new Error("unavailable");
-      const data = await response.json() as { journey: OwnerJourney | null };
-      setJourney(data.journey);
-      setError(null);
-    } catch {
-      setError(t("guardian.authError"));
-    } finally {
-      if (showLoading) setJourneyLoading(false);
-    }
-  }, [t]);
-
   const loadLiveLocation = useCallback(async (childId: string, showLoading = true) => {
     if (showLoading) setLiveLoading(true);
     try {
@@ -99,15 +78,6 @@ export function GuardianChildren() {
       if (showLoading) setLiveLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    if (!selectedId) return;
-    void loadJourney(selectedId);
-    const interval = window.setInterval(() => {
-      if (document.visibilityState === "visible") void loadJourney(selectedId, false);
-    }, 15_000);
-    return () => window.clearInterval(interval);
-  }, [selectedId, loadJourney]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -174,48 +144,6 @@ export function GuardianChildren() {
           </div>
 
           {selectedChild && (
-            <>
-            <div className="rounded-2xl border border-primary/15 bg-[#F4F8FB] p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-display text-base font-extrabold text-foreground">{t("guardian.childLocation", { name: selectedChild.name })}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{journey ? t(`status.${journey.status}`) : t("guardian.noJourney")}</p>
-                </div>
-                <button type="button" onClick={() => void loadJourney(selectedChild.id)} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-bold text-primary hover:bg-white" aria-label={t("common.retry")}>
-                  <RefreshCw className={cn("h-3.5 w-3.5", journeyLoading && "animate-spin")} aria-hidden="true" />
-                  {t("common.retry")}
-                </button>
-              </div>
-
-              {journeyLoading && <LoaderCircle className="my-4 h-5 w-5 animate-spin text-primary" aria-hidden="true" />}
-              {error && <p role="alert" className="mt-3 rounded-lg bg-danger/[0.06] px-3 py-2 text-xs text-danger">{error}</p>}
-              {!journeyLoading && journey && (
-                <>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                    {t("guardian.lastSync", { time: new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date(journey.updatedAt)) })}
-                  </p>
-                  {journey.location ? (
-                    <>
-                      <div className="mt-3 overflow-hidden rounded-xl bg-white">
-                        <SharedLocationMap location={journey.location} />
-                      </div>
-                      <div className="mt-3 flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground">
-                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
-                        <span>{t("location.approximate")}</span>
-                      </div>
-                      {journey.location.updatedAt && (
-                        <p className="mt-2 text-[11px] text-muted-foreground">
-                          {t("location.updated", { time: new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(new Date(journey.location.updatedAt)) })}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{t("location.waiting")}</p>
-                  )}
-                </>
-              )}
-            </div>
-
             <div className="rounded-2xl border border-primary/15 bg-white p-4">
               <h3 className="font-display text-base font-extrabold text-foreground">{t("guardian.liveLocation")}</h3>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("guardian.liveLocationHint")}</p>
@@ -251,7 +179,6 @@ export function GuardianChildren() {
                 </div>
               )}
             </div>
-            </>
           )}
         </>
       )}
