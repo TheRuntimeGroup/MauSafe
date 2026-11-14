@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Baby,
-  Footprints,
   HeartHandshake,
   Home,
   LifeBuoy,
@@ -28,7 +27,6 @@ const NAV_ITEMS = [
 const MOBILE_ITEMS = [
   { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
   { to: "/sos-map", labelKey: "nav.sosMap", shortLabelKey: "nav.sosMap", icon: MapPinned, end: false },
-  { to: "/check-ins", labelKey: "nav.safeWalk", shortLabelKey: "nav.safeWalk", icon: Footprints, end: false },
   { to: "/community", labelKey: "nav.community", shortLabelKey: "nav.community", icon: HeartHandshake, end: false },
   { to: "/child-safety", labelKey: "nav.kidZone", shortLabelKey: "nav.kidZone", icon: Baby, end: false },
 ];
@@ -184,7 +182,7 @@ export function AppShell() {
         style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         aria-label={t("nav.menu")}
       >
-        <div className="grid grid-cols-5 items-stretch">
+        <div className="grid grid-cols-4 items-stretch">
           {MOBILE_ITEMS.map(mobileTab)}
         </div>
       </nav>
