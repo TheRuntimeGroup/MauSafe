@@ -30,36 +30,57 @@ export function LocationSharingCard({
 
     let lastSentAt = 0;
     let sending = false;
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const now = Date.now();
-        if (sending || now - lastSentAt < 12_000) return;
-        sending = true;
-        lastSentAt = now;
-        setError(null);
-        void updateJourneyLocation(journey.id, {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: Number.isFinite(position.coords.accuracy) ? position.coords.accuracy : null,
-        })
-          .then(({ journey: updated }) => updateRef.current(updated))
-          .catch(() => setError(t("location.updateError")))
-          .finally(() => {
-            sending = false;
-          });
-      },
-      (geoError) => {
-        setError(
-          geoError.code === geoError.PERMISSION_DENIED
-            ? t("location.permissionError")
-            : t("location.positionError"),
-        );
+    let cancelled = false;
+
+    const sendPosition = (position: GeolocationPosition) => {
+      const now = Date.now();
+      if (cancelled || sending || now - lastSentAt < 12_000) return;
+      sending = true;
+      lastSentAt = now;
+      setError(null);
+      void updateJourneyLocation(journey.id, {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: Number.isFinite(position.coords.accuracy) ? position.coords.accuracy : null,
+      })
+        .then(({ journey: updated }) => updateRef.current(updated))
+        .catch(() => setError(t("location.updateError")))
+        .finally(() => {
+          sending = false;
+        });
+    };
+
+    const handleError = (geoError: GeolocationPositionError) => {
+      if (cancelled) return;
+      if (geoError.code === geoError.PERMISSION_DENIED) {
+        setError(t("location.permissionError"));
         setSharing(false);
-      },
-      {enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
+        return;
+      }
+      // Timeout / position-unavailable are common indoors and are not fatal:
+      // keep the watch alive so it can recover as soon as a fix is available.
+      setError(t("location.positionError"));
+    };
+
+    // Fast first fix using cached or network-based location so the card stops
+    // "waiting" immediately, even before a full GPS lock is established.
+    navigator.geolocation.getCurrentPosition(sendPosition, handleError, {
+      enableHighAccuracy: false,
+      timeout: 15_000,
+      maximumAge: 60_000,
+    });
+
+    // Ongoing tracking with higher accuracy for the live location link.
+    const watchId = navigator.geolocation.watchPosition(
+      sendPosition,
+      handleError,
+      { enableHighAccuracy: true, timeout: 30_000, maximumAge: 30_000 },
     );
 
-    return () => navigator.geolocation.clearWatch(watchId);
+    return () => {
+      cancelled = true;
+      navigator.geolocation.clearWatch(watchId);
+    };
   }, [journey.id, sharing, t]);
 
   async function stopSharing() {
@@ -88,6 +109,13 @@ export function LocationSharingCard({
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("location.consent")}</p>
         </div>
       </div>
+
+      {sharing && !location && (
+        <div className="mt-4 flex items-center gap-2 rounded-xl bg-secondary/60 p-3 text-xs text-secondary-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          <span>{t("location.waiting")}</span>
+        </div>
+      )}
 
       {location && (
         <div className="mt-4 rounded-xl bg-secondary/60 p-3 text-xs text-secondary-foreground">
