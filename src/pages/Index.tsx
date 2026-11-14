@@ -13,7 +13,6 @@ import { HomeQuickAccess } from "@/components/HomeQuickAccess";
 import { HomeTrustedContacts } from "@/components/HomeTrustedContacts";
 import { HomeEmergencyIdNotice } from "@/components/HomeEmergencyIdNotice";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
-import { cn } from "@/lib/utils";
 import type { OwnerJourney } from "@/lib/types";
 
 function greetingKey(hour: number): string {
@@ -76,33 +75,6 @@ export default function Index() {
     month: "long",
   }).format(new Date(now));
 
-  const statusKind: "ready" | "active" | "overdue" = !active
-    ? "ready"
-    : active.status === "overdue"
-      ? "overdue"
-      : "active";
-
-  const status = loading
-    ? { dot: "bg-slate-300", title: t("common.loading"), body: t("home.status.activeBody") }
-    : loadError
-      ? { dot: "bg-amber-300", title: t("common.error"), body: t("home.journeyLoadError") }
-      : {
-          ready: {
-            dot: "bg-emerald-300",
-            title: t("home.status.readyTitle"),
-            body: t("home.status.readyBody"),
-          },
-          active: {
-            dot: "bg-sky-300",
-            title: t("home.status.activeTitle"),
-            body: t("home.status.activeBody"),
-          },
-          overdue: {
-            dot: "bg-amber-300",
-            title: t("home.status.overdueTitle"),
-            body: t("home.status.overdueBody"),
-          },
-        }[statusKind];
 
   return (
     <div className="mx-auto max-w-3xl space-y-7">
@@ -128,19 +100,6 @@ export default function Index() {
           </time>
         </div>
         <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-300">{t("home.dashboardTitle")}</p>
-
-        <div className="mt-6 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.08] px-4 py-3.5 sm:max-w-md">
-          <span className="relative mt-1 flex h-3 w-3 shrink-0" aria-hidden="true">
-            {!loading && !loadError && (
-              <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-50 motion-safe:animate-ping", status.dot)} />
-            )}
-            <span className={cn("relative inline-flex h-3 w-3 rounded-full", status.dot)} />
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-extrabold text-white">{status.title}</p>
-            {status.body && <p className="mt-0.5 text-xs leading-relaxed text-slate-300">{status.body}</p>}
-          </div>
-        </div>
         <AnnouncementBanner variant="dashboard" />
       </header>
       <HomeEmergencyIdNotice />
