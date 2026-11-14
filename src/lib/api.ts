@@ -64,6 +64,13 @@ export function createJourney(input: CreateJourneyInput): Promise<CreateJourneyR
   });
 }
 
+export function emailJourney(id: string): Promise<{ ok: boolean; delivery: string }> {
+  return request(`/api/journeys/${id}/notify`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
 export function listJourneys(): Promise<{ journeys: OwnerJourney[] }> {
   return request("/api/journeys", { headers: authHeaders() });
 }
