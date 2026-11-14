@@ -1,4 +1,5 @@
-import { defineHandler, useRuntimeConfig } from "nitro";
+import { defineHandler } from "nitro";
+import { useRuntimeConfig } from "nitro/runtime-config";
 import { createError, getRequestURL, readBody } from "nitro/h3";
 import { requireOwnerJourney } from "../../../../lib/guard";
 
