@@ -9,7 +9,6 @@ export interface ReputationSignal {
     | "suspicious_tld"
     | "shortener"
     | "domain_age"
-    | "dns"
     | "urlhaus"
     | "trustpilot";
   level: SignalLevel;
@@ -17,7 +16,7 @@ export interface ReputationSignal {
 }
 
 export interface ReputationSource {
-  id: "trustpilot" | "urlhaus" | "rdap" | "dns";
+  id: "trustpilot" | "urlhaus" | "rdap";
   status: SourceStatus;
   url: string | null;
   rating: number | null;

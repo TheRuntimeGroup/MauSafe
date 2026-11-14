@@ -148,10 +148,6 @@ function signalDetail(
       if (days < 30) return t("reputation.detail.newDomain", { n: days });
       return t("reputation.detail.daysOld", { n: days });
     }
-    case "dns":
-      return signal.level === "danger"
-        ? t("reputation.detail.notReachable")
-        : t("reputation.detail.reachable");
     case "urlhaus": {
       const count = Number(detail);
       return count > 0 ? t("reputation.detail.reports", { n: count }) : t("reputation.detail.noReports");

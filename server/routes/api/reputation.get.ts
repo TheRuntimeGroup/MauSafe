@@ -11,7 +11,7 @@ interface ReputationSignal {
 }
 
 interface ReputationSource {
-  id: "trustpilot" | "urlhaus" | "rdap" | "dns";
+  id: "trustpilot" | "urlhaus" | "rdap";
   status: SourceStatus;
   url: string | null;
   rating: number | null;
@@ -87,26 +87,6 @@ async function rdapLookup(domain: string): Promise<RdapResult> {
   const data = (await response.json()) as { events?: { eventAction?: string; eventDate?: string }[] };
   const created = data.events?.find((e) => e.eventAction === "registration")?.eventDate ?? null;
   return { created };
-}
-
-type DnsStatus = "reachable" | "not_reachable";
-
-async function dnsLookup(hostname: string): Promise<DnsStatus> {
-  let hasAnswer = false;
-  for (const type of ["A", "AAAA"]) {
-    const url = new URL("https://dns.google/resolve");
-    url.searchParams.set("name", hostname);
-    url.searchParams.set("type", type);
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(6000),
-      headers: { Accept: "application/json", "User-Agent": USER_AGENT },
-    });
-    if (!response.ok) throw new Error("dns failed");
-    const data = (await response.json()) as { Status?: number; Answer?: unknown[] };
-    if (data.Status === 3) return "not_reachable";
-    if (Array.isArray(data.Answer) && data.Answer.length > 0) hasAnswer = true;
-  }
-  return hasAnswer ? "reachable" : "not_reachable";
 }
 
 async function urlhausLookup(host: string): Promise<number> {
@@ -265,21 +245,6 @@ export default defineHandler(async (event) => {
     reviewCount: null,
     reportCount: null,
   });
-
-  // DNS reachability via Google DNS-over-HTTPS.
-  let dnsStatus: SourceStatus = "unavailable";
-  if (!ipLiteral) {
-    try {
-      const reachable = await dnsLookup(hostname);
-      signals.push({ id: "dns", level: reachable === "reachable" ? "info" : "danger", detail: null });
-      dnsStatus = "ok";
-    } catch {
-      dnsStatus = "unavailable";
-    }
-  } else {
-    dnsStatus = "empty";
-  }
-  sources.push({ id: "dns", status: dnsStatus, url: null, rating: null, reviewCount: null, reportCount: null });
 
   // URLhaus — known malware/phishing reports for the registrable domain.
   let urlhausStatus: SourceStatus = "unavailable";
