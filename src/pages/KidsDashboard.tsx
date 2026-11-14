@@ -20,6 +20,8 @@ import { useI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { AppButton } from "@/components/ui/app-button";
 import { cn } from "@/lib/utils";
+import { KidLocationTracker } from "@/components/KidLocationTracker";
+import { SliceTheScamGame } from "@/components/SliceTheScamGame";
 import "./KidsDashboard.css";
 
 function KidsMascot() {
@@ -215,6 +217,10 @@ export default function KidsDashboard() {
         </div>
       </header>
       <KidsMascot />
+
+      <KidLocationTracker />
+
+      <SliceTheScamGame />
 
       {scenario ? (
         <section className="space-y-5 rounded-[1.75rem] border border-[#DDE6ED] bg-card p-5 shadow-premium sm:p-7">

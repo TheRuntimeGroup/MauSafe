@@ -19,6 +19,10 @@ export default function KidZone() {
     if (childMode && pathname !== "/kids") navigate("/kids", { replace: true });
   }, [childMode, pathname, navigate]);
 
+  if (childMode) {
+    return <KidsDashboard />;
+  }
+
   return (
     <div className="space-y-6">
       <FeatureSections

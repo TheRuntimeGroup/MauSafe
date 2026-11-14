@@ -21,8 +21,9 @@ type AccountMenuProps = {
 
 export function AccountMenu({ variant = "sidebar" }: AccountMenuProps) {
   const { t, lang, setLang } = useI18n();
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, profile } = useAuth();
   const { isAdmin } = useIsAdmin();
+  const isChild = profile?.account_type === "child";
 
   if (loading) {
     return (
@@ -123,12 +124,14 @@ export function AccountMenu({ variant = "sidebar" }: AccountMenuProps) {
             {t("settings.title")}
           </NavLink>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-foreground focus:bg-muted">
-          <NavLink to="/emergency-id">
-            <IdCard className="h-4 w-4" aria-hidden="true" />
-            {t("profile.title")}
-          </NavLink>
-        </DropdownMenuItem>
+        {!isChild && (
+          <DropdownMenuItem asChild className="gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-foreground focus:bg-muted">
+            <NavLink to="/emergency-id">
+              <IdCard className="h-4 w-4" aria-hidden="true" />
+              {t("profile.title")}
+            </NavLink>
+          </DropdownMenuItem>
+        )}
         {isAdmin && (
           <DropdownMenuItem asChild className="gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-foreground focus:bg-muted">
             <NavLink to="/admin/announcements">

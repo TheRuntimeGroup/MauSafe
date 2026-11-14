@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { AccountMenu } from "@/components/AccountMenu";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,9 @@ const MOBILE_ITEMS = [
 export function AppShell() {
   const { t } = useI18n();
   const { isAdmin } = useIsAdmin();
+  const { profile } = useAuth();
   const { pathname } = useLocation();
+  const isChild = profile?.account_type === "child";
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -65,6 +68,36 @@ export function AppShell() {
       )}
     </NavLink>
   );
+
+  if (isChild) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -left-28 top-20 h-80 w-80 rounded-full bg-sky-300/25 blur-[100px]" />
+          <div className="absolute -right-24 top-1/3 h-96 w-96 rounded-full bg-emerald-200/25 blur-[110px]" />
+          <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-amber-100/45 blur-[90px]" />
+        </div>
+
+        <header className="glass-panel sticky top-0 z-40 border-x-0 border-t-0 pt-[env(safe-area-inset-top)]">
+          <div className="mx-auto flex h-[4.5rem] max-w-3xl items-center justify-between gap-3 px-5">
+            <NavLink to="/kids" className="flex min-w-0 items-center gap-2.5" aria-label={t("nav.home")}>
+              <Logo className="h-9 w-9 shrink-0" />
+              <span className="font-display text-xl font-extrabold tracking-[-0.045em] text-foreground">
+                {t("app.name")}
+              </span>
+            </NavLink>
+            <AccountMenu variant="header" />
+          </div>
+        </header>
+
+        <main className="relative z-10">
+          <div className="mx-auto w-full max-w-3xl px-5 pb-24 pt-6 sm:px-6 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background lg:flex">

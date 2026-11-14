@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
 import { I18nProvider } from "@/i18n/I18nContext";
 import { restoreVisualPreferences } from "@/lib/visualPreferences";
@@ -37,6 +37,7 @@ const queryClient = new QueryClient();
 
 function RequireAuth() {
   const { user, profile, loading, profileLoading } = useAuth();
+  const { pathname } = useLocation();
 
   if (loading || profileLoading) {
     return (
@@ -50,7 +51,7 @@ function RequireAuth() {
     return <Navigate to="/auth" replace />;
   }
 
-  if (profile?.account_type === "child" && !profile?.onboarding_completed) {
+  if (profile?.account_type === "child" && pathname !== "/kids" && pathname !== "/settings") {
     return <Navigate to="/kids" replace />;
   }
 

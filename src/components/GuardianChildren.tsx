@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, Check, ChevronRight, LoaderCircle, MapPin, RefreshCw, Users } from "lucide-react";
+import { Check, ChevronRight, LoaderCircle, MapPin, RefreshCw, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
-import type { OwnerJourney } from "@/lib/types";
+import type { OwnerJourney, SharedLocation } from "@/lib/types";
 import { SharedLocationMap } from "@/components/SharedLocationMap";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -17,8 +17,10 @@ export function GuardianChildren() {
   const [children, setChildren] = useState<ChildRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [journey, setJourney] = useState<OwnerJourney | null>(null);
+  const [liveLocation, setLiveLocation] = useState<SharedLocation | null>(null);
   const [loading, setLoading] = useState(true);
   const [journeyLoading, setJourneyLoading] = useState(false);
+  const [liveLoading, setLiveLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,6 +77,29 @@ export function GuardianChildren() {
     }
   }, [t]);
 
+  const loadLiveLocation = useCallback(async (childId: string, showLoading = true) => {
+    if (showLoading) setLiveLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("child_locations")
+        .select("latitude,longitude,accuracy,updated_at")
+        .eq("child_id", childId)
+        .maybeSingle();
+      if (error || !data) {
+        setLiveLocation(null);
+        return;
+      }
+      setLiveLocation({
+        latitude: data.latitude,
+        longitude: data.longitude,
+        accuracy: data.accuracy ?? null,
+        updatedAt: data.updated_at ?? null,
+      });
+    } finally {
+      if (showLoading) setLiveLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!selectedId) return;
     void loadJourney(selectedId);
@@ -83,6 +108,16 @@ export function GuardianChildren() {
     }, 15_000);
     return () => window.clearInterval(interval);
   }, [selectedId, loadJourney]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    setLiveLocation(null);
+    void loadLiveLocation(selectedId);
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") void loadLiveLocation(selectedId, false);
+    }, 15_000);
+    return () => window.clearInterval(interval);
+  }, [selectedId, loadLiveLocation]);
 
   const selectedChild = useMemo(() => children.find((child) => child.id === selectedId) ?? null, [children, selectedId]);
   if (profile?.account_type === "child") return null;
@@ -139,6 +174,7 @@ export function GuardianChildren() {
           </div>
 
           {selectedChild && (
+            <>
             <div className="rounded-2xl border border-primary/15 bg-[#F4F8FB] p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -179,6 +215,43 @@ export function GuardianChildren() {
                 </>
               )}
             </div>
+
+            <div className="rounded-2xl border border-primary/15 bg-white p-4">
+              <h3 className="font-display text-base font-extrabold text-foreground">{t("guardian.liveLocation")}</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("guardian.liveLocationHint")}</p>
+              {liveLoading ? (
+                <p className="mt-3 flex items-center gap-2 rounded-xl bg-background p-4 text-sm text-muted-foreground" role="status">
+                  <LoaderCircle className="h-4 w-4 animate-spin text-primary" aria-hidden="true" />
+                  {t("common.loading")}
+                </p>
+              ) : liveLocation ? (
+                <>
+                  <div className="mt-3 overflow-hidden rounded-xl ring-1 ring-border">
+                    <SharedLocationMap location={liveLocation} />
+                  </div>
+                  <div className="mt-3 rounded-xl bg-secondary/50 p-3 text-xs leading-relaxed text-secondary-foreground">
+                    <p className="font-mono text-sm font-semibold tabular-nums text-foreground">
+                      {liveLocation.latitude.toFixed(6)}, {liveLocation.longitude.toFixed(6)}
+                    </p>
+                    {liveLocation.accuracy !== null && (
+                      <p className="mt-1">{t("location.accuracy", { value: Math.round(liveLocation.accuracy) })}</p>
+                    )}
+                    <p className="mt-1">{t("location.approximate")}</p>
+                    {liveLocation.updatedAt && (
+                      <p className="mt-1 text-muted-foreground">
+                        {t("guardian.liveUpdated", { time: formatDateTime(liveLocation.updatedAt, locale) })}
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="mt-3 rounded-xl border border-dashed border-border bg-background p-4 text-center">
+                  <p className="font-display text-sm font-extrabold text-foreground">{t("guardian.noLiveLocation")}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("guardian.noLiveLocationHint")}</p>
+                </div>
+              )}
+            </div>
+            </>
           )}
         </>
       )}
