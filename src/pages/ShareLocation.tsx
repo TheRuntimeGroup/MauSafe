@@ -9,7 +9,7 @@ import { formatDateTime } from "@/lib/format";
 import type { GuestJourney } from "@/lib/types";
 
 function remainingMinutes(expiresAt: string): number {
-  return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 60000);
+  return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 60000));
 }
 
 export default function ShareLocation() {

@@ -115,9 +115,6 @@ export function QuickShareDialog({
                 {t("quickShare.confirmConsent", { name: recipient.name })}
               </label>
             )}
-          </>
-        )}
-
         {error && <p role="alert" className="mt-4 flex items-start gap-2 rounded-xl bg-danger/[0.06] p-3 text-xs font-semibold text-danger"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />{error}</p>}
 
         {sent && (
