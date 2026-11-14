@@ -5,6 +5,7 @@ export type OtpErrorCode =
   | "INVALID_CODE"
   | "EXPIRED_CODE"
   | "PASSWORD_TOO_SHORT"
+  | "EMAIL_NOT_VERIFIED"
   | "EMAIL_TAKEN"
   | "RATE_LIMITED"
   | "EMAIL_NOT_CONFIGURED"

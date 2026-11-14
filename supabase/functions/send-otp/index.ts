@@ -80,6 +80,18 @@ serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    const { data: emailTaken, error: emailTakenError } = await supabase
+      .rpc("email_is_registered", { target_email: email });
+
+    if (emailTakenError) {
+      console.error("[send-otp] failed to check email availability", emailTakenError);
+      return json({ error: "UNKNOWN" });
+    }
+
+    if (emailTaken === true) {
+      return json({ error: "EMAIL_TAKEN" });
+    }
+
     const requestIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || req.headers.get("x-real-ip")
       || "unknown";

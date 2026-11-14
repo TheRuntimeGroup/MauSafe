@@ -119,10 +119,12 @@ const Onboarding = () => {
   const [otpSecondsLeft, setOtpSecondsLeft] = useState(0);
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [emailTaken, setEmailTaken] = useState(false);
   const [finish, setFinish] = useState<"none" | "done">("none");
   const [isProfileMode] = useState(() => Boolean(user));
 
   const redirectedRef = useRef(false);
+  const creatingRef = useRef(false);
 
   const steps = useMemo<StepId[]>(() => {
     const list: StepId[] = [];
@@ -200,6 +202,8 @@ const Onboarding = () => {
         return t("otp.expired");
       case "INVALID_CODE":
         return t("otp.wrong");
+      case "EMAIL_NOT_VERIFIED":
+        return t("otp.notVerified");
       case "USERNAME_TAKEN":
         return t("onboarding.usernameTaken");
       case "PASSWORD_TOO_SHORT":
@@ -265,13 +269,18 @@ const Onboarding = () => {
 
     if (currentStep === "email") {
       setSubmitting(true);
+      setEmailTaken(false);
       try {
         const result = await sendOtp(email.trim());
         setOtpExpiresAt(result.expiresAt);
         setOtpCode("");
         setCooldown(RESEND_SECONDS);
       } catch (error) {
-        setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+        if (error instanceof Error && error.message === "EMAIL_TAKEN") {
+          setEmailTaken(true);
+        } else {
+          setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+        }
         setSubmitting(false);
         return;
       }
@@ -295,6 +304,9 @@ const Onboarding = () => {
       setError(stepError);
       return;
     }
+
+    if (creatingRef.current) return;
+    creatingRef.current = true;
 
     setSubmitting(true);
 
@@ -347,8 +359,16 @@ const Onboarding = () => {
       await refreshProfile();
       setFinish("done");
     } catch (error) {
-      setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+      const code = error instanceof Error ? error.message : "UNKNOWN";
+      if (code === "EMAIL_NOT_VERIFIED") {
+        setError(t("otp.notVerified"));
+        const verifyIndex = steps.indexOf("verifyEmail");
+        if (verifyIndex >= 0) setStepIndex(verifyIndex);
+      } else {
+        setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+      }
     } finally {
+      creatingRef.current = false;
       setSubmitting(false);
     }
   }
@@ -636,26 +656,43 @@ const Onboarding = () => {
                     )}
 
                     {finish === "none" && currentStep === "email" && (
-                      <TextStep
-                        eyebrow={t("onboarding.email.eyebrow")}
-                        title={t("onboarding.email.title")}
-                        subtitle={t("onboarding.email.subtitle")}
-                        value={email}
-                        onChange={(value) => {
-                          setEmail(value);
-                          setError(null);
-                        }}
-                        placeholder={t("onboarding.email.placeholder")}
-                        icon={<Mail className="h-5 w-5" aria-hidden="true" />}
-                        type="email"
-                        inputMode="email"
-                        autoComplete="email"
-                        onContinue={goNext}
-                        continueLabel={t("onboarding.continue")}
-                        pending={submitting}
-                        pendingLabel={t("onboarding.email.sending")}
-                        autoFocus
-                      />
+                      <>
+                        <TextStep
+                          eyebrow={t("onboarding.email.eyebrow")}
+                          title={t("onboarding.email.title")}
+                          subtitle={t("onboarding.email.subtitle")}
+                          value={email}
+                          onChange={(value) => {
+                            setEmail(value);
+                            setError(null);
+                            setEmailTaken(false);
+                          }}
+                          placeholder={t("onboarding.email.placeholder")}
+                          icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+                          type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          onContinue={goNext}
+                          continueLabel={t("onboarding.continue")}
+                          pending={submitting}
+                          pendingLabel={t("onboarding.email.sending")}
+                          autoFocus
+                        />
+                        {emailTaken && (
+                          <div role="alert" className="mt-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
+                              <LogIn className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold leading-relaxed text-amber-900">{t("auth.alreadyRegistered")}</p>
+                              <Link to="/auth" className="mt-1 inline-flex items-center gap-1.5 text-sm font-extrabold text-primary transition-colors hover:underline">
+                                {t("auth.signIn")}
+                                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
 
                     {finish === "none" && currentStep === "accessibility" && (

@@ -71,11 +71,35 @@ serve(async (req) => {
     }
 
     const record = codes?.[0];
+
     if (!record) {
-      return json({ error: "INVALID_CODE" });
+      if (!creatingAccount) {
+        return json({ error: "INVALID_CODE" });
+      }
+
+      // Never create an account without a verified email. Distinguish an
+      // already-registered email (so the user is told to sign in) from a
+      // missing verification step instead of misreporting a wrong code.
+      const { data: emailTaken, error: emailCheckError } = await supabase
+        .rpc("email_is_registered", { target_email: email });
+
+      if (!emailCheckError && emailTaken === true) {
+        return json({ error: "EMAIL_TAKEN" });
+      }
+
+      if (emailCheckError) {
+        console.error("[verify-signup] failed to check email availability", emailCheckError);
+        return json({ error: "UNKNOWN" });
+      }
+
+      return json({ error: "EMAIL_NOT_VERIFIED" });
     }
 
     if (!record.verified_at) {
+      if (creatingAccount) {
+        return json({ error: "EMAIL_NOT_VERIFIED" });
+      }
+
       const codeHash = await sha256Hex(code);
       if (code.length !== 6 || record.code_hash !== codeHash) {
         return json({ error: "INVALID_CODE" });
@@ -95,10 +119,10 @@ serve(async (req) => {
         return json({ error: "UNKNOWN" });
       }
 
-      if (!creatingAccount) {
-        return json({ ok: true });
-      }
-    } else if (!creatingAccount) {
+      return json({ ok: true });
+    }
+
+    if (!creatingAccount) {
       return json({ ok: true });
     }
 
