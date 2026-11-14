@@ -640,6 +640,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     "otp.changeEmail": "Use a different email",
 
     "home.quickTitle": "Quick actions",
+    "emergencyId.noticeTitle": "Keep your Emergency ID ready",
+    "emergencyId.noticeBody": "Add essential medical and emergency contact details so the right information is available when it matters.",
+    "emergencyId.manage": "Review & update",
     "home.customise": "Customise",
     "home.customiseTitle": "Quick actions",
     "home.customiseHint": "Choose up to 4 tools. Use + to add, − to remove, and the arrows to change their order.",
@@ -1469,6 +1472,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     "otp.changeEmail": "Utiliser un autre e-mail",
 
     "home.quickTitle": "Actions rapides",
+    "emergencyId.noticeTitle": "Préparez votre identité d'urgence",
+    "emergencyId.noticeBody": "Ajoutez vos informations médicales et contacts d'urgence essentiels pour qu'elles soient disponibles au moment crucial.",
+    "emergencyId.manage": "Vérifier et mettre à jour",
     "home.customise": "Personnaliser",
     "home.customiseTitle": "Actions rapides",
     "home.customiseHint": "Choisissez jusqu'à 4 outils. Utilisez + pour ajouter, − pour retirer et les flèches pour changer l'ordre.",

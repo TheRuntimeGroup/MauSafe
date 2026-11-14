@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Check, ChevronDown, Languages, LoaderCircle, LogIn, LogOut, Megaphone, Settings, UserPlus } from "lucide-react";
+import { Check, ChevronDown, IdCard, Languages, LoaderCircle, LogIn, LogOut, Megaphone, Settings, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { LANGUAGES } from "@/i18n/translations";
@@ -121,6 +121,12 @@ export function AccountMenu({ variant = "sidebar" }: AccountMenuProps) {
           <NavLink to="/settings">
             <Settings className="h-4 w-4" aria-hidden="true" />
             {t("settings.title")}
+          </NavLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="gap-2 rounded-xl px-2 py-2 text-sm font-semibold text-foreground focus:bg-muted">
+          <NavLink to="/emergency-id">
+            <IdCard className="h-4 w-4" aria-hidden="true" />
+            {t("profile.title")}
           </NavLink>
         </DropdownMenuItem>
         {isAdmin && (

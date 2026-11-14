@@ -11,6 +11,7 @@ import { useNow } from "@/hooks/useNow";
 import { JourneyStatusCard } from "@/components/JourneyStatusCard";
 import { HomeQuickAccess } from "@/components/HomeQuickAccess";
 import { HomeTrustedContacts } from "@/components/HomeTrustedContacts";
+import { HomeEmergencyIdNotice } from "@/components/HomeEmergencyIdNotice";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { cn } from "@/lib/utils";
 import type { OwnerJourney } from "@/lib/types";
@@ -142,6 +143,7 @@ export default function Index() {
         </div>
         <AnnouncementBanner variant="dashboard" />
       </header>
+      <HomeEmergencyIdNotice />
 
       {loadError && (
         <div role="alert" className="flex flex-col items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
