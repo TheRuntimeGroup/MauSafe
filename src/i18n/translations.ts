@@ -45,6 +45,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "more.family": "Family & journeys",
     "more.resources": "Resources & support",
 
+    "features.sections": "Sections",
+    "home.overview": "Overview",
+    "safeWalk.list": "My journeys",
+    "safeWalk.new": "New SafeWalk",
     "home.activeTitle": "Your active check-in",
     "home.dashboardTitle": "Your safety, at a glance.",
     "home.latestAnnouncement": "Latest update",
@@ -836,6 +840,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "more.family": "Famille et trajets",
     "more.resources": "Ressources et aide",
 
+    "features.sections": "Sections",
+    "home.overview": "Vue d'ensemble",
+    "safeWalk.list": "Mes trajets",
+    "safeWalk.new": "Nouvelle marche sûre",
     "home.activeTitle": "Votre check-in actif",
     "home.dashboardTitle": "Votre sécurité, en un coup d'œil.",
     "home.latestAnnouncement": "Dernière information",

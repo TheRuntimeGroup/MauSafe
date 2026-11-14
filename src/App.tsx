@@ -15,21 +15,17 @@ import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Index from "./pages/Index";
-import CheckIns from "./pages/CheckIns";
+import SafeWalk from "./pages/SafeWalk";
 import ScamCheck from "./pages/ScamCheck";
-import GetHelp from "./pages/GetHelp";
-import StartCheckIn from "./pages/StartCheckIn";
+import Community from "./pages/Community";
+import KidZone from "./pages/KidZone";
 import JourneyDetail from "./pages/JourneyDetail";
 import GuestView from "./pages/GuestView";
 import Emergency from "./pages/Emergency";
 import SosMap from "./pages/SosMap";
-import Contacts from "./pages/Contacts";
-import SafetyTips from "./pages/SafetyTips";
-import ChildSafety from "./pages/ChildSafety";
 import DisasterSafety from "./pages/DisasterSafety";
 import IncidentReports from "./pages/IncidentReports";
 import SafetyAlarm from "./pages/SafetyAlarm";
-import EmergencyId from "./pages/EmergencyId";
 import SafePlaces from "./pages/SafePlaces";
 import Settings from "./pages/Settings";
 import More from "./pages/More";
@@ -87,20 +83,20 @@ const App = () => {
                   <Route element={<RequireAuth />}>
                     <Route element={<AppShell />}>
                       <Route path="/" element={<Index />} />
-                      <Route path="/check-ins" element={<CheckIns />} />
+                      <Route path="/check-ins" element={<SafeWalk />} />
                       <Route path="/scam-check" element={<ScamCheck />} />
-                      <Route path="/get-help" element={<GetHelp />} />
-                      <Route path="/start" element={<StartCheckIn />} />
+                      <Route path="/get-help" element={<Community />} />
+                      <Route path="/start" element={<SafeWalk />} />
                       <Route path="/journey/:id" element={<JourneyDetail />} />
                       <Route path="/emergency" element={<Emergency />} />
                       <Route path="/sos-map" element={<SosMap />} />
-                      <Route path="/contacts" element={<Contacts />} />
-                      <Route path="/safety-tips" element={<SafetyTips />} />
-                      <Route path="/child-safety" element={<ChildSafety />} />
+                      <Route path="/contacts" element={<Community />} />
+                      <Route path="/safety-tips" element={<Community />} />
+                      <Route path="/child-safety" element={<KidZone />} />
                       <Route path="/disaster-safety" element={<DisasterSafety />} />
                       <Route path="/incident-report" element={<IncidentReports />} />
                       <Route path="/safety-alarm" element={<SafetyAlarm />} />
-                      <Route path="/emergency-id" element={<EmergencyId />} />
+                      <Route path="/emergency-id" element={<KidZone />} />
                       <Route path="/safe-places" element={<SafePlaces />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/more" element={<More />} />
