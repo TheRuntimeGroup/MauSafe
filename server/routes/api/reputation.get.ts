@@ -168,17 +168,17 @@ export default defineHandler(async (event) => {
 
   // Heuristic signals that don't need a network round-trip.
   if (isIpHost(hostname)) {
-    signals.push({ id: "ip_literal", level: "danger", detail: hostname });
+    signals.push({ id: "ip_literal", level: "info", detail: hostname });
   }
   if (hostname.startsWith("xn--")) {
-    signals.push({ id: "idn", level: "danger", detail: hostname });
+    signals.push({ id: "idn", level: "info", detail: hostname });
   }
   const tld = hostname.split(".").pop()?.toLowerCase() ?? "";
   if (SUSPICIOUS_TLDS.has(tld)) {
-    signals.push({ id: "suspicious_tld", level: "warning", detail: `.${tld}` });
+    signals.push({ id: "suspicious_tld", level: "info", detail: `.${tld}` });
   }
   if (SHORTENER_DOMAINS.has(domain)) {
-    signals.push({ id: "shortener", level: "warning", detail: hostname });
+    signals.push({ id: "shortener", level: "info", detail: hostname });
   }
 
   // Domain registry (RDAP) — registration age.
@@ -196,7 +196,7 @@ export default defineHandler(async (event) => {
             const days = Math.max(0, Math.round((Date.now() - createdMs) / 86_400_000));
             signals.push({
               id: "domain_age",
-              level: days < 30 ? "danger" : days < 365 ? "warning" : "info",
+              level: days < 30 ? "info" : days < 365 ? "warning" : "info",
               detail: String(days),
             });
           } else {
