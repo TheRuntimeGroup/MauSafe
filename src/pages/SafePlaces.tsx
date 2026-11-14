@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Clock3, ExternalLink, Loader2, MapPin, Navigation, Phone, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { SafePlacesMap } from "@/components/SafePlacesMap";
+import { SafePlacesDirectory } from "@/components/SafePlacesDirectory";
 import { AppButton } from "@/components/ui/app-button";
 import type { SafePlace } from "@/lib/safePlaces";
 import { cn } from "@/lib/utils";
@@ -159,6 +160,8 @@ const SafePlaces = () => {
           <p className="text-xs leading-relaxed text-muted-foreground">{t("places.source")}</p>
         </>
       )}
+
+      <SafePlacesDirectory />
 
       <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-900">
         {t("places.caution")}
