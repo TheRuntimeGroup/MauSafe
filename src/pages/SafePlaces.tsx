@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Clock3, ExternalLink, Loader2, MapPin, Navigation, Phone, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { SafePlacesMap } from "@/components/SafePlacesMap";
@@ -7,7 +7,7 @@ import type { SafePlace } from "@/lib/safePlaces";
 import { cn } from "@/lib/utils";
 
 type Position = { latitude: number; longitude: number; accuracy: number | null };
-type Filter = "all" | "police" | "medical" | "shop" | "hotel";
+type Filter = "all" | "police" | "medical" | "transport" | "government" | "emergency";
 
 const SafePlaces = () => {
   const { t } = useI18n();
@@ -24,6 +24,8 @@ const SafePlaces = () => {
     }
     setLoading(true);
     setErrorKey(null);
+    setPosition(null);
+    setPlaces([]);
     try {
       const current = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -41,11 +43,16 @@ const SafePlaces = () => {
       const response = await fetch(
         `/api/safe-places?lat=${encodeURIComponent(next.latitude)}&lon=${encodeURIComponent(next.longitude)}`,
       );
+      if (response.status === 400) {
+        setPosition(null);
+        setErrorKey("places.outsideMauritius");
+        return;
+      }
       if (!response.ok) throw new Error("Safe places unavailable");
       const data = (await response.json()) as { places: SafePlace[] };
       setPlaces(data.places);
     } catch (error) {
-      if (error instanceof GeolocationPositionError && error.code === error.PERMISSION_DENIED) {
+      if (typeof error === "object" && error !== null && "code" in error && (error as GeolocationPositionError).code === 1) {
         setErrorKey("places.permissionError");
       } else {
         setErrorKey("places.error");
@@ -57,10 +64,14 @@ const SafePlaces = () => {
 
   const filteredPlaces = places.filter((place) => {
     if (filter === "all") return true;
-    if (filter === "medical") return ["hospital", "clinic", "doctors", "pharmacy"].includes(place.kind);
+    if (filter === "medical") return ["hospital", "clinic", "doctors", "pharmacy", "medical"].includes(place.kind);
     return place.kind === filter;
   });
-  const filters: Filter[] = ["all", "police", "medical", "shop", "hotel"];
+  const filters: Filter[] = ["all", "medical", "police", "transport", "government", "emergency"];
+
+  useEffect(() => {
+    void findPlaces();
+  }, []);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
