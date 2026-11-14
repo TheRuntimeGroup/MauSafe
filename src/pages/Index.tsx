@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertCircle, ArrowRight, LayoutDashboard, LoaderCircle, RefreshCw, Settings2 } from "lucide-react";
+import { AlertCircle, ArrowRight, LoaderCircle, RefreshCw } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { FeatureSections } from "@/components/FeatureSections";
 import { listJourneys } from "@/lib/api";
 import { getOwnerName } from "@/lib/storage";
 import { loadEmergencyProfile } from "@/lib/emergencyProfile";
@@ -28,7 +27,6 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const [homeView, setHomeView] = useState<"overview" | "tools">("overview");
   const now = useNow(60_000);
 
   useEffect(() => {
@@ -78,15 +76,6 @@ export default function Index() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-7">
-      <FeatureSections
-        sections={[
-          { id: "overview", labelKey: "home.overview", icon: LayoutDashboard },
-          { id: "tools", labelKey: "home.quickTitle", icon: Settings2 },
-        ]}
-        activeId={homeView}
-        onSelect={(id) => setHomeView(id as "overview" | "tools")}
-      />
-
       <header className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0D2B45] px-6 py-7 text-white shadow-[0_24px_60px_-30px_rgba(13,43,69,0.7)] motion-safe:animate-fade-in-up sm:px-8 sm:py-8">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -121,7 +110,7 @@ export default function Index() {
         </div>
       )}
 
-      {homeView === "overview" && (loading ? (
+      {loading ? (
         <div className="flex min-h-28 items-center justify-center rounded-2xl border border-foreground/[0.07] bg-white/60" role="status">
           <LoaderCircle className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
           <span className="ml-2 text-sm font-semibold text-muted-foreground">{t("common.loading")}</span>
@@ -145,9 +134,10 @@ export default function Index() {
             <JourneyStatusCard journey={active.recipientSees} className="shadow-premium transition-transform hover:-translate-y-0.5" />
           </Link>
         </section>
-      ) : null)}
+      ) : null}
 
-      {homeView === "overview" ? <HomeTrustedContacts journey={active} /> : <HomeQuickAccess />}
+      <HomeQuickAccess />
+      <HomeTrustedContacts journey={active} />
     </div>
   );
 }
