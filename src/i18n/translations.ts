@@ -738,7 +738,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     "community.category.disturbance": "Public disturbance",
     "community.category.incident": "Incident",
 
-    "location.approximate": "GPS and device accuracy vary. This position is an estimate, not an exact point.",
     "location.stale": "Location may be outdated. Re-enable permission or refresh to update it.",
     "guardian.childrenTitle": "My children",
     "guardian.childrenSubtitle": "Private journeys and locations only for children linked to your guardian account.",
@@ -1735,7 +1734,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     "community.category.disturbance": "Trouble public",
     "community.category.incident": "Incident",
 
-    "location.approximate": "La précision du GPS et de l'appareil peut varier. Cette position est une estimation, pas un point exact.",
     "location.stale": "La position peut être obsolète. Réactivez l'autorisation ou actualisez-la.",
     "guardian.childrenTitle": "Mes enfants",
     "guardian.childrenSubtitle": "Trajets et positions uniquement pour les enfants associés à votre compte responsable.",

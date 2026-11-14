@@ -38,7 +38,7 @@ export function QuickShareDialog({
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Unauthorized");
 
-      const coordinates = await new Promise<GeolocationCoordinates>((resolve, reject) => {
+      const coordinates = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
           timeout: 15_000,
