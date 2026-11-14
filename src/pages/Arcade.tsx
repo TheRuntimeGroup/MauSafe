@@ -1,5 +1,5 @@
-import { FruitSliceArcade } from "@/components/FruitSliceArcade";
+import { ArcadeHub } from "@/components/ArcadeHub";
 
 export default function Arcade() {
-  return <FruitSliceArcade initiallyOpen />;
+  return <ArcadeHub />;
 }

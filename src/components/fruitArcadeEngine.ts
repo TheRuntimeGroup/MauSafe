@@ -1,3 +1,5 @@
+import type { GameLevel } from "@/lib/kidProgress";
+
 export type GameMode = "classic" | "zen" | "patrol";
 type EntityKind = "fruit" | "bomb" | "scam" | "real";
 
@@ -71,6 +73,14 @@ export interface TrailPoint {
 
 export interface FruitGame {
   mode: GameMode;
+  level: GameLevel;
+  speed: number;
+  spawnInterval: number;
+  minSpawn: number;
+  batchThree: number;
+  batchTwo: number;
+  bombMax: number;
+  bombGrowth: number;
   entities: Entity[];
   fragments: Fragment[];
   particles: Particle[];
@@ -108,10 +118,18 @@ export const FRUITS = [
 ] as const;
 
 const GRAVITY = 650;
+const LEVEL_DIFFICULTY = {
+  beginner: { speed: 0.72, spawnInterval: 1.20, minSpawn: 0.85, batchThree: 0.06, batchTwo: 0.35, bombMax: 0.06, bombGrowth: 900 },
+  skilled: { speed: 0.80, spawnInterval: 1.05, minSpawn: 0.70, batchThree: 0.10, batchTwo: 0.45, bombMax: 0.10, bombGrowth: 700 },
+  expert: { speed: 0.92, spawnInterval: 0.87, minSpawn: 0.55, batchThree: 0.16, batchTwo: 0.58, bombMax: 0.16, bombGrowth: 500 },
+};
 
-export function createFruitGame(mode: GameMode): FruitGame {
+export function createFruitGame(mode: GameMode, level: GameLevel = "beginner"): FruitGame {
+  const difficulty = LEVEL_DIFFICULTY[level];
   return {
     mode,
+    level,
+    ...difficulty,
     entities: [],
     fragments: [],
     particles: [],
@@ -161,9 +179,8 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 function spawnEntity(game: FruitGame, ctx: CanvasRenderingContext2D, width: number, height: number, copy: ArcadeCopy) {
   const roll = Math.random();
   let kind: EntityKind = "fruit";
-  if (game.mode === "classic" && roll < Math.min(0.10, 0.025 + game.elapsed / 700)) kind = "bomb";
+  if (game.mode === "classic" && roll < Math.min(game.bombMax, 0.015 + game.elapsed / game.bombGrowth)) kind = "bomb";
   if (game.mode === "patrol" && roll < 0.60) kind = Math.random() < 0.60 ? "scam" : "real";
-
   const isMessage = kind === "scam" || kind === "real";
   const radius = Math.max(32, Math.min(50, width * 0.06));
   const fruit = Math.floor(Math.random() * FRUITS.length);
@@ -190,7 +207,7 @@ function spawnEntity(game: FruitGame, ctx: CanvasRenderingContext2D, width: numb
     x,
     y: height + halfWidth + 24,
     vx: (width / 2 - x) * (0.08 + Math.random() * 0.20) + (Math.random() - 0.5) * width * 0.12,
-    vy: -Math.sqrt(2 * 900 * height * (0.74 + Math.random() * 0.28)) * (game.mode === "zen" ? 0.76 : 0.80),
+    vy: -Math.sqrt(2 * 900 * height * (0.74 + Math.random() * 0.28)) * game.speed * (game.mode === "zen" ? 0.95 : 1),
     r: isMessage ? Math.min(w, h) * 0.56 : radius,
     angle: (Math.random() - 0.5) * 0.45,
     spin: (Math.random() - 0.5) * 1.8,
@@ -268,9 +285,9 @@ export function stepFruitGame(
 
   game.spawnTimer -= dt;
   if (game.spawnTimer <= 0) {
-    const count = Math.random() < 0.10 ? 3 : Math.random() < 0.45 ? 2 : 1;
+    const count = Math.random() < game.batchThree ? 3 : Math.random() < game.batchTwo ? 2 : 1;
     for (let index = 0; index < count; index += 1) spawnEntity(game, ctx, width, height, copy);
-    game.spawnTimer = Math.max(0.7, (game.mode === "zen" ? 1.25 : 1.05) - game.elapsed * 0.0025);
+    game.spawnTimer = Math.max(game.minSpawn, (game.mode === "zen" ? game.spawnInterval + 0.20 : game.spawnInterval) - game.elapsed * 0.002);
   }
 
   for (const entity of game.entities) {

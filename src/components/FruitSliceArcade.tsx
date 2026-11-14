@@ -36,9 +36,12 @@ import {
   type GameMode,
 } from "./fruitArcadeEngine";
 import { cn } from "@/lib/utils";
+import { LevelPicker } from "@/components/LevelPicker";
+import { recordKidGameActivity, type ActivityInput, type GameLevel } from "@/lib/kidProgress";
 import "./FruitSliceArcade.css";
 
 type Phase = "idle" | "playing" | "paused" | "over";
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 type BestScores = Record<GameMode, number>;
 type Hud = { score: number; lives: number; timeLeft: number; combo: number; countdown: number };
 type ModeCard = { id: GameMode; icon: LucideIcon; title: string; description: string; meta: string };
@@ -101,17 +104,21 @@ function FruitPreviewArt() {
   );
 }
 
-export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: boolean }) {
+export function FruitSliceArcade({ initiallyOpen = false, onProgressChange }: { initiallyOpen?: boolean; onProgressChange?: () => void }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(initiallyOpen);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [mode, setMode] = useState<GameMode>("classic");
+  const [level, setLevel] = useState<GameLevel>("beginner");
   const [phase, setPhase] = useState<Phase>("idle");
   const [best, setBest] = useState<BestScores>(readBestScores);
   const [hud, setHud] = useState<Hud>({ score: 0, lives: 3, timeLeft: MODE_DURATION.classic, combo: 0, countdown: 3 });
   const [finalScore, setFinalScore] = useState(0);
   const [finalBest, setFinalBest] = useState(0);
   const [newBest, setNewBest] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const [soundOn, setSoundOn] = useState(true);
   const shellRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -123,6 +130,7 @@ export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: bo
   const bestRef = useRef(best);
   const copyRef = useRef<ArcadeCopy | null>(null);
   const tickRef = useRef<(now: number) => void>(() => undefined);
+  const resultRef = useRef<ActivityInput | null>(null);
   phaseRef.current = phase;
   soundRef.current = soundOn;
   bestRef.current = best;
@@ -265,6 +273,22 @@ export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: bo
     setHud((current) => Object.keys(next).every((key) => current[key as keyof Hud] === next[key as keyof Hud]) ? current : next);
   }, []);
 
+  const saveResult = useCallback(async () => {
+    const result = resultRef.current;
+    if (!result) return;
+    setSaveStatus("saving");
+    try {
+      const saved = await recordKidGameActivity(result);
+      if (resultRef.current?.activityId !== result.activityId) return;
+      setTotalPoints(saved.score);
+      setNewAchievements(saved.newAchievements);
+      setSaveStatus("saved");
+      onProgressChange?.();
+    } catch {
+      if (resultRef.current?.activityId === result.activityId) setSaveStatus("error");
+    }
+  }, [onProgressChange]);
+
   const finishGame = useCallback(() => {
     const game = gameRef.current;
     if (!game || phaseRef.current !== "playing") return;
@@ -277,8 +301,17 @@ export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: bo
     setFinalScore(score);
     setFinalBest(nextBest);
     setNewBest(score > previousBest);
+    resultRef.current = {
+      activityId: crypto.randomUUID(),
+      gameId: "fruit",
+      mode: game.mode,
+      level: game.level,
+      score,
+      durationSeconds: Math.round(game.elapsed),
+    };
     setPhase("over");
-  }, []);
+    void saveResult();
+  }, [saveResult]);
 
   useEffect(() => {
     if (!open) return;
@@ -322,8 +355,11 @@ export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: bo
   }, [open, finishGame, playCue, syncHud]);
 
   function startGame() {
-    const game = createFruitGame(mode);
+    const game = createFruitGame(mode, level);
     gameRef.current = game;
+    resultRef.current = null;
+    setSaveStatus("idle");
+    setNewAchievements([]);
     setFinalScore(0);
     setNewBest(false);
     setHud({ score: 0, lives: game.lives, timeLeft: MODE_DURATION[mode], combo: 0, countdown: 3 });
@@ -458,7 +494,7 @@ export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: bo
                 <p className="font-display text-2xl font-black tabular-nums text-white sm:text-3xl">{hud.score}</p>
               </div>
               <div className="min-w-0 flex-1 pt-1 text-center">
-                <p className="truncate text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#B9D6CE]">{selectedMode.title}</p>
+                <p className="truncate text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#B9D6CE]">{selectedMode.title} · {t(`level.${level}.title`)}</p>
                 <div className="mx-auto mt-1 flex items-center justify-center gap-1.5">
                   <Timer className="h-5 w-5 text-[#F9C74F]" aria-hidden="true" />
                   <span className={cn("font-display text-2xl font-black tabular-nums sm:text-3xl", hud.timeLeft <= 10 && hud.countdown === 0 && "text-[#FDA4AF]")}>{hud.timeLeft}</span>
@@ -544,6 +580,7 @@ export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: bo
                     </button>
                   ))}
                 </div>
+                <div className="mt-5"><LevelPicker value={level} onChange={setLevel} /></div>
                 <button type="button" onClick={startGame} className="mt-5 flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl bg-[#F9C74F] px-5 py-4 font-display text-base font-black text-[#302203] shadow-[0_5px_0_#A9690B] transition-all hover:-translate-y-0.5 hover:bg-[#FFDA70] active:translate-y-1 active:shadow-none"><Play className="h-5 w-5 fill-current" />{t("arcade.startMode", { mode: selectedMode.title })}</button>
                 <div className="mt-5 flex items-center justify-between gap-3 px-1">
                   <p className="text-[10px] font-semibold text-[#AFCBC5]">{t("arcade.mouseTouch")}</p>
@@ -584,6 +621,10 @@ export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: bo
               <p className="mt-5 font-display text-7xl font-black tabular-nums tracking-[-0.06em] text-[#F9C74F]">{finalScore}</p>
               <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-[#C5DDD8]">{t("arcade.points")}</p>
               <div className="mt-5 flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-[#123B3C] px-4 py-3"><Trophy className="h-4 w-4 text-[#F9C74F]" /><span className="text-sm font-bold text-[#C5DDD8]">{t("arcade.best")}</span><strong className="font-display text-lg font-black tabular-nums text-white">{finalBest}</strong></div>
+              {saveStatus === "saving" && <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-[#C5DDD8]"><Sparkles className="h-4 w-4 animate-pulse text-[#F9C74F]" />{t("progress.saving")}</p>}
+              {saveStatus === "saved" && <div className="mt-4 rounded-xl bg-[#123F38] p-3 text-xs font-bold text-[#B7F4D7]"><p className="flex items-center justify-center gap-2"><Check className="h-4 w-4" />{t("progress.saved")}</p><p className="mt-1 text-[#C5DDD8]">{t("kids.allTimeTotal", { score: totalPoints })}</p></div>}
+              {saveStatus === "error" && <div className="mt-4 rounded-xl bg-[#522D32] p-3 text-xs font-bold text-rose-100"><p>{t("progress.error")}</p><button type="button" onClick={() => void saveResult()} className="mt-2 min-h-9 rounded-lg bg-rose-100 px-3 text-rose-900">{t("common.retry")}</button></div>}
+              {newAchievements.length > 0 && <p className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[#3A4712] p-3 text-xs font-extrabold text-[#FDE68A]"><Sparkles className="h-4 w-4" />{t("achievement.unlockedMessage", { name: t(`achievement.${newAchievements[0]}.title`) })}</p>}
               <button type="button" onClick={startGame} className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#F9C74F] px-5 py-4 font-black text-[#302203] shadow-[0_5px_0_#A9690B] hover:bg-[#FFDA70]"><RotateCcw className="h-5 w-5" />{t("arcade.playAgain")}</button>
               <button type="button" onClick={returnToModes} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 text-sm font-bold text-white hover:bg-white/10"><ArrowLeft className="h-4 w-4" />{t("arcade.modes")}</button>
               <button type="button" onClick={closeArcade} className="mt-4 min-h-10 text-xs font-bold text-[#C5DDD8] underline decoration-white/30 underline-offset-4 hover:text-white">{t("arcade.exit")}</button>
