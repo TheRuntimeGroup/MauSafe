@@ -63,6 +63,7 @@ serve(async (req) => {
       id: user.id,
       full_name: childName,
       account_type: "child",
+      onboarding_completed: true,
       updated_at: new Date().toISOString(),
     });
     if (profileError) return json({ error: "SETUP_FAILED" }, 500);

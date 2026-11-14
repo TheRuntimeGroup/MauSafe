@@ -6,6 +6,7 @@ export interface Profile {
   id: string;
   role: string;
   full_name: string | null;
+  username: string | null;
   phone: string | null;
   accessibility_needs: AccessibilityNeed[];
   voice_guide: boolean;
@@ -17,6 +18,7 @@ export interface Profile {
 
 export interface OnboardingInput {
   fullName: string;
+  username: string;
   phone: string;
   accessibilityNeeds: AccessibilityNeed[];
   voiceGuide: boolean;
@@ -42,6 +44,7 @@ export async function saveOnboardingProfile(
     .upsert({
       id: userId,
       full_name: input.fullName.trim(),
+      username: input.username ? input.username : null,
       phone: input.phone.trim(),
       accessibility_needs: input.accessibilityNeeds,
       voice_guide: input.voiceGuide,

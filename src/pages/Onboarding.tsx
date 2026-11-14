@@ -37,11 +37,13 @@ import { cn } from "@/lib/utils";
 const RESEND_SECONDS = 30;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const USERNAME_PATTERN = /^[a-z][a-z0-9_]{2,24}$/;
 const DRAFT_KEY = "mausafe.onboarding.draft";
 
 type StepId =
   | "welcome"
   | "name"
+  | "username"
   | "email"
   | "verifyEmail"
   | "accessibility"
@@ -50,6 +52,7 @@ type StepId =
 
 interface Draft {
   name: string;
+  username: string;
   email: string;
   needs: AccessibilityNeed[];
 }
@@ -62,6 +65,7 @@ function loadDraft(): Draft | null {
     if (!parsed || typeof parsed !== "object") return null;
     return {
       name: typeof parsed.name === "string" ? parsed.name : "",
+      username: typeof parsed.username === "string" ? parsed.username : "",
       email: typeof parsed.email === "string" ? parsed.email : "",
       needs: Array.isArray(parsed.needs) ? parsed.needs : [],
     };
@@ -99,6 +103,7 @@ const Onboarding = () => {
     () => draft?.name ?? profile?.full_name ?? user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? "",
   );
   const [email, setEmail] = useState(() => draft?.email ?? user?.email ?? "");
+  const [username, setUsername] = useState(() => draft?.username ?? profile?.username ?? user?.user_metadata?.username ?? "");
   const [needs, setNeeds] = useState<AccessibilityNeed[]>(() => {
     const savedNeeds: string[] = draft?.needs ?? profile?.accessibility_needs ?? [];
     return savedNeeds.filter((need): need is AccessibilityNeed => need !== "hearing");
@@ -123,7 +128,7 @@ const Onboarding = () => {
     const list: StepId[] = [];
     if (!isProfileMode) list.push("welcome");
     list.push("name");
-    if (!isProfileMode) list.push("email", "verifyEmail");
+    if (!isProfileMode) list.push("username", "email", "verifyEmail");
     list.push("accessibility");
     if (!isProfileMode) list.push("password");
     list.push("review");
@@ -195,10 +200,14 @@ const Onboarding = () => {
         return t("otp.expired");
       case "INVALID_CODE":
         return t("otp.wrong");
+      case "USERNAME_TAKEN":
+        return t("onboarding.usernameTaken");
       case "PASSWORD_TOO_SHORT":
         return t("auth.passwordTooShort");
       case "INVALID_EMAIL":
         return t("auth.emailInvalid");
+      case "INVALID_USERNAME":
+        return t("onboarding.usernameInvalid");
       case "RATE_LIMITED":
         return t("otp.rateLimited");
       case "EMAIL_NOT_CONFIGURED":
@@ -225,6 +234,7 @@ const Onboarding = () => {
 
   function validateStep(step: StepId): string | null {
     if (step === "name" && !name.trim()) return t("onboarding.nameRequired");
+    if (step === "username" && !USERNAME_PATTERN.test(username)) return t("onboarding.usernameInvalid");
     if (step === "email" && !EMAIL_PATTERN.test(email.trim())) return t("auth.emailInvalid");
     if (step === "accessibility" && needs.length === 0) return t("onboarding.accessibilityRequired");
     return null;
@@ -247,6 +257,10 @@ const Onboarding = () => {
         return;
       }
       setName(result.name);
+    }
+
+    if (currentStep === "username") {
+      setUsername(username.trim().toLowerCase());
     }
 
     if (currentStep === "email") {
@@ -286,6 +300,7 @@ const Onboarding = () => {
 
     const input = {
       fullName: name.trim(),
+      username: username.trim().toLowerCase(),
       phone: profile?.phone?.trim() ?? "",
       accessibilityNeeds: needs,
       voiceGuide: profile?.voice_guide ?? false,
@@ -314,8 +329,8 @@ const Onboarding = () => {
         return;
       }
 
-      saveDraft({ name: name.trim(), email: email.trim(), needs });
-      await createVerifiedAccount({ email: email.trim(), password, fullName: input.fullName });
+      saveDraft({ name: name.trim(), username: input.username, email: email.trim(), needs });
+      await createVerifiedAccount({ email: email.trim(), password, fullName: input.fullName, username: input.username });
 
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -600,6 +615,26 @@ const Onboarding = () => {
                       />
                     )}
 
+                    {finish === "none" && currentStep === "username" && (
+                      <TextStep
+                        eyebrow={t("onboarding.username.eyebrow")}
+                        title={t("onboarding.username.title")}
+                        subtitle={t("onboarding.username.subtitle")}
+                        value={username}
+                        onChange={(value) => {
+                          setUsername(value.toLowerCase().replace(/[^a-z0-9_]/g, ""));
+                          setError(null);
+                        }}
+                        placeholder={t("onboarding.username.placeholder")}
+                        icon={<User className="h-5 w-5" aria-hidden="true" />}
+                        onContinue={goNext}
+                        continueLabel={t("onboarding.continue")}
+                        autoComplete="username"
+                        maxLength={25}
+                        autoFocus
+                      />
+                    )}
+
                     {finish === "none" && currentStep === "email" && (
                       <TextStep
                         eyebrow={t("onboarding.email.eyebrow")}
@@ -662,10 +697,12 @@ const Onboarding = () => {
                         title={t("onboarding.review.title")}
                         subtitle={isProfileMode ? t("onboarding.signInToContinue") : t("onboarding.review.subtitle")}
                         name={name}
+                        username={username}
                         email={email}
                         needs={needs}
                         labels={{
                           name: t("onboarding.review.name"),
+                          username: t("onboarding.review.username"),
                           email: t("onboarding.review.email"),
                           needs: t("onboarding.review.needs"),
                           edit: t("onboarding.review.edit"),
@@ -1007,6 +1044,7 @@ function ReviewStep({
   title,
   subtitle,
   name,
+  username,
   email,
   needs,
   labels,
@@ -1021,10 +1059,12 @@ function ReviewStep({
   title: string;
   subtitle: string;
   name: string;
+  username: string;
   email: string;
   needs: AccessibilityNeed[];
   labels: {
     name: string;
+    username: string;
     email: string;
     needs: string;
     edit: string;
@@ -1051,6 +1091,7 @@ function ReviewStep({
 
       <dl className="mt-6 divide-y divide-foreground/[0.07] overflow-hidden rounded-2xl border border-input bg-white">
         <ReviewRow label={labels.name} value={name} onEdit={onEdit} editLabel={labels.edit} />
+        <ReviewRow label={labels.username} value={username} />
         {email && <ReviewRow label={labels.email} value={email} />}
         <div className="flex items-start justify-between gap-4 px-4 py-3.5">
           <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{labels.needs}</dt>

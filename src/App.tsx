@@ -51,8 +51,8 @@ function RequireAuth() {
     return <Navigate to="/welcome" replace />;
   }
 
-  if (!profile?.onboarding_completed) {
-    return <Navigate to="/welcome" replace />;
+  if (profile?.account_type === "child" && !profile?.onboarding_completed) {
+    return <Navigate to="/pair-child" replace />;
   }
 
   return <Outlet />;

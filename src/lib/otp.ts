@@ -33,6 +33,6 @@ export function verifyEmailCode(input: { email: string; code: string }) {
   return invoke<{ ok: true }>("verify-signup", input);
 }
 
-export function createVerifiedAccount(input: { email: string; password: string; fullName: string }) {
+export function createVerifiedAccount(input: { email: string; password: string; fullName: string; username: string }) {
   return invoke<{ ok: true; userId: string | null }>("verify-signup", input);
 }

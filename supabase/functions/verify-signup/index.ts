@@ -36,10 +36,14 @@ serve(async (req) => {
     const code = String(body?.code ?? "").replace(/\D/g, "");
     const password = String(body?.password ?? "");
     const fullName = String(body?.fullName ?? "").trim().slice(0, 60);
+    const username = String(body?.username ?? "").trim().toLowerCase();
     const creatingAccount = password.length > 0;
 
     if (!EMAIL_PATTERN.test(email)) {
       return json({ error: "INVALID_EMAIL" });
+    }
+    if (creatingAccount && !/^[a-z][a-z0-9_]{2,24}$/.test(username)) {
+      return json({ error: "INVALID_USERNAME" });
     }
     if (creatingAccount && password.length < 8) {
       return json({ error: "PASSWORD_TOO_SHORT" });
@@ -102,12 +106,15 @@ serve(async (req) => {
       email,
       password,
       email_confirm: true,
-      user_metadata: { full_name: fullName },
+      user_metadata: { full_name: fullName, username },
     });
 
     if (createError || !created.user) {
       if (createError && /already.*registered/i.test(createError.message)) {
         return json({ error: "EMAIL_TAKEN" });
+      }
+      if (createError && /username|duplicate key|unique constraint/i.test(createError.message)) {
+        return json({ error: "USERNAME_TAKEN" });
       }
       console.error("[verify-signup] createUser failed", createError);
       return json({ error: "ACCOUNT_CREATE_FAILED" });
