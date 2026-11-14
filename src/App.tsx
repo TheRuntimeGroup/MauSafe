@@ -49,7 +49,7 @@ function RequireAuth() {
   }
 
   if (!user) {
-    return <Navigate to="/welcome" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   if (profile?.account_type === "child" && !profile?.onboarding_completed) {
