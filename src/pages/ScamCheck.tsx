@@ -87,14 +87,20 @@ function highlightTerms(text: string, terms: string[]): ReactNode {
   });
 }
 
-function ScoreMeter({ score, risk }: { score: number; risk: RiskTier }) {
+function ScoreMeter({ score, risk, aiRanked }: { score: number; risk: RiskTier; aiRanked?: boolean }) {
   const { t } = useI18n();
   const tone = RISK_TONES[risk];
   return (
     <div>
       <div className="flex items-end justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {t("scam.scoreLabel")}
+          {aiRanked && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-extrabold text-primary">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
+              AI
+            </span>
+          )}
         </span>
         <span className="flex items-baseline gap-1">
           <span className={cn("font-display text-3xl font-extrabold leading-none", tone.text)}>
@@ -408,6 +414,14 @@ const ScamCheck = () => {
     { title: t("scam.guide.paidTitle"), body: t("scam.guide.paidBody") },
   ];
 
+  // DeepSeek ranks the warning sign. Fall back to the local heuristic only
+  // while the AI is loading or unavailable.
+  const messageRisk: RiskTier = messageAi?.risk ?? result?.risk ?? "low";
+  const messageScore = messageAi?.score ?? result?.score ?? 0;
+  const messageShowsWarning = messageAi ? messageAi.risk !== "low" : result?.label === "warning";
+  const linkRisk: RiskTier = linkAi?.risk ?? linkResult?.risk ?? "low";
+  const linkScore = linkAi?.score ?? linkResult?.score ?? 0;
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <header>
@@ -526,29 +540,29 @@ const ScamCheck = () => {
           <div
             className={cn(
               "rounded-2xl border p-5",
-              RISK_TONES[result.risk].card,
+              RISK_TONES[messageRisk].card,
             )}
           >
             <div className="flex items-center gap-2">
-              {result.label === "warning" ? (
-                <AlertTriangle className={cn("h-5 w-5", RISK_TONES[result.risk].icon)} aria-hidden="true" />
+              {messageShowsWarning ? (
+                <AlertTriangle className={cn("h-5 w-5", RISK_TONES[messageRisk].icon)} aria-hidden="true" />
               ) : (
-                <CheckCircle2 className={cn("h-5 w-5", RISK_TONES[result.risk].icon)} aria-hidden="true" />
+                <CheckCircle2 className={cn("h-5 w-5", RISK_TONES[messageRisk].icon)} aria-hidden="true" />
               )}
-              <h2 className={cn("font-display text-lg font-bold", RISK_TONES[result.risk].text)}>
-                {result.label === "warning" ? t("scam.warningFound") : t("scam.noWarning")}
+              <h2 className={cn("font-display text-lg font-bold", RISK_TONES[messageRisk].text)}>
+                {messageShowsWarning ? t("scam.warningFound") : t("scam.noWarning")}
               </h2>
             </div>
 
             <div className="mt-4">
-              <ScoreMeter score={result.score} risk={result.risk} />
+              <ScoreMeter score={messageScore} risk={messageRisk} aiRanked={!!messageAi} />
             </div>
 
             {result.label === "warning" && result.findings.length > 0 && (
               <ul className="mt-4 space-y-2 border-t border-black/5 pt-4 text-sm">
                 {result.findings.map((f) => (
                   <li key={f.ruleId} className="flex items-start gap-2 text-foreground">
-                    <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", RISK_TONES[result.risk].bar)} />
+                    <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", RISK_TONES[messageRisk].bar)} />
                     {t(`scam.reasons.${f.ruleId}`)}
                   </li>
                 ))}
@@ -652,16 +666,16 @@ const ScamCheck = () => {
         <section className="space-y-4 animate-fade-in-up">
           <AiPanel assessment={linkAi} loading={linkAiLoading} unavailable={linkAiError} />
 
-          <div className={cn("rounded-2xl border p-5", RISK_TONES[linkResult.risk].card)}>
+          <div className={cn("rounded-2xl border p-5", RISK_TONES[linkRisk].card)}>
             <div className="flex items-center gap-2">
-              <AlertTriangle className={cn("h-5 w-5", RISK_TONES[linkResult.risk].icon)} aria-hidden="true" />
-              <h2 className={cn("font-display text-lg font-bold", RISK_TONES[linkResult.risk].text)}>
-                {t(`reputation.verdict.${linkResult.risk}`)}
+              <AlertTriangle className={cn("h-5 w-5", RISK_TONES[linkRisk].icon)} aria-hidden="true" />
+              <h2 className={cn("font-display text-lg font-bold", RISK_TONES[linkRisk].text)}>
+                {t(`reputation.verdict.${linkRisk}`)}
               </h2>
             </div>
 
             <div className="mt-4">
-              <ScoreMeter score={linkResult.score} risk={linkResult.risk} />
+              <ScoreMeter score={linkScore} risk={linkRisk} aiRanked={!!linkAi} />
             </div>
 
             <p className="mt-3 break-all border-t border-black/5 pt-3 font-mono text-xs text-muted-foreground">

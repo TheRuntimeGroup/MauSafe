@@ -2,10 +2,13 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Lang } from "@/i18n/translations";
 
 export type AiVerdict = "likely_scam" | "suspicious" | "uncertain" | "no_obvious_scam";
+export type AiRisk = "low" | "medium" | "high";
 
 export interface AiAssessment {
   verdict: AiVerdict;
   confidence: number | null;
+  score: number;
+  risk: AiRisk;
   summary: string;
   reasons: string[];
   actions: string[];

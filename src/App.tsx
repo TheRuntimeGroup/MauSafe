@@ -14,7 +14,6 @@ import AuthPage from "./pages/AuthPage";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
-import PairChild from "./pages/PairChild";
 import Index from "./pages/Index";
 import SafeWalk from "./pages/SafeWalk";
 import ScamCheck from "./pages/ScamCheck";
@@ -52,7 +51,7 @@ function RequireAuth() {
   }
 
   if (profile?.account_type === "child" && !profile?.onboarding_completed) {
-    return <Navigate to="/pair-child" replace />;
+    return <Navigate to="/kids" replace />;
   }
 
   return <Outlet />;
@@ -77,7 +76,6 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/welcome" element={<Onboarding />} />
-                  <Route path="/pair-child" element={<PairChild />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
