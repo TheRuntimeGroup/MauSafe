@@ -1,12 +1,15 @@
 import { Baby, Gamepad2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FeatureSections } from "@/components/FeatureSections";
 import ChildSafety from "@/pages/ChildSafety";
 import KidsDashboard from "@/pages/KidsDashboard";
+import { GuardianChildren } from "@/components/GuardianChildren";
 
 export default function KidZone() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const view = pathname === "/kids" ? "play" : "child";
 
   return (
@@ -19,7 +22,9 @@ export default function KidZone() {
         activeId={view}
         onSelect={(id) => navigate(id === "child" ? "/child-safety" : "/kids")}
       />
-      {view === "child" ? <ChildSafety /> : <KidsDashboard />}
+      {view === "child"
+        ? profile?.account_type !== "child" ? <GuardianChildren /> : <ChildSafety />
+        : <KidsDashboard />}
     </div>
   );
 }

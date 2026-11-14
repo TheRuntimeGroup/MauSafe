@@ -56,7 +56,7 @@ export function LocationSharingCard({
         );
         setSharing(false);
       },
-      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 5_000 },
+      {enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
@@ -99,6 +99,10 @@ export function LocationSharingCard({
           {location.updatedAt && (
             <p className="mt-1">{t("location.updated", { time: formatClock(location.updatedAt, locale) })}</p>
           )}
+          {location.updatedAt && Date.now() - new Date(location.updatedAt).getTime() > 60_000 && (
+            <p className="mt-1 font-semibold text-amber-700">{t("location.stale")}</p>
+          )}
+          <p className="mt-1 leading-relaxed">{t("location.approximate")}</p>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 import { defineHandler } from "nitro";
-import { readBody, createError } from "nitro/h3";
+import { readBody, createError, type H3Event } from "nitro/h3";
 import {
   GUEST_LINK_TTL_MS,
   PRESETS,
@@ -9,6 +9,21 @@ import {
   type JourneyKind,
 } from "../../lib/journey";
 import { getBearer, getClientIp, isRateLimited, newToken, sha256 } from "../../lib/security";
+import { requireSupabaseUser, supabaseServerClient } from "../../lib/guardianAuth";
+
+async function requireLinkedChild(event: H3Event): Promise<string> {
+  const user = await requireSupabaseUser(event);
+  const { data, error } = await supabaseServerClient()
+    .from("child_accounts")
+    .select("child_auth_id")
+    .eq("child_auth_id", user.id)
+    .not("consumed_at", "is", null)
+    .maybeSingle();
+  if (error || !data?.child_auth_id) {
+    throw createError({ statusCode: 403, statusMessage: "child_link_required" });
+  }
+  return data.child_auth_id;
+}
 
 export default defineHandler(async (event) => {
   const ip = getClientIp(event);
@@ -41,6 +56,7 @@ export default defineHandler(async (event) => {
 
   const provided = getBearer(event);
   const ownerSecret = provided ?? newToken();
+  const linkedChildAuthId = journeyKind === "child" ? await requireLinkedChild(event) : null;
 
   const now = Date.now();
   const journey = createJourney({
@@ -54,6 +70,7 @@ export default defineHandler(async (event) => {
     guestExpiresAt: now + GUEST_LINK_TTL_MS,
     contact,
     journeyKind,
+    childAuthId: linkedChildAuthId,
     locationEnabled,
   });
 

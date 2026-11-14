@@ -18,6 +18,7 @@ export interface CreateJourneyInput {
   guestExpiresAt: number;
   contact: string;
   journeyKind: JourneyKind;
+  childAuthId?: string | null;
   locationEnabled: boolean;
 }
 
@@ -84,12 +85,12 @@ export function createJourney(input: CreateJourneyInput): JourneyRow {
       id, owner_secret_hash, owner_name, preset, label,
       expected_arrival_at, created_at, updated_at, last_status_at,
       extended_count, is_demo, guest_token, guest_expires_at, contact_info,
-      journey_kind, location_enabled, location_consent_at
+      journey_kind, location_enabled, location_consent_at, child_auth_id
     ) VALUES (
       @id, @ownerSecretHash, @ownerName, @preset, @label,
       @expectedArrivalAt, @createdAt, @updatedAt, @lastStatusAt,
       0, @isDemo, @guestToken, @guestExpiresAt, @contact,
-      @journeyKind, @locationEnabled, @locationConsentAt
+      @journeyKind, @locationEnabled, @locationConsentAt, @childAuthId
     )`,
   ).run({
     id,
@@ -108,6 +109,7 @@ export function createJourney(input: CreateJourneyInput): JourneyRow {
     journeyKind: input.journeyKind,
     locationEnabled: input.locationEnabled ? 1 : 0,
     locationConsentAt: input.locationEnabled ? now : null,
+    childAuthId: input.childAuthId ?? null,
   });
 
   return getJourneyById(id)!;

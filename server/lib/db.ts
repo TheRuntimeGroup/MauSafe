@@ -21,6 +21,7 @@ export interface JourneyRow {
   guest_revoked_at: number | null;
   contact_info: string;
   journey_kind: "standard" | "child";
+  child_auth_id: string | null;
   location_enabled: number;
   location_consent_at: number | null;
   latitude: number | null;
@@ -74,6 +75,7 @@ export function getDb(): Database.Database {
   const columns = db.prepare("PRAGMA table_info(journeys)").all() as { name: string }[];
   const additions: Record<string, string> = {
     journey_kind: "TEXT NOT NULL DEFAULT 'standard'",
+    child_auth_id: "TEXT",
     location_enabled: "INTEGER NOT NULL DEFAULT 0",
     location_consent_at: "INTEGER",
     latitude: "REAL",
