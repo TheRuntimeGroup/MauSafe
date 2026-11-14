@@ -10,9 +10,25 @@ function isSafePlace(entry: HelpEntry): boolean {
   return entry.category === "police_station" || entry.category === "hospital";
 }
 
+function isHospital(entry: HelpEntry): boolean {
+  return entry.category === "hospital";
+}
+
 function directionsUrl(entry: HelpEntry): string {
   const query = entry.directionsQuery ?? `${entry.serviceName}, ${entry.locality}, Mauritius`;
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+function locationLabel(entry: HelpEntry): string {
+  if (isHospital(entry)) {
+    // For hospitals, `locality` is the district and `division` repeats it.
+    return entry.locality;
+  }
+  return [entry.locality, entry.division].filter(Boolean).join(" · ");
+}
+
+function telHref(phone: string): string {
+  return `tel:${phone.replace(/\s+/g, "")}`;
 }
 
 export function SafePlacesDirectory() {
@@ -86,13 +102,12 @@ export function SafePlacesDirectory() {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-primary">
-                    {entry.category === "police_station" ? t("places.kind.police") : t("places.kind.hospital")}
+                    {isHospital(entry) ? t("places.kind.hospital") : t("places.kind.police")}
                   </p>
                   <h3 className="mt-1 font-display text-base font-extrabold text-foreground">{entry.serviceName}</h3>
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    {entry.locality}
-                    {entry.division && <span>· {entry.division}</span>}
+                    {locationLabel(entry)}
                   </p>
                 </div>
                 <a
@@ -105,8 +120,11 @@ export function SafePlacesDirectory() {
                   {t("places.directions")}
                 </a>
               </div>
+              {isHospital(entry) && entry.address && (
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{entry.address}</p>
+              )}
               {entry.phone && (
-                <a href={`tel:${entry.phone}`} className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-primary">
+                <a href={telHref(entry.phone)} className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-primary">
                   <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                   {entry.phone}
                 </a>
