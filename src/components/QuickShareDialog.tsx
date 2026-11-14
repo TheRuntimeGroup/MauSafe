@@ -39,7 +39,11 @@ export function QuickShareDialog({
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Unauthorized");
 
-      const coordinates = await new Promise<GeolocationPosition>((resolve, reject) => {
+      if (!("geolocation" in navigator)) {
+        setError(t("location.unsupported"));
+        return;
+      }
+      await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
           timeout: 15_000,
@@ -66,7 +70,13 @@ export function QuickShareDialog({
       }
       setSent(true);
       if (method === "email") navigate(createdJourney.sharePath, { replace: true });
-      setError(t("quickShare.error"));
+    } catch (error) {
+      if (typeof error === "object" && error !== null && "code" in error) {
+        const geoError = error as GeolocationPositionError;
+        setError(geoError.code === geoError.PERMISSION_DENIED ? t("location.permissionError") : t("location.positionError"));
+      } else {
+        setError(t("quickShare.error"));
+      }
     } finally {
       setBusy(false);
     }
