@@ -106,7 +106,7 @@ export function HomeTrustedContacts({ journey }: { journey: OwnerJourney | null 
           </li>
         </ul>
       )}
-      {selectedContact && <QuickShareDialog recipient={selectedContact} journey={journey} onClose={() => setSelectedContact(null)} />}
+      {selectedContact && <QuickShareDialog recipient={selectedContact} onClose={() => setSelectedContact(null)} />}
     </section>
   );
 }

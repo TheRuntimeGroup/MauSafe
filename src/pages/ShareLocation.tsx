@@ -27,10 +27,6 @@ export default function ShareLocation() {
       try {
         const { journey: nextJourney } = await getGuestJourney(token!);
         if (!active) return;
-        if (nextJourney.status === "expired" || nextJourney.revoked) {
-          setExpired(true);
-          return;
-        }
         setJourney(nextJourney);
         setExpired(false);
         setMinutesLeft(remainingMinutes(nextJourney.expiresAt));
