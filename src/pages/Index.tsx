@@ -184,7 +184,7 @@ export default function Index() {
             <JourneyStatusCard journey={active.recipientSees} className="shadow-premium transition-transform hover:-translate-y-0.5" />
           </Link>
         </section>
-      ) : null}
+      ) : null)}
 
       {homeView === "overview" ? <HomeTrustedContacts /> : <HomeQuickAccess />}
     </div>
