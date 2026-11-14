@@ -224,7 +224,7 @@ const AuthPage = () => {
                       </div>
                     </div>
 
-                    {codeSent && (
+                    {Boolean(codeSent) && (
                       <div className="space-y-3">
                         <p className="text-sm font-semibold text-foreground">{t("auth.otpLabel")}</p>
                         <EmailOtpInput value={otpCode} onChange={setOtpCode} onComplete={(code) => {
