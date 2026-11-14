@@ -13,9 +13,11 @@ import {
   LifeBuoy,
   ListChecks,
   MapPinned,
+  Plus,
   Settings2,
   ShieldAlert,
   Siren,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
@@ -33,17 +35,17 @@ import { cn } from "@/lib/utils";
 type QuickTool = { id: string; to: string; labelKey: string; icon: LucideIcon };
 
 const TOOLS: QuickTool[] = [
-  { id: "scam", to: "/scam-check", labelKey: "nav.scam", icon: ShieldAlert },
-  { id: "help", to: "/get-help", labelKey: "nav.gethelp", icon: LifeBuoy },
-  { id: "places", to: "/safe-places", labelKey: "places.title", icon: MapPinned },
-  { id: "child", to: "/child-safety", labelKey: "nav.child", icon: Baby },
-  { id: "weather", to: "/disaster-safety", labelKey: "nav.disaster", icon: CloudSun },
-  { id: "alarm", to: "/safety-alarm", labelKey: "alarm.title", icon: Siren },
-  { id: "incident", to: "/incident-report", labelKey: "incident.title", icon: FileWarning },
-  { id: "identity", to: "/emergency-id", labelKey: "profile.title", icon: IdCard },
-  { id: "contacts", to: "/contacts", labelKey: "nav.contacts", icon: Heart },
-  { id: "journeys", to: "/check-ins", labelKey: "nav.checkins", icon: ListChecks },
-  { id: "tips", to: "/safety-tips", labelKey: "nav.tips", icon: BookOpen },
+  { id: "scam", to: "/scam-check", labelKey: "quick.scam", icon: ShieldAlert },
+  { id: "help", to: "/get-help", labelKey: "quick.help", icon: LifeBuoy },
+  { id: "places", to: "/safe-places", labelKey: "quick.places", icon: MapPinned },
+  { id: "child", to: "/child-safety", labelKey: "quick.child", icon: Baby },
+  { id: "weather", to: "/disaster-safety", labelKey: "quick.weather", icon: CloudSun },
+  { id: "alarm", to: "/safety-alarm", labelKey: "quick.alarm", icon: Siren },
+  { id: "incident", to: "/incident-report", labelKey: "quick.incident", icon: FileWarning },
+  { id: "identity", to: "/emergency-id", labelKey: "quick.identity", icon: IdCard },
+  { id: "contacts", to: "/contacts", labelKey: "quick.contacts", icon: Heart },
+  { id: "journeys", to: "/check-ins", labelKey: "quick.journeys", icon: ListChecks },
+  { id: "tips", to: "/safety-tips", labelKey: "quick.tips", icon: BookOpen },
 ];
 
 const STORAGE_KEY = "mausafe.quickAccess";
@@ -128,19 +130,27 @@ export function HomeQuickAccess() {
             </DialogHeader>
             <p className="text-xs font-bold text-primary">{t("home.quickLimit", { count: draftIds.length })}</p>
             <ul className="space-y-2">
-              {TOOLS.filter((tool) => draftIds.includes(tool.id) || draftIds.length < 4).map((tool) => {
+              {TOOLS.map((tool) => {
                 const selected = draftIds.includes(tool.id);
                 const index = draftIds.indexOf(tool.id);
+                const addDisabled = !selected && draftIds.length >= 4;
                 return (
                   <li key={tool.id} className={cn("flex items-center gap-2 rounded-xl border p-2.5", selected ? "border-primary/25 bg-secondary" : "border-border bg-white")}>
                     <button
                       type="button"
+                      disabled={addDisabled}
                       onClick={() => toggleDraft(tool.id)}
                       aria-pressed={selected}
-                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                      aria-label={selected
+                        ? t("home.removeTool", { tool: t(tool.labelKey) })
+                        : t("home.addTool", { tool: t(tool.labelKey) })}
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:opacity-45"
                     >
                       <tool.icon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                       <span className="truncate text-sm font-bold text-foreground">{t(tool.labelKey)}</span>
+                      <span className={cn("ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full", selected ? "bg-white text-danger" : "bg-secondary text-primary")} aria-hidden="true">
+                        {selected ? <X className="h-3.5 w-3.5" strokeWidth={2.2} /> : <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />}
+                      </span>
                     </button>
                     {selected && (
                       <span className="flex shrink-0 gap-1">

@@ -45,15 +45,19 @@ export function AppShell() {
         cn(
           "relative flex min-h-[4.5rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
           isActive
-            ? item.urgent ? "text-danger" : "text-primary"
+            ? "text-danger"
             : item.urgent ? "text-danger" : "text-muted-foreground hover:text-foreground",
         )
       }
     >
       {({ isActive }) => (
         <>
-          {isActive && <span className={cn("absolute top-2 h-1 w-1 rounded-full", item.urgent ? "bg-danger" : "bg-primary")} aria-hidden="true" />}
-          <span className={cn("flex h-8 w-8 items-center justify-center rounded-xl", item.urgent && "bg-danger text-white shadow-sm")}>
+          {isActive && <span className="absolute top-2 h-1 w-1 rounded-full bg-danger" aria-hidden="true" />}
+          <span className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-xl",
+            item.urgent && "bg-danger text-white shadow-sm",
+            isActive && !item.urgent && "bg-danger/[0.08]",
+          )}>
             <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.35 : 1.8} aria-hidden="true" />
           </span>
           <span className="max-w-full text-center leading-tight">{t(item.shortLabelKey)}</span>
