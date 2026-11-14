@@ -31,7 +31,8 @@ export default defineHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "invalid_duration" });
   }
 
-  const label = String(body.label ?? "").slice(0, 100);
+  const maxLabelLength = body.journeyKind === "child" ? 240 : 100;
+  const label = String(body.label ?? "").slice(0, maxLabelLength);
   const senderName = String(body.senderName ?? "").slice(0, 60).trim() || "Someone";
   const contact = String(body.contact ?? "").slice(0, 100).trim();
   const isDemo = false;
