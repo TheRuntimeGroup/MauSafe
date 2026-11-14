@@ -21,14 +21,14 @@ const NAV_ITEMS = [
   { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
   { to: "/check-ins", labelKey: "nav.checkins", shortLabelKey: "nav.checkinsShort", icon: ListChecks, end: false },
   { to: "/scam-check", labelKey: "nav.scam", shortLabelKey: "nav.scamShort", icon: ShieldAlert, end: false },
-  { to: "/get-help", labelKey: "nav.gethelp", shortLabelKey: "nav.gethelpShort", icon: LifeBuoy, end: false },
+  { to: "/community", labelKey: "nav.community", shortLabelKey: "nav.community", icon: HeartHandshake, end: false },
 ];
 
 const MOBILE_ITEMS = [
   { to: "/", labelKey: "nav.home", shortLabelKey: "nav.homeShort", icon: Home, end: true },
   { to: "/sos-map", labelKey: "nav.sosMap", shortLabelKey: "nav.sosMap", icon: MapPinned, end: false },
   { to: "/check-ins", labelKey: "nav.safeWalk", shortLabelKey: "nav.safeWalk", icon: Footprints, end: false },
-  { to: "/contacts", labelKey: "nav.community", shortLabelKey: "nav.community", icon: HeartHandshake, end: false },
+  { to: "/community", labelKey: "nav.community", shortLabelKey: "nav.community", icon: HeartHandshake, end: false },
   { to: "/child-safety", labelKey: "nav.kidZone", shortLabelKey: "nav.kidZone", icon: Baby, end: false },
 ];
 

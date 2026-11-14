@@ -91,6 +91,7 @@ const App = () => {
                       <Route path="/emergency" element={<Emergency />} />
                       <Route path="/sos-map" element={<SosMap />} />
                       <Route path="/contacts" element={<Community />} />
+                      <Route path="/community" element={<Community />} />
                       <Route path="/safety-tips" element={<Community />} />
                       <Route path="/child-safety" element={<KidZone />} />
                       <Route path="/disaster-safety" element={<DisasterSafety />} />

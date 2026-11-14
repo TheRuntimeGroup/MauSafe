@@ -1,6 +1,7 @@
 import { BookOpen, HeartHandshake, LifeBuoy } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FeatureSections } from "@/components/FeatureSections";
+import CommunityDashboard from "@/pages/CommunityDashboard";
 import Contacts from "@/pages/Contacts";
 import GetHelp from "@/pages/GetHelp";
 import SafetyTips from "@/pages/SafetyTips";
@@ -8,6 +9,7 @@ import SafetyTips from "@/pages/SafetyTips";
 export default function Community() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  if (pathname === "/community") return <CommunityDashboard />;
   const view = pathname === "/get-help" ? "help" : pathname === "/safety-tips" ? "tips" : "contacts";
 
   return (
