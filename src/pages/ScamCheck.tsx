@@ -525,6 +525,8 @@ const ScamCheck = () => {
       {/* Message result */}
       {tab === "message" && result && (
         <section className="space-y-4 animate-fade-in-up">
+          <AiPanel assessment={messageAi} loading={messageAiLoading} unavailable={messageAiError} />
+
           <div
             className={cn(
               "rounded-2xl border p-5",
@@ -563,8 +565,6 @@ const ScamCheck = () => {
               </p>
             )}
           </div>
-
-          <AiPanel assessment={messageAi} loading={messageAiLoading} unavailable={messageAiError} />
 
           {text.trim() && result.matchedTerms.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-4">
@@ -654,6 +654,8 @@ const ScamCheck = () => {
 
       {tab === "link" && linkResult && (
         <section className="space-y-4 animate-fade-in-up">
+          <AiPanel assessment={linkAi} loading={linkAiLoading} unavailable={linkAiError} />
+
           <div className={cn("rounded-2xl border p-5", RISK_TONES[linkResult.risk].card)}>
             <div className="flex items-center gap-2">
               <AlertTriangle className={cn("h-5 w-5", RISK_TONES[linkResult.risk].icon)} aria-hidden="true" />
@@ -670,8 +672,6 @@ const ScamCheck = () => {
               {t("reputation.domainLabel")}: {linkResult.domain}
             </p>
           </div>
-
-          <AiPanel assessment={linkAi} loading={linkAiLoading} unavailable={linkAiError} />
 
           {linkResult.signals.length > 0 ? (
             <div className="space-y-2">
