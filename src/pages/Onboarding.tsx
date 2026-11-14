@@ -40,6 +40,22 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_PATTERN = /^[a-z][a-z0-9_]{2,24}$/;
 const DRAFT_KEY = "mausafe.onboarding.draft";
 
+const KNOWN_OTP_ERRORS = new Set([
+  "EMAIL_TAKEN",
+  "EXPIRED_CODE",
+  "INVALID_CODE",
+  "EMAIL_NOT_VERIFIED",
+  "USERNAME_TAKEN",
+  "PASSWORD_TOO_SHORT",
+  "INVALID_EMAIL",
+  "INVALID_USERNAME",
+  "RATE_LIMITED",
+  "EMAIL_NOT_CONFIGURED",
+  "ACCOUNT_NOT_FOUND",
+  "ACCOUNT_CREATE_FAILED",
+  "UNKNOWN",
+]);
+
 type StepId =
   | "welcome"
   | "name"
@@ -382,7 +398,8 @@ const Onboarding = () => {
       await refreshProfile();
       setFinish("done");
     } catch (error) {
-      const code = error instanceof Error ? error.message : "UNKNOWN";
+      const message = error instanceof Error ? error.message : (error as { message?: string } | null)?.message ?? "";
+      const code = message || "UNKNOWN";
       if (code === "EMAIL_NOT_VERIFIED") {
         setError(t("otp.notVerified"));
         const verifyIndex = steps.indexOf("verifyEmail");
@@ -391,8 +408,10 @@ const Onboarding = () => {
         setError(t("onboarding.usernameTaken"));
         const usernameIndex = steps.indexOf("username");
         if (usernameIndex >= 0) setStepIndex(usernameIndex);
+      } else if (KNOWN_OTP_ERRORS.has(code)) {
+        setError(toOtpError(code));
       } else {
-        setError(error instanceof Error ? toOtpError(error.message) : t("auth.genericError"));
+        setError(message);
       }
     } finally {
       creatingRef.current = false;

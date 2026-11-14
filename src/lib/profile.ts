@@ -54,6 +54,9 @@ export async function saveOnboardingProfile(
     .select("*")
     .single();
 
-  if (error) throw error;
+  if (error) {
+    const detail = [error.details, error.hint].filter(Boolean).join(" ");
+    throw new Error(detail ? `${error.message} (${detail})` : error.message);
+  }
   return data as Profile;
 }

@@ -145,6 +145,23 @@ serve(async (req) => {
       return json({ error: "USERNAME_TAKEN" });
     }
 
+    // The username check above only covers public.profiles, and a verified
+    // email could still belong to an existing auth user (for example if an
+    // earlier attempt created the account but the client failed afterwards).
+    // Confirm the email is free before createUser so a duplicate isn't
+    // misreported as a generic account-creation failure.
+    const { data: emailRegistered, error: emailRegisteredError } = await supabase
+      .rpc("email_is_registered", { target_email: email });
+
+    if (emailRegisteredError) {
+      console.error("[verify-signup] failed to re-check email availability", emailRegisteredError);
+      return json({ error: "UNKNOWN" });
+    }
+
+    if (emailRegistered === true) {
+      return json({ error: "EMAIL_TAKEN" });
+    }
+
     const { data: created, error: createError } = await supabase.auth.admin.createUser({
       email,
       password,
