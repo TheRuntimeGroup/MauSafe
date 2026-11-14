@@ -73,11 +73,21 @@ export default function SettingsPage() {
 
   if (profile?.account_type === "child") {
     return (
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-900">
-        <h1 className="font-display text-xl font-extrabold">{t("settings.childLockedTitle")}</h1>
-        <p className="mt-2">{t("settings.childLockedBody")}</p>
-        <Link to="/kids" className="mt-4 inline-flex rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground">{t("kids.backGames")}</Link>
-      </section>
+      <div className="mx-auto max-w-2xl">
+        <Link to="/kids" className="inline-flex min-h-11 items-center gap-2 rounded-xl px-1 text-sm font-bold text-muted-foreground transition-colors hover:text-primary">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {t("nav.home")}
+        </Link>
+        <header className="mt-4 flex items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+            <MapPin className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div>
+            <h1 className="font-display text-2xl font-extrabold text-foreground">{t("settings.childTitle")}</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t("settings.childSubtitle")}</p>
+          </div>
+        </header>
+      </div>
     );
   }
   if (loading || !user) {

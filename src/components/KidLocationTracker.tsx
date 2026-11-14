@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 type Status = "waiting" | "active" | "permission" | "unsupported" | "error";
 
-export function KidLocationTracker() {
+export function KidLocationTracker({ visible = true }: { visible?: boolean }) {
   const { t, locale } = useI18n();
   const { user, profile } = useAuth();
   const [status, setStatus] = useState<Status>("waiting");
@@ -93,6 +93,8 @@ export function KidLocationTracker() {
     : status === "error" ? t("kids.location.positionError")
     : status === "active" ? t("kids.location.active")
     : t("kids.location.waiting");
+
+  if (!visible) return null;
 
   return (
     <section className="rounded-[1.75rem] border border-emerald-200 bg-emerald-50/70 p-5 shadow-premium sm:p-6">

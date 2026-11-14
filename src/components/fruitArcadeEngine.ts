@@ -107,7 +107,7 @@ export const FRUITS = [
   { skin: "#BE185D", flesh: "#EC4899", accent: "#FBCFE8", juice: "#F472B6", shape: "dragonfruit" },
 ] as const;
 
-const GRAVITY = 900;
+const GRAVITY = 650;
 
 export function createFruitGame(mode: GameMode): FruitGame {
   return {
@@ -161,13 +161,13 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 function spawnEntity(game: FruitGame, ctx: CanvasRenderingContext2D, width: number, height: number, copy: ArcadeCopy) {
   const roll = Math.random();
   let kind: EntityKind = "fruit";
-  if (game.mode === "classic" && roll < Math.min(0.18, 0.07 + game.elapsed / 400)) kind = "bomb";
-  if (game.mode === "patrol" && roll < 0.68) kind = Math.random() < 0.62 ? "scam" : "real";
+  if (game.mode === "classic" && roll < Math.min(0.10, 0.025 + game.elapsed / 700)) kind = "bomb";
+  if (game.mode === "patrol" && roll < 0.60) kind = Math.random() < 0.60 ? "scam" : "real";
 
   const isMessage = kind === "scam" || kind === "real";
-  const radius = Math.max(30, Math.min(48, width * 0.055));
+  const radius = Math.max(32, Math.min(50, width * 0.06));
   const fruit = Math.floor(Math.random() * FRUITS.length);
-  const golden = kind === "fruit" && Math.random() < 0.075;
+  const golden = kind === "fruit" && Math.random() < 0.10;
   let w = radius * 2;
   let h = radius * 2;
   let lines: string[] = [];
@@ -189,11 +189,11 @@ function spawnEntity(game: FruitGame, ctx: CanvasRenderingContext2D, width: numb
     golden,
     x,
     y: height + halfWidth + 24,
-    vx: (width / 2 - x) * (0.12 + Math.random() * 0.3) + (Math.random() - 0.5) * width * 0.18,
-    vy: -Math.sqrt(2 * GRAVITY * height * (0.74 + Math.random() * 0.28)) * (game.mode === "zen" ? 0.9 : 1),
+    vx: (width / 2 - x) * (0.08 + Math.random() * 0.20) + (Math.random() - 0.5) * width * 0.12,
+    vy: -Math.sqrt(2 * 900 * height * (0.74 + Math.random() * 0.28)) * (game.mode === "zen" ? 0.76 : 0.80),
     r: isMessage ? Math.min(w, h) * 0.56 : radius,
     angle: (Math.random() - 0.5) * 0.45,
-    spin: (Math.random() - 0.5) * 2.4,
+    spin: (Math.random() - 0.5) * 1.8,
     w,
     h,
     lines,
@@ -268,9 +268,9 @@ export function stepFruitGame(
 
   game.spawnTimer -= dt;
   if (game.spawnTimer <= 0) {
-    const count = Math.random() < 0.32 ? 3 : Math.random() < 0.63 ? 2 : 1;
+    const count = Math.random() < 0.10 ? 3 : Math.random() < 0.45 ? 2 : 1;
     for (let index = 0; index < count; index += 1) spawnEntity(game, ctx, width, height, copy);
-    game.spawnTimer = Math.max(0.4, (game.mode === "zen" ? 0.95 : 0.8) - game.elapsed * 0.004);
+    game.spawnTimer = Math.max(0.7, (game.mode === "zen" ? 1.25 : 1.05) - game.elapsed * 0.0025);
   }
 
   for (const entity of game.entities) {

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Baby,
+  Gamepad2,
   HeartHandshake,
   Home,
   LifeBuoy,
@@ -15,6 +16,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
+import { KidLocationTracker } from "@/components/KidLocationTracker";
 import { AccountMenu } from "@/components/AccountMenu";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +34,11 @@ const MOBILE_ITEMS = [
   { to: "/child-safety", labelKey: "nav.kidZone", shortLabelKey: "nav.kidZone", icon: Baby, end: false },
 ];
 
+const CHILD_MOBILE_ITEMS = [
+  { to: "/kids", labelKey: "nav.home", shortLabelKey: "nav.home", icon: Home, end: true },
+  { to: "/arcade", labelKey: "nav.arcade", shortLabelKey: "nav.arcade", icon: Gamepad2, end: true },
+];
+
 export function AppShell() {
   const { t } = useI18n();
   const { isAdmin } = useIsAdmin();
@@ -43,7 +50,7 @@ export function AppShell() {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  const mobileTab = (item: (typeof MOBILE_ITEMS)[number]) => (
+  const mobileTab = (item: (typeof MOBILE_ITEMS)[number], child = false) => (
     <NavLink
       key={item.to}
       to={item.to}
@@ -51,7 +58,7 @@ export function AppShell() {
       className={({ isActive }) =>
         cn(
           "relative flex min-h-[4.5rem] flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors",
-          isActive ? "text-danger" : "text-muted-foreground hover:text-foreground",
+          isActive ? (child ? "text-emerald-700" : "text-danger") : "text-muted-foreground hover:text-foreground",
         )
       }
     >
@@ -59,7 +66,7 @@ export function AppShell() {
         <>
           <span className={cn(
             "flex h-8 w-8 items-center justify-center rounded-xl",
-            isActive && "bg-danger text-white shadow-sm",
+            isActive && (child ? "bg-emerald-600 text-white shadow-sm" : "bg-danger text-white shadow-sm"),
           )}>
             <item.icon className="h-[19px] w-[19px]" strokeWidth={isActive ? 2.35 : 1.8} aria-hidden="true" />
           </span>
@@ -91,10 +98,23 @@ export function AppShell() {
         </header>
 
         <main className="relative z-10">
-          <div className="mx-auto w-full max-w-3xl px-5 pb-24 pt-6 sm:px-6 lg:max-w-4xl lg:px-8 lg:pb-16 lg:pt-10">
+          <div className="mx-auto w-full max-w-3xl px-5 pb-28 pt-6 sm:px-6 lg:max-w-4xl lg:px-8 lg:pt-10">
             <Outlet />
+            <div className={pathname === "/settings" ? "mt-6" : undefined}>
+              <KidLocationTracker visible={pathname === "/settings"} />
+            </div>
           </div>
         </main>
+
+        <nav
+          className="glass-panel fixed inset-x-3 z-50 mx-auto max-w-sm rounded-[1.5rem] px-2 shadow-[0_18px_50px_-12px_rgba(21,19,33,0.3)]"
+          style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+          aria-label={t("nav.menu")}
+        >
+          <div className="grid grid-cols-2 items-stretch">
+            {CHILD_MOBILE_ITEMS.map((item) => mobileTab(item, true))}
+          </div>
+        </nav>
       </div>
     );
   }

@@ -19,6 +19,7 @@ import SafeWalk from "./pages/SafeWalk";
 import ScamCheck from "./pages/ScamCheck";
 import Community from "./pages/Community";
 import KidZone from "./pages/KidZone";
+import Arcade from "./pages/Arcade";
 import JourneyDetail from "./pages/JourneyDetail";
 import GuestView from "./pages/GuestView";
 import ShareLocation from "./pages/ShareLocation";
@@ -51,7 +52,7 @@ function RequireAuth() {
     return <Navigate to="/auth" replace />;
   }
 
-  if (profile?.account_type === "child" && pathname !== "/kids" && pathname !== "/settings") {
+  if (profile?.account_type === "child" && !["/kids", "/arcade", "/settings"].includes(pathname)) {
     return <Navigate to="/kids" replace />;
   }
 
@@ -100,6 +101,7 @@ const App = () => {
                       <Route path="/child-account" element={<KidZone />} />
                       <Route path="/guardian-children" element={<KidZone />} />
                       <Route path="/kids" element={<KidZone />} />
+                      <Route path="/arcade" element={<Arcade />} />
                       <Route path="/disaster-safety" element={<DisasterSafety />} />
                       <Route path="/incident-report" element={<IncidentReports />} />
                       <Route path="/safety-alarm" element={<SafetyAlarm />} />

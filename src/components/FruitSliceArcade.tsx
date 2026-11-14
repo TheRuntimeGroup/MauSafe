@@ -7,7 +7,9 @@ import {
   ChevronRight,
   Heart,
   Leaf,
+  Hand,
   Maximize2,
+  CircleHelp,
   Pause,
   Play,
   RotateCcw,
@@ -42,6 +44,7 @@ type Hud = { score: number; lives: number; timeLeft: number; combo: number; coun
 type ModeCard = { id: GameMode; icon: LucideIcon; title: string; description: string; meta: string };
 
 const BEST_STORAGE_KEY = "mausafe.fruitArcade.best.v1";
+const TUTORIAL_STORAGE_KEY = "mausafe.fruitArcade.tutorialSeen.v1";
 const EMPTY_BEST: BestScores = { classic: 0, zen: 0, patrol: 0 };
 
 function readBestScores(): BestScores {
@@ -98,9 +101,10 @@ function FruitPreviewArt() {
   );
 }
 
-export function FruitSliceArcade() {
+export function FruitSliceArcade({ initiallyOpen = false }: { initiallyOpen?: boolean }) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initiallyOpen);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [mode, setMode] = useState<GameMode>("classic");
   const [phase, setPhase] = useState<Phase>("idle");
   const [best, setBest] = useState<BestScores>(readBestScores);
@@ -139,6 +143,15 @@ export function FruitSliceArcade() {
     { id: "zen", icon: Leaf, title: t("arcade.zen"), description: t("arcade.zenDesc"), meta: t("arcade.zenMeta") },
     { id: "patrol", icon: ShieldCheck, title: t("arcade.patrol"), description: t("arcade.patrolDesc"), meta: t("arcade.patrolMeta") },
   ];
+
+  const dismissTutorial = useCallback(() => {
+    setTutorialOpen(false);
+    try {
+      localStorage.setItem(TUTORIAL_STORAGE_KEY, "true");
+    } catch {
+      // The tutorial can always be reopened with the help button.
+    }
+  }, []);
 
   const playCue = useCallback((cue: "slice" | "bad" | "bonus" | "start") => {
     if (!soundRef.current || !window.AudioContext) return;
@@ -179,12 +192,29 @@ export function FruitSliceArcade() {
 
   useEffect(() => {
     if (!open) return;
+    try {
+      if (localStorage.getItem(TUTORIAL_STORAGE_KEY) !== "true") setTutorialOpen(true);
+    } catch {
+      setTutorialOpen(true);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        if (tutorialOpen) {
+          dismissTutorial();
+          return;
+        }
         if (phaseRef.current === "playing") setPhase("paused");
-        else setOpen(false);
+        else {
+          gameRef.current = null;
+          setPhase("idle");
+          setOpen(false);
+        }
       }
       if (event.key.toLowerCase() === "p") {
         setPhase((current) => current === "playing" ? "paused" : current === "paused" ? "playing" : current);
@@ -200,7 +230,7 @@ export function FruitSliceArcade() {
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [open]);
+  }, [open, tutorialOpen, dismissTutorial]);
 
   useEffect(() => {
     if (!open) return;
@@ -324,6 +354,7 @@ export function FruitSliceArcade() {
     }
     if (document.fullscreenElement === shellRef.current) void document.exitFullscreen().catch(() => undefined);
     setOpen(false);
+    setTutorialOpen(false);
     gameRef.current = null;
     setPhase("idle");
   }
@@ -517,6 +548,7 @@ export function FruitSliceArcade() {
                 <div className="mt-5 flex items-center justify-between gap-3 px-1">
                   <p className="text-[10px] font-semibold text-[#AFCBC5]">{t("arcade.mouseTouch")}</p>
                   <div className="flex gap-2">
+                    <button type="button" onClick={() => setTutorialOpen(true)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 text-white hover:bg-white/10" aria-label={t("arcade.howToPlay")}><CircleHelp className="h-4 w-4" /></button>
                     <button type="button" onClick={() => setSoundOn((value) => !value)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 text-white hover:bg-white/10" aria-label={soundOn ? t("arcade.soundOff") : t("arcade.soundOn")}>{soundOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}</button>
                     <button type="button" onClick={() => void toggleFullscreen()} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 text-white hover:bg-white/10" aria-label={t("arcade.fullscreen")}><Maximize2 className="h-4 w-4" /></button>
                   </div>
@@ -555,6 +587,33 @@ export function FruitSliceArcade() {
               <button type="button" onClick={startGame} className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#F9C74F] px-5 py-4 font-black text-[#302203] shadow-[0_5px_0_#A9690B] hover:bg-[#FFDA70]"><RotateCcw className="h-5 w-5" />{t("arcade.playAgain")}</button>
               <button type="button" onClick={returnToModes} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 text-sm font-bold text-white hover:bg-white/10"><ArrowLeft className="h-4 w-4" />{t("arcade.modes")}</button>
               <button type="button" onClick={closeArcade} className="mt-4 min-h-10 text-xs font-bold text-[#C5DDD8] underline decoration-white/30 underline-offset-4 hover:text-white">{t("arcade.exit")}</button>
+            </div>
+          </div>
+        )}
+
+        {tutorialOpen && (
+          <div className="absolute inset-0 z-40 flex items-center justify-center overflow-y-auto bg-[#04171E]/85 p-5 backdrop-blur-md">
+            <div className="fruit-arcade-enter my-auto w-full max-w-md rounded-[2rem] border border-[#7CE8C1]/30 bg-[#0B2C33] p-6 text-white shadow-2xl sm:p-8" role="alertdialog" aria-labelledby="arcade-tutorial-title" aria-describedby="arcade-tutorial-description">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F9C74F] text-[#302203]"><Hand className="h-7 w-7" /></span>
+              <p className="mt-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#7CE8C1]">{t("arcade.tutorialEyebrow")}</p>
+              <h2 id="arcade-tutorial-title" className="mt-1 font-display text-3xl font-black text-[#FFFCED]">{t("arcade.tutorialTitle")}</h2>
+              <p id="arcade-tutorial-description" className="mt-2 text-sm leading-relaxed text-[#C5DDD8]">{t("arcade.tutorialSubtitle")}</p>
+              <div className="mt-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF2BE] text-[#805B05]"><Hand className="h-5 w-5" /></span>
+                  <div><h3 className="text-sm font-extrabold">{t("arcade.tutorialSwipeTitle")}</h3><p className="mt-1 text-xs leading-relaxed text-[#C5DDD8]">{t("arcade.tutorialSwipeBody")}</p></div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFE0E5] text-[#BE123C]"><Bomb className="h-5 w-5" /></span>
+                  <div><h3 className="text-sm font-extrabold">{t("arcade.tutorialAvoidTitle")}</h3><p className="mt-1 text-xs leading-relaxed text-[#C5DDD8]">{t("arcade.tutorialAvoidBody")}</p></div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#C9F8E5] text-[#047857]"><Zap className="h-5 w-5" /></span>
+                  <div><h3 className="text-sm font-extrabold">{t("arcade.tutorialComboTitle")}</h3><p className="mt-1 text-xs leading-relaxed text-[#C5DDD8]">{t("arcade.tutorialComboBody")}</p></div>
+                </div>
+              </div>
+              <p className="mt-6 rounded-xl border border-white/10 bg-[#123B3C] p-3 text-xs leading-relaxed text-[#D9EFE8]">{t("arcade.tutorialTip")}</p>
+              <button type="button" onClick={dismissTutorial} className="mt-5 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#F9C74F] px-5 py-4 font-black text-[#302203] shadow-[0_4px_0_#A9690B] hover:bg-[#FFDA70]"><Check className="h-5 w-5" />{t("arcade.tutorialReady")}</button>
             </div>
           </div>
         )}
