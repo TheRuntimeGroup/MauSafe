@@ -83,7 +83,7 @@ The application aims to help users protect themselves against crime, fraud, scam
 - Ensure the application works on mobile phones, tablets, and computers.
 - Provide simple navigation for users of all ages.
 - Support accessibility for elderly users and people with disabilities.
-- Plan multilingual support for English, French, and Mauritian Creole.
+- Plan multilingual support for English and French.
 
 ### Planned Core Features
 - Emergency SOS with trusted contact notifications.
