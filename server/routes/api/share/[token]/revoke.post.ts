@@ -1,6 +1,6 @@
 import { defineHandler } from "nitro";
 import { createError, getRouterParam } from "nitro/h3";
-import { requireSupabaseUser, supabaseServerClient } from "../../../lib/guardianAuth";
+import { requireSupabaseUser, supabaseServerClient } from "../../../../lib/guardianAuth";
 
 export default defineHandler(async (event) => {
   const token = String(getRouterParam(event, "token") ?? "");
