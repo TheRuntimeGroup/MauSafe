@@ -17,6 +17,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/Logo";
 import { KidLocationTracker } from "@/components/KidLocationTracker";
+import { ChildHeaderActions } from "@/components/ChildHeaderActions";
 import { AccountMenu } from "@/components/AccountMenu";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +94,7 @@ export function AppShell() {
                 {t("app.name")}
               </span>
             </NavLink>
-            <AccountMenu variant="header" />
+            <ChildHeaderActions />
           </div>
         </header>
 

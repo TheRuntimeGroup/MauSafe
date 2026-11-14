@@ -192,3 +192,31 @@ export async function loadGameLeaderboard(
     ownPlayerNumber: ownEntry?.player_number ?? null,
   };
 }
+
+export interface GlobalLeaderboardData {
+  entries: KidScore[];
+  own: KidScore | null;
+  rank: number | null;
+}
+
+export async function loadGlobalLeaderboard(userId: string): Promise<GlobalLeaderboardData> {
+  const columns = "user_id,player_number,score,coins,games_played,updated_at";
+  const [leaders, own] = await Promise.all([
+    supabase.from("kid_game_results").select(columns).order("score", { ascending: false }).order("updated_at", { ascending: true }).limit(10),
+    supabase.from("kid_game_results").select(columns).eq("user_id", userId).maybeSingle(),
+  ]);
+  if (leaders.error) throw leaders.error;
+  if (own.error) throw own.error;
+  const ownScore = own.data as KidScore | null;
+  let rank: number | null = null;
+  if (ownScore && ownScore.games_played > 0) {
+    const above = await supabase.from("kid_game_results").select("user_id", { count: "exact", head: true }).gt("score", ownScore.score);
+    if (above.error) throw above.error;
+    rank = (above.count ?? 0) + 1;
+  }
+  return {
+    entries: (leaders.data ?? []) as KidScore[],
+    own: ownScore,
+    rank,
+  };
+}
