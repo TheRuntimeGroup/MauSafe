@@ -145,7 +145,7 @@ export default function KidsDashboard() {
     setReport(null);
   }
 
-  function answer(index: number) {
+  function chooseAnswer(index: number) {
     if (showExplanation) return;
     setSelectedAnswer(index);
     setShowExplanation(true);
@@ -236,7 +236,7 @@ export default function KidsDashboard() {
                   key={answer.text}
                   type="button"
                   disabled={showExplanation}
-                  onClick={() => answer(index)}
+                  onClick={() => chooseAnswer(index)}
                   className={cn(
                     "flex min-h-16 items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-center text-sm font-extrabold transition-all",
                     selected

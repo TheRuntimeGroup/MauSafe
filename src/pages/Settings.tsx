@@ -41,7 +41,6 @@ export default function SettingsPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [personalSaving, setPersonalSaving] = useState(false);
