@@ -109,7 +109,7 @@ export function GuardianChildren() {
         <div className="rounded-2xl border border-dashed border-border bg-background p-5 text-center">
           <p className="font-display text-sm font-extrabold text-foreground">{t("guardian.noChildren")}</p>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("guardian.noChildrenHint")}</p>
-          <Link to="/settings" className="mt-3 inline-flex items-center gap-1 text-xs font-extrabold text-primary hover:underline">
+          <Link to="/child-account" className="mt-3 inline-flex items-center gap-1 text-xs font-extrabold text-primary hover:underline">
             {t("guardian.setupChild")}<ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </div>
