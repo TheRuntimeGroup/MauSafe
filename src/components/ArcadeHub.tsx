@@ -25,6 +25,7 @@ import { FruitSliceArcade } from "@/components/FruitSliceArcade";
 import { ScamDetectiveGame } from "@/components/ScamDetectiveGame";
 import { WhackGame } from "@/components/WhackGame";
 import { HamsterIcon, ScammerIcon } from "@/components/WhackCharacters";
+import { ArcadeHeroArt, DetectiveArt, LearningArt } from "@/components/ArcadeArt";
 import { LearningHub } from "@/components/LearningHub";
 import { loadKidProgress, type KidProgress } from "@/lib/kidProgress";
 
@@ -69,15 +70,15 @@ export function ArcadeHub() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#28594E] bg-[#10383D] p-6 text-white shadow-[0_22px_60px_-28px_rgba(9,46,54,0.8)] sm:p-7">
+      <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#28594E] bg-[#10383D] p-5 text-white shadow-[0_22px_60px_-28px_rgba(9,46,54,0.8)] sm:p-7">
         <div className="absolute -right-20 -top-20 -z-10 h-64 w-64 rounded-full border-[35px] border-[#1B4C47]" aria-hidden="true" />
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div className="grid items-center gap-2 sm:grid-cols-[minmax(0,1fr)_190px]">
+          <div className="min-w-0">
             <p className="inline-flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#7CE8C1]"><Gamepad2 className="h-4 w-4" />{t("arcade.hubEyebrow")}</p>
             <h1 className="mt-3 font-display text-3xl font-black tracking-[-0.04em] text-[#FFFCED] sm:text-4xl">{t("arcade.hubTitle")}</h1>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-[#C5DDD8]">{t("arcade.hubSubtitle")}</p>
           </div>
-          <span className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-[1.4rem] border border-[#F9C74F]/35 bg-[#244B42] text-[#F9C74F] sm:flex"><ShieldCheck className="h-8 w-8" /></span>
+          <div className="fruit-arcade-float mx-auto w-36 sm:w-48"><ArcadeHeroArt /></div>
         </div>
         {!loading && !error && (
           <div className="mt-6 grid grid-cols-2 gap-3">
@@ -98,7 +99,7 @@ export function ArcadeHub() {
 
       <section className="relative overflow-hidden rounded-[1.75rem] border border-[#BFDCCF] bg-[#E8F5EE] p-5 sm:p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-4"><span className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-[#0E7A63] p-3.5 text-white"><GraduationCap className="h-6 w-6" /></span><div><p className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-emerald-700">{t("learning.eyebrow")}</p><h2 className="mt-1 font-display text-xl font-extrabold text-[#163E33]">{t("learning.title")}</h2><p className="mt-1 max-w-md text-xs leading-relaxed text-[#416558]">{t("learning.hubDescription")}</p></div></div>
+          <div className="flex items-center gap-3"><div className="w-20 shrink-0 sm:w-24"><LearningArt /></div><div><p className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-emerald-700">{t("learning.eyebrow")}</p><h2 className="mt-1 font-display text-xl font-extrabold text-[#163E33]">{t("learning.title")}</h2><p className="mt-1 max-w-md text-xs leading-relaxed text-[#416558]">{t("learning.hubDescription")}</p></div></div>
           <button type="button" onClick={() => setView("learning")} disabled={loading || !!error} className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#0E7A63] px-5 text-sm font-extrabold text-white hover:bg-[#09604E] disabled:opacity-50">{t("learning.startLesson")}<ArrowRight className="h-4 w-4" /></button>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[#C6DED3] pt-4"><span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-extrabold text-emerald-800"><Timer className="h-3 w-3" />{t("learning.shortLessons")}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-extrabold text-emerald-800"><Trophy className="h-3 w-3" />{t("learning.pointsEach")}</span><span className="ml-auto text-xs font-extrabold text-emerald-800">{t("learning.progressCount", { completed: lessonsCompleted, total: 4 })}</span></div>
@@ -111,14 +112,14 @@ export function ArcadeHub() {
           <button type="button" onClick={() => setView("whack")} className="group relative isolate w-full overflow-hidden rounded-[2rem] border border-[#D8C5E1] bg-[#F2EAF6] p-6 text-left shadow-[0_18px_45px_-28px_rgba(69,39,87,0.65)] transition-all hover:-translate-y-1 hover:border-[#A985BC] hover:shadow-premium sm:p-7">
             <div className="absolute -right-12 -top-16 -z-10 h-52 w-52 rounded-full border-[26px] border-[#E6D9ED]" aria-hidden="true" />
             <div className="flex items-start gap-4">
-              <div className="hidden w-36 shrink-0 sm:block"><ScammerIcon className="h-24 w-24" /><HamsterIcon className="-mt-9 ml-10 h-24 w-24" /></div>
-              <div className="min-w-0 flex-1"><p className="text-[10px] font-extrabold uppercase tracking:[0.17em] text-[#805595]">{t("whack.eyebrow")}</p><h3 className="mt-1 font-display text-2xl font-black text-[#30253D]">{t("kids.game.whack")}</h3><p className="mt-2 max-w-md text-sm leading-relaxed text-[#685775]">{t("whack.cardDescription")}</p><div className="mt-4 flex flex-wrap gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#624571]"><Timer className="h-3 w-3" />{t("whack.threeRounds")}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#624571]"><Sparkles className="h-3 w-3" />{t("whack.speedIncreases")}</span></div></div>
+              <div className="relative h-24 w-28 shrink-0 sm:h-36 sm:w-40"><ScammerIcon className="absolute left-0 top-0 h-20 w-20 sm:h-28 sm:w-28" /><HamsterIcon className="absolute bottom-0 right-0 h-20 w-20 sm:h-28 sm:w-28" /></div>
+              <div className="min-w-0 flex-1"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#805595]">{t("whack.eyebrow")}</p><h3 className="mt-1 break-words font-display text-xl font-black text-[#30253D] sm:text-2xl">{t("kids.game.whack")}</h3><p className="mt-2 max-w-md text-sm leading-relaxed text-[#685775]">{t("whack.cardDescription")}</p><div className="mt-4 flex flex-wrap gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#624571]"><Timer className="h-3 w-3" />{t("whack.threeRounds")}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#624571]"><Sparkles className="h-3 w-3" />{t("whack.speedIncreases")}</span></div></div>
             </div>
             <span className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#6F458C] px-5 text-sm font-extrabold text-white transition-colors group-hover:bg-[#583171]">{t("whack.playNow")}<ChevronRight className="h-4 w-4" /></span>
           </button>
           <button type="button" onClick={() => setView("detective")} className="group relative isolate w-full overflow-hidden rounded-[2rem] border border-[#B9CDE2] bg-[#EAF4FF] p-6 text-left shadow-[0_18px_45px_-28px_rgba(30,78,99,0.65)] transition-all hover:-translate-y-1 hover:border-[#7FAAC6] hover:shadow-premium sm:p-7">
             <div className="absolute -right-12 -top-16 -z-10 h-52 w-52 rounded-full border-[26px] border-[#D7E8F5]" aria-hidden="true" />
-            <div className="flex items-start gap-4 sm:gap-5"><span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.4rem] bg-[#24617F] text-white shadow-sm"><Target className="h-8 w-8" /></span><div className="min-w-0 flex-1"><p className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-[#326C89]">{t("detective.eyebrow")}</p><h3 className="mt-1 font-display text-2xl font-black text-[#12394F]">{t("kids.game.detective")}</h3><p className="mt-2 max-w-md text-sm leading-relaxed text-[#45667A]">{t("detective.cardDescription")}</p><div className="mt-4 flex flex-wrap gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#346178]"><ShieldCheck className="h-3 w-3" />{t("detective.explanationsIncluded")}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#346178]"><Sparkles className="h-3 w-3" />{t("arcade.threeLevels")}</span></div></div></div>
+            <div className="flex items-start gap-3 sm:gap-5"><div className="w-24 shrink-0 sm:w-36"><DetectiveArt /></div><div className="min-w-0 flex-1"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#326C89]">{t("detective.eyebrow")}</p><h3 className="mt-1 break-words font-display text-xl font-black text-[#12394F] sm:text-2xl">{t("kids.game.detective")}</h3><p className="mt-2 max-w-md text-sm leading-relaxed text-[#45667A]">{t("detective.cardDescription")}</p><div className="mt-4 flex flex-wrap gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#346178]"><ShieldCheck className="h-3 w-3" />{t("detective.explanationsIncluded")}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-bold text-[#346178]"><Sparkles className="h-3 w-3" />{t("arcade.threeLevels")}</span></div></div></div>
             <span className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#24617F] px-5 text-sm font-extrabold text-white transition-colors group-hover:bg-[#194D67]">{t("arcade.playDetective")}<ChevronRight className="h-4 w-4" /></span>
           </button>
         </div>

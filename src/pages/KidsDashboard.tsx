@@ -50,7 +50,7 @@ const ACHIEVEMENT_ICONS: Record<AchievementId, LucideIcon> = {
 
 function KidsMascot() {
   return (
-    <svg viewBox="0 0 140 126" className="h-auto w-28 sm:w-32" aria-hidden="true">
+    <svg viewBox="0 0 140 126" className="kids-dashboard-mascot h-auto w-28 sm:w-32" aria-hidden="true">
       <circle cx="109" cy="23" r="6" fill="#FDE68A" />
       <path d="M24 18L28 26L37 28L30 34L32 43L24 39L16 43L18 34L11 28L20 26Z" fill="#F9C74F" />
       <rect x="36" y="25" width="68" height="77" rx="27" fill="#F9C74F" />
@@ -138,14 +138,14 @@ export default function KidsDashboard() {
           <div className="shrink-0 sm:-mr-2"><KidsMascot /></div>
         </div>
         <div className="mt-6 grid grid-cols-[1.15fr_0.85fr] gap-3">
-          <div className="rounded-2xl border border-[#F9C74F]/25 bg-[#173E3C] p-4">
+          <div className="kids-stat-card rounded-2xl border border-[#F9C74F]/25 bg-[#173E3C] p-3 sm:p-4">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[#BCE0D4]">{t("kids.allTimeScore")}</p>
             <p className="mt-1 font-display text-4xl font-black tabular-nums text-[#F9C74F] sm:text-5xl">{score}</p>
             <p className="mt-1 text-[11px] font-bold text-[#C5DDD8]">{t("kids.learningPoints")}</p>
           </div>
-          <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#10383D] p-4">
+          <div className="kids-stat-card flex flex-col justify-between rounded-2xl border border-white/10 bg-[#10383D] p-3 sm:p-4">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F9C74F] text-[#3D2D06]"><Crown className="h-5 w-5" /></span>
-            <div className="mt-3"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#BCE0D4]">{t("kids.globalRank")}</p><p className="mt-1 font-display text-xl font-black text-white">{rankLabel}</p></div>
+            <div className="mt-3"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#BCE0D4]">{t("kids.globalRank")}</p><p className="mt-1 break-words font-display text-lg font-black leading-tight text-white sm:text-xl">{rankLabel}</p></div>
           </div>
         </div>
         <div className="mt-3 flex items-center gap-2.5 rounded-2xl border border-[#F9C74F]/25 bg-[#2F432B] px-4 py-3">
@@ -153,7 +153,7 @@ export default function KidsDashboard() {
           <span className="text-xs font-bold text-[#FDE6AB]">{t("coins.safetyCoins")}</span>
           <strong className="ml-auto font-display text-xl font-black tabular-nums text-[#F9C74F]">{progress.score?.coins ?? 0}</strong>
         </div>
-        <div className="mt-3 flex items-center justify-between rounded-xl bg-[#08282E] px-3.5 py-2.5 text-[11px] font-semibold text-[#C5DDD8]">
+        <div className="kids-activities-summary mt-3 flex items-center justify-between rounded-xl bg-[#08282E] px-3.5 py-2.5 text-[11px] font-semibold text-[#C5DDD8]">
           <span>{t("kids.activitiesCount", { count: activities })}</span>
           <span className="inline-flex items-center gap-1.5"><Medal className="h-3.5 w-3.5 text-[#F9C74F]" />{t("kids.badgesCount", { count: unlockedCount, total: ACHIEVEMENT_IDS.length })}</span>
         </div>

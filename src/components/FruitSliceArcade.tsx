@@ -446,31 +446,31 @@ export function FruitSliceArcade({ initiallyOpen = false, onProgressChange }: { 
   }
 
   const preview = (
-    <section className="relative isolate overflow-hidden rounded-[2rem] border border-[#24514E] bg-[#08252D] p-6 text-white shadow-[0_24px_60px_-30px_rgba(3,29,35,0.9)] sm:p-8">
+    <section className="relative isolate overflow-hidden rounded-[2rem] border border-[#24514E] bg-[#08252D] p-5 text-white shadow-[0_24px_60px_-30px_rgba(3,29,35,0.9)] sm:p-7">
       <div className="absolute -right-20 -top-28 -z-10 h-80 w-80 rounded-full border-[45px] border-[#123B3F]" aria-hidden="true" />
-      <div className="grid items-center gap-6 sm:grid-cols-[1fr_180px]">
-        <div>
-          <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#7CE8C1]">
-            <Sparkles className="h-4 w-4" aria-hidden="true" />
+      <div className="grid grid-cols-[minmax(0,1fr)_92px] items-start gap-3 sm:grid-cols-[1fr_180px] sm:gap-5">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#7CE8C1]">
+            <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
             {t("arcade.teaserEyebrow")}
           </p>
-          <h2 className="mt-3 font-display text-3xl font-black tracking-[-0.04em] text-[#FFFCED] sm:text-4xl">{t("arcade.title")}</h2>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-[#C5DDD8]">{t("arcade.teaserDescription")}</p>
-          <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-extrabold uppercase tracking-wider text-[#DEF8EF]">
-            <span className="rounded-full border border-[#37675E] bg-[#10383D] px-3 py-1.5">{t("arcade.threeModes")}</span>
-            <span className="rounded-full border border-[#37675E] bg-[#10383D] px-3 py-1.5">{t("arcade.touchMouse")}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="mt-6 inline-flex min-h-13 items-center gap-3 rounded-2xl bg-[#F9C74F] px-6 py-3.5 text-sm font-black text-[#302203] shadow-[0_5px_0_#B77B14] transition-all hover:-translate-y-0.5 hover:bg-[#FFDA70] active:translate-y-1 active:shadow-none"
-          >
-            <Play className="h-5 w-5 fill-current" aria-hidden="true" />
-            {t("arcade.playNow")}
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </button>
+          <h2 className="mt-3 font-display text-2xl font-black tracking-[-0.04em] text-[#FFFCED] sm:text-4xl">{t("arcade.title")}</h2>
+          <p className="mt-3 max-w-md text-xs leading-relaxed text-[#C5DDD8] sm:text-sm">{t("arcade.teaserDescription")}</p>
         </div>
-        <div className="fruit-arcade-float mx-auto hidden w-44 sm:block"><FruitPreviewArt /></div>
+        <div className="fruit-arcade-float mx-auto w-full"><FruitPreviewArt /></div>
+        <div className="col-span-2 flex flex-wrap gap-2 text-[10px] font-extrabold uppercase tracking-wider text-[#DEF8EF] sm:col-span-2">
+          <span className="rounded-full border border-[#37675E] bg-[#10383D] px-3 py-1.5">{t("arcade.threeModes")}</span>
+          <span className="rounded-full border border-[#37675E] bg-[#10383D] px-3 py-1.5">{t("arcade.touchMouse")}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="col-span-2 inline-flex min-h-13 w-full items-center justify-center gap-3 rounded-2xl bg-[#F9C74F] px-5 py-3.5 text-sm font-black text-[#302203] shadow-[0_5px_0_#B77B14] transition-all hover:-translate-y-0.5 hover:bg-[#FFDA70] active:translate-y-1 active:shadow-none"
+        >
+          <Play className="h-5 w-5 fill-current" aria-hidden="true" />
+          {t("arcade.playNow")}
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        </button>
       </div>
     </section>
   );

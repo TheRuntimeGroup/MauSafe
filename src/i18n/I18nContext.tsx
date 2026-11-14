@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { translations, type Lang } from "./translations";
+import { arcadeTranslations } from "./arcadeTranslations";
 
 const STORAGE_KEY = "anou.lang";
 
@@ -42,7 +43,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = useMemo(
     () => (key: string, vars?: Record<string, string | number>) => {
-      let str = translations[lang]?.[key] ?? translations.en[key] ?? key;
+      const merged = { ...translations[lang], ...arcadeTranslations[lang] };
+      const mergedEn = { ...translations.en, ...arcadeTranslations.en };
+      let str = merged[key] ?? mergedEn[key] ?? key;
       if (vars) {
         for (const [k, v] of Object.entries(vars)) {
           str = str.split(`{${k}}`).join(String(v));
